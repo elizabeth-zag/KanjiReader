@@ -1,46 +1,35 @@
-﻿using KanjiReader.Infrastructure.Database.Models;
-using KanjiReader.Presentation.Dtos;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using KanjiReader.Domain.UserAccount;
+using KanjiReader.Presentation.Dtos.LogIn;
+using KanjiReader.Presentation.Dtos.Register;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 namespace KanjiReader.Presentation.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/Login")]
 public class LoginController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
     private readonly IConfiguration _config;
+    private readonly UserAccountService _userAccountService;
     
     public LoginController(
-        UserManager<User> userManager,
-        SignInManager<User> signInManager,
-        IConfiguration config)
+        IConfiguration config, UserAccountService userAccountService)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
         _config = config;
+        _userAccountService = userAccountService;
     }
     
     [HttpPost("register")]
-    public void Register(RegisterRequest dto)
+    public async Task<RegisterResponse> Register(RegisterRequest dto)
     {
-        
+        return await _userAccountService.Register(dto, DateTime.UtcNow);
     }
+
     
     [HttpPost("login")]
-    public void LogIn(LogInRequest dto)
+    public async Task<LogInResponse> LogIn(LogInRequest dto)
     {
-        
-    }
-
-    [HttpPost("logout")]
-    public void LogOut()
-    {
-
+        return await _userAccountService.LogIn(dto, DateTime.UtcNow);
     }
 }

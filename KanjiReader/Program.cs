@@ -2,61 +2,68 @@
 
 using System.Text;
 using KanjiReader.Domain.TextProcessing;
+using KanjiReader.Domain.UserAccount;
 using KanjiReader.Domain.WaniKani;
 using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 using KanjiReader.ExternalServices.WaniKani;
 using KanjiReader.Infrastructure.Database.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
-var host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
-    {
-        services.AddDbContext<KanjiReaderDbContext>(options =>
-            options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")));
-        
-        services.AddIdentity<User, IdentityRole>()
-            .AddEntityFrameworkStores<KanjiReaderDbContext>()
-            .AddDefaultTokenProviders();
-
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = context.Configuration["Jwt:Issuer"],
-                    ValidAudience = context.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(context.Configuration["Jwt:Key"]))
-                };
-            });
-        
-        services.AddHttpClient(); 
-        services.AddScoped<WaniKaniClient>();
-        services.AddScoped<WatanocClient>();
-        services.AddScoped<WaniKaniService>();
-        services.AddScoped<TextProcessingService>();
-    })
-    .Build();
+var builder = WebApplication.CreateBuilder(args);
     
-using var serviceScope = host.Services.CreateScope();
-var provider = serviceScope.ServiceProvider;
 
-var myService = provider.GetRequiredService<TextProcessingService>();
-await myService.ProcessText();
+builder.Services.AddDbContext<KanjiReaderDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<KanjiReaderDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddControllers();
+builder.Services.AddHttpClient(); 
+
+builder.Services.AddScoped<WaniKaniClient>();
+builder.Services.AddScoped<WatanocClient>();
+builder.Services.AddScoped<WaniKaniService>();
+builder.Services.AddScoped<TextProcessingService>();
+builder.Services.AddScoped<UserAccountService>();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+// app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
 
 // SQL storage
 // AI generated texts

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KanjiReader.Migrations
 {
     [DbContext(typeof(KanjiReaderDbContext))]
-    partial class KanjiReaderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250707114407_RemoveUnnecessaryFieldsUser")]
+    partial class RemoveUnnecessaryFieldsUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,6 +101,7 @@ namespace KanjiReader.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<string>("WaniKaniToken")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
