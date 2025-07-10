@@ -1,4 +1,5 @@
-﻿using KanjiReader.Infrastructure.Database.Models;
+﻿using System.Security.Claims;
+using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.LogIn;
 using KanjiReader.Presentation.Dtos.Register;
 using Microsoft.AspNetCore.Identity;
@@ -24,8 +25,4 @@ public class UserAccountConverter
             : new RegisterResponse {  StatusCode = RegistrationResultStatusCode.ValidationFailure };
     }
     
-    public static LogInResponse Convert(LogInResultStatusCode statusCode, string jwtToken)
-    {
-        return new LogInResponse {  StatusCode = statusCode };
-    }
 }
