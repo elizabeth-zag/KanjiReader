@@ -1,6 +1,6 @@
 ﻿using KanjiReader.ExternalServices.WaniKani;
 
-namespace KanjiReader.Domain.WaniKani;
+namespace KanjiReader.Domain.Kanji.WaniKani;
 
 public class WaniKaniService
 {

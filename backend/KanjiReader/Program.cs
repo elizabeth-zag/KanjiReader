@@ -1,28 +1,33 @@
 ﻿using KanjiReader.Domain.EventHandler;
+using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.UserAccount;
-using KanjiReader.Domain.WaniKani;
 using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 using KanjiReader.ExternalServices.WaniKani;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Database.Repositories;
+using KanjiReader.Infrastructure.Redis;
+using KanjiReader.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
     
 
 builder.Services.AddDbContext<KanjiReaderDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("SqlConnection")));
 
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<KanjiReaderDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("REDIS_URL")!));
 
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddCookie(options =>
@@ -55,6 +60,7 @@ builder.Services.AddScoped<TextProcessingService>();
 builder.Services.AddScoped<UserAccountService>();
 builder.Services.AddScoped<StartGeneratingHandler>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddSingleton<IKanjiRepository, RedisKanjiRepository>();
 builder.Services.AddHostedService<EventHandlerService>();
 
 var app = builder.Build();
