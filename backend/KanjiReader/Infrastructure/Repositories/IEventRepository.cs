@@ -1,6 +1,6 @@
 ﻿using KanjiReader.Infrastructure.Database.Models.Events;
 
-namespace KanjiReader.Infrastructure.Database.Repositories;
+namespace KanjiReader.Infrastructure.Repositories;
 
 public interface IEventRepository
 {
