@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Presentation.Dtos.Register;
+﻿namespace KanjiReader.Presentation.Dtos.Login;
 
 public enum RegistrationResultStatusCode
 {

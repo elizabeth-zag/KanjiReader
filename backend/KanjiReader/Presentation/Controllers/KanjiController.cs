@@ -1,10 +1,12 @@
 ﻿using KanjiReader.Domain.UserAccount;
-using KanjiReader.Presentation.Dtos.WaniKaniToken;
+using KanjiReader.Presentation.Dtos.Kanji;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KanjiReader.Presentation.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/kanji")]
 public class KanjiController : ControllerBase
 {

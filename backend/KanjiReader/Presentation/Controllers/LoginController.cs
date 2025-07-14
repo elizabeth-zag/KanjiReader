@@ -1,6 +1,5 @@
 ﻿using KanjiReader.Domain.UserAccount;
-using KanjiReader.Presentation.Dtos.LogIn;
-using KanjiReader.Presentation.Dtos.Register;
+using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
