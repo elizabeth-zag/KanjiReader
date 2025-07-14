@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Infrastructure.Database.Models.Events;
+﻿namespace KanjiReader.Domain.DomainObjects.EventData;
 
 public class StartGeneratingData
 {

@@ -1,9 +1,9 @@
-﻿using KanjiReader.Infrastructure.Database.Models.Events;
+﻿using KanjiReader.Domain.DomainObjects;
 
 namespace KanjiReader.Infrastructure.Repositories;
 
 public interface IEventRepository
 {
-    Task<IReadOnlyCollection<Event>> GetAll();
-    Task Create(IReadOnlyCollection<Event> @event);
+    Task<IReadOnlyCollection<Event>> GetByType(EventType eventType, CancellationToken cancellationToken);
+    Task Create(IReadOnlyCollection<Event> events, CancellationToken cancellationToken);
 }

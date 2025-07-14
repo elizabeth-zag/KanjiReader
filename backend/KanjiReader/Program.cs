@@ -1,6 +1,7 @@
-﻿using KanjiReader.Domain.EventHandler;
+﻿using KanjiReader.Domain.EventHandlers.StartGenerating;
+using KanjiReader.Domain.EventHandlers.WatanocParsing;
+using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
-using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 using KanjiReader.ExternalServices.WaniKani;
@@ -8,6 +9,7 @@ using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Database.Repositories;
 using KanjiReader.Infrastructure.Redis;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Mapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -50,18 +52,20 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddControllers();
 builder.Services.AddHttpClient(); 
 
 builder.Services.AddScoped<WaniKaniClient>();
 builder.Services.AddScoped<WatanocClient>();
 builder.Services.AddScoped<WaniKaniService>();
-builder.Services.AddScoped<TextProcessingService>();
 builder.Services.AddScoped<UserAccountService>();
-builder.Services.AddScoped<StartGeneratingHandler>();
+builder.Services.AddScoped<KanjiService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
-builder.Services.AddSingleton<IKanjiRepository, RedisKanjiRepository>();
-builder.Services.AddHostedService<EventHandlerService>();
+builder.Services.AddScoped<IKanjiRepository, RedisKanjiRepository>();
+builder.Services.AddHostedService<WatanocParsingHandler>();
+builder.Services.AddHostedService<StartGeneratingHandler>();
 
 var app = builder.Build();
 

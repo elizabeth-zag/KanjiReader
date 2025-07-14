@@ -12,20 +12,20 @@ public class RedisKanjiRepository : IKanjiRepository
         _redis = redis;
     }
 
-    public async Task SetUserKanji(string userId, char[] kanji)
+    public async Task SetUserKanji(string userId, IReadOnlySet<char> kanji)
     {
         var key = $"userid:{userId}";
-        var value = new string(kanji);
+        var value = new string(kanji.ToArray());
         
         var db = _redis.GetDatabase();
         await db.StringSetAsync(key, value);
     }
 
-    public async Task<char[]> GetUserKanji(string userId)
+    public async Task<IReadOnlySet<char>> GetUserKanji(string userId)
     {
         var db = _redis.GetDatabase();
         var result = await db.StringGetAsync(userId);
         
-        return result.ToString().ToCharArray();
+        return result.ToString().ToCharArray().ToHashSet();
     }
 }

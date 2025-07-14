@@ -1,4 +1,5 @@
 ﻿using KanjiReader.Domain.Kanji.WaniKani;
+using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 
 namespace KanjiReader.Domain.Kanji;
@@ -14,13 +15,16 @@ public class KanjiService
         _kanjiRepository = kanjiRepository;
     }
 
-    public async Task GetKanji(string userId)
+    public async Task<IReadOnlyCollection<char>> GetUserKanji(User user, CancellationToken cancellationToken)
     {
-        var kanji = await _kanjiRepository.GetUserKanji(userId);
+        var kanji = await _kanjiRepository.GetUserKanji(user.Id);
 
-        if (kanji.Length == 0)
+        if (!kanji.Any())
         {
-            _waniKaniService.GetWaniKaniKanji(userId);
+            kanji = await _waniKaniService.GetWaniKaniKanji(user.WaniKaniToken, cancellationToken);
+            await _kanjiRepository.SetUserKanji(user.Id, kanji);
         }
+
+        return kanji;
     }
 }

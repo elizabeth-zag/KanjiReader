@@ -11,14 +11,12 @@ public class WatanocClient
         _httpClient = httpClientFactory.CreateClient();
     }
 
-    public async Task<string[]> GetArticleUrls(int pageNumber)
+    public async Task<string[]> GetArticleUrls(string category, int pageNumber)
     {
         var urls = new List<string>();
-        
-        using var client = new HttpClient();
-        var result = await client.GetStringAsync($"https://watanoc.com/category/japan-fun/page/{pageNumber}");
-        
         var doc = new HtmlDocument();
+        
+        var result = await _httpClient.GetStringAsync($"https://watanoc.com/category/{category}/page/{pageNumber}");
         doc.LoadHtml(result);
 
         var links = doc.DocumentNode

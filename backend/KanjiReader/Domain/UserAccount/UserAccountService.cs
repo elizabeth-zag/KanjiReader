@@ -1,4 +1,5 @@
-﻿using KanjiReader.Infrastructure.Database.Models;
+﻿using System.Security.Claims;
+using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.LogIn;
 using KanjiReader.Presentation.Dtos.Register;
 using Microsoft.AspNetCore.Identity;
@@ -12,16 +13,13 @@ public class UserAccountService
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
-    private readonly IConfiguration _configuration;
 
     public UserAccountService(
         UserManager<User> userManager, 
-        SignInManager<User> signInManager, 
-        IConfiguration configuration)
+        SignInManager<User> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _configuration = configuration;
     }
 
     public async Task<RegisterResponse> Register(RegisterRequest dto, DateTime loginTime)
@@ -61,27 +59,18 @@ public class UserAccountService
             return ex.Message;
         }
     }
+    
+    public async Task<User> GetById(string userId)
+    {
+        return await _userManager.FindByIdAsync(userId); // todo: NRE
+    }
+    
+    public async Task<bool> SetWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
+    {
+        var user = await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+        user.WaniKaniToken = token;
+        var result = await _userManager.UpdateAsync(user);
 
-    // public async Task<LogInResponse> LogInWithJWT(LogInRequest dto, DateTime loginTime) // second option for nowd
-    // {
-    //     var claims = new[]
-    //     {
-    //         new Claim(JwtRegisteredClaimNames.Sub, "user.Id"),
-    //         new Claim(JwtRegisteredClaimNames.UniqueName, "user.UserName")
-    //     };
-    //     
-    //     // Generate JWT token
-    //     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-    //     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-    //     
-    //     var token = new JwtSecurityToken(
-    //         issuer: _configuration["Jwt:Issuer"],
-    //         audience: _configuration["Jwt:Audience"],
-    //         claims: claims,
-    //         expires: DateTime.Now.AddHours(2),
-    //         signingCredentials: creds
-    //     );
-    //     
-    //     var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-    // }
+        return result.Succeeded;
+    }
 }
