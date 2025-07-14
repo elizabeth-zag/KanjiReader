@@ -1,6 +1,8 @@
-﻿namespace KanjiReader.Infrastructure.Database.Models.Events;
+﻿using KanjiReader.Domain.DomainObjects;
 
-public class Event
+namespace KanjiReader.Infrastructure.Database.Models;
+
+public class EventDb
 {
     public int Id { get; set; }
     public string UserId { get; set; }

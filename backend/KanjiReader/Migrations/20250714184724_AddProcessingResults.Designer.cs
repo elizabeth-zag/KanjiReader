@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KanjiReader.Migrations
 {
     [DbContext(typeof(KanjiReaderDbContext))]
-    partial class KanjiReaderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250714184724_AddProcessingResults")]
+    partial class AddProcessingResults
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,7 +24,7 @@ namespace KanjiReader.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.EventDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Events.EventDb", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -46,6 +49,27 @@ namespace KanjiReader.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Events", (string)null);
+                });
+
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Kanji", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Character")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Meaning")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Kanji");
                 });
 
             modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResultDb", b =>
@@ -140,6 +164,21 @@ namespace KanjiReader.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.UserKanji", b =>
+                {
+                    b.Property<int>("KanjiId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("KanjiId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserKanji");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -285,6 +324,25 @@ namespace KanjiReader.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.UserKanji", b =>
+                {
+                    b.HasOne("KanjiReader.Infrastructure.Database.Models.Kanji", "Kanji")
+                        .WithMany("UserKanjis")
+                        .HasForeignKey("KanjiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KanjiReader.Infrastructure.Database.Models.User", "User")
+                        .WithMany("UserKanjis")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Kanji");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -334,6 +392,16 @@ namespace KanjiReader.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Kanji", b =>
+                {
+                    b.Navigation("UserKanjis");
+                });
+
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.User", b =>
+                {
+                    b.Navigation("UserKanjis");
                 });
 #pragma warning restore 612, 618
         }
