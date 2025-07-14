@@ -1,12 +1,11 @@
-﻿using System.Security.Claims;
+﻿using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.Models;
-using KanjiReader.Presentation.Dtos.LogIn;
-using KanjiReader.Presentation.Dtos.Register;
+using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Identity;
 
-namespace KanjiReader.Domain.UserAccount;
+namespace KanjiReader.Domain.Common;
 
-public class UserAccountConverter
+public class CommonConverter
 {
     public static User Convert(RegisterRequest request, DateTime loginTime)
     {
@@ -25,4 +24,12 @@ public class UserAccountConverter
             : new RegisterResponse {  StatusCode = RegistrationResultStatusCode.ValidationFailure };
     }
     
+    public static GenerationSourceType Convert(string sourceType)
+    {
+        return sourceType switch
+        {
+            "Watanoc" => GenerationSourceType.Watanoc,
+            _ => GenerationSourceType.Unspecified
+        };
+    }
 }

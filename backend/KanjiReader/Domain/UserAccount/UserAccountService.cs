@@ -1,10 +1,8 @@
 ﻿using System.Security.Claims;
+using KanjiReader.Domain.Common;
 using KanjiReader.Infrastructure.Database.Models;
-using KanjiReader.Presentation.Dtos.LogIn;
-using KanjiReader.Presentation.Dtos.Register;
+using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using RegisterRequest = KanjiReader.Presentation.Dtos.Register.RegisterRequest;
 
 namespace KanjiReader.Domain.UserAccount;
 
@@ -26,9 +24,9 @@ public class UserAccountService
     {
         try
         {
-            var user = UserAccountConverter.Convert(dto, loginTime);
+            var user = CommonConverter.Convert(dto, loginTime);
             var result = await _userManager.CreateAsync(user, dto.Password);
-            return UserAccountConverter.Convert(result);
+            return CommonConverter.Convert(result);
         }
         catch (Exception ex)
         {
@@ -65,9 +63,14 @@ public class UserAccountService
         return await _userManager.FindByIdAsync(userId); // todo: NRE
     }
     
+    public async Task<User> GetByClaims(ClaimsPrincipal claimsPrincipal)
+    {
+        return await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+    }
+    
     public async Task<bool> SetWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
     {
-        var user = await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+        var user = await GetByClaims(claimsPrincipal); // todo: NRE
         user.WaniKaniToken = token;
         var result = await _userManager.UpdateAsync(user);
 

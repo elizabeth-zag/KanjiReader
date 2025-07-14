@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Presentation.Dtos.WaniKaniToken;
+﻿namespace KanjiReader.Presentation.Dtos.Kanji;
 
 public class SetWaniKaniTokenRequest
 {

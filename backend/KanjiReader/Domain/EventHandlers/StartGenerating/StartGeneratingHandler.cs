@@ -9,13 +9,8 @@ namespace KanjiReader.Domain.EventHandlers.StartGenerating;
 
 public class StartGeneratingHandler(IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {
-    private Dictionary<string, int> _watanocCategoryPages = new()
-    {
-        { "japan-fun", 21 },
-        { "japan-news", 8 },
-        { "simplejapanese", 5 } // todo: config
-    };
     private IEventRepository _eventRepository;
+    private CreateEventsService _createEventsService;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -24,6 +19,7 @@ public class StartGeneratingHandler(IServiceScopeFactory serviceScopeFactory) : 
             using IServiceScope scope = serviceScopeFactory.CreateScope();
 
             _eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
+            _createEventsService = scope.ServiceProvider.GetRequiredService<CreateEventsService>();
             
             var events = await _eventRepository.GetByType(EventType.StartGenerating, cancellationToken);
 
@@ -39,36 +35,15 @@ public class StartGeneratingHandler(IServiceScopeFactory serviceScopeFactory) : 
 
     private async Task Execute(string userId, StartGeneratingData data, CancellationToken cancellationToken)
     {
+        
         foreach (var sourceType in data.SourceTypes)
         {
             switch (sourceType)
             {
                 case GenerationSourceType.Watanoc:
-                    await CreateWatatocTasks(userId, cancellationToken);
+                    await _createEventsService.CreateWatatocEvents(userId, cancellationToken);
                     break;
             }
         }
-    }
-
-    private async Task CreateWatatocTasks(string userId, CancellationToken cancellationToken)
-    {
-        var data = new List<WatanocParsingData>();
-
-        foreach (var (category, lastPage) in _watanocCategoryPages)
-        {
-            data.AddRange(Enumerable.Range(1, lastPage)
-                .Select(x => new WatanocParsingData
-                {
-                    Category = category, PageNumber = x
-                }));
-        }
-
-        var events = data.Select(d => new Event(
-            userId,
-            EventType.WatanocParsing,
-            JsonSerializer.Serialize(d),
-            DateTime.UtcNow)).ToArray();
-
-        await _eventRepository.Create(events, cancellationToken);
     }
 }
