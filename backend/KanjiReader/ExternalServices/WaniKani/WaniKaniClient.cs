@@ -6,11 +6,10 @@ namespace KanjiReader.ExternalServices.WaniKani;
 
 public class WaniKaniClient
 {
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     
     public WaniKaniClient(IHttpClientFactory httpClientFactory)
     {
-        // todo: authorization token move to a secure storage 
         _httpClient = httpClientFactory.CreateClient();
     }
     

@@ -3,11 +3,11 @@ using StackExchange.Redis;
 
 namespace KanjiReader.Infrastructure.Redis;
 
-public class RedisKanjiRepository : IKanjiRepository
+public class RedisKanjiCacheRepository : IKanjiCacheRepository
 {
     private readonly IConnectionMultiplexer _redis;
 
-    public RedisKanjiRepository(IConnectionMultiplexer redis)
+    public RedisKanjiCacheRepository(IConnectionMultiplexer redis)
     {
         _redis = redis;
     }
