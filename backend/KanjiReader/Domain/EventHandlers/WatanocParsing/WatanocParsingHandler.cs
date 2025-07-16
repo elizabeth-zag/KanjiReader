@@ -30,7 +30,7 @@ public class WatanocParsingHandler(
 
             SetScopedDependencies(scope);
             
-            var events = await _eventRepository.GetByType(EventType.StartGenerating, cancellationToken);
+            var events = await _eventRepository.GetByType(EventType.WatanocParsing, cancellationToken);
 
             foreach (var ev in events)
             {
@@ -75,7 +75,8 @@ public class WatanocParsingHandler(
                 suitableResult.Add(new ProcessingResult(
                     user.Id,
                     resultText,
-                    url));
+                    url,
+                    false));
             }
                 
         }

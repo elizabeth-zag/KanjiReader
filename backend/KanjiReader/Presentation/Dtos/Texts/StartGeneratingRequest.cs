@@ -1,6 +1,10 @@
-﻿namespace KanjiReader.Presentation.Dtos.Texts;
+﻿using System.Text.Json.Serialization;
+using KanjiReader.Domain.DomainObjects;
+
+namespace KanjiReader.Presentation.Dtos.Texts;
 
 public class StartGeneratingRequest
 {
-    public string[] SourceTypes { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public GenerationSourceType[] SourceTypes { get; set; }
 }
