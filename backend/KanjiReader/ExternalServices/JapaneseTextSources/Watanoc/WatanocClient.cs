@@ -4,7 +4,7 @@ namespace KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 
 public class WatanocClient
 {
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     
     public WatanocClient(IHttpClientFactory httpClientFactory)
     {

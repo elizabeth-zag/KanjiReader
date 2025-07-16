@@ -5,16 +5,28 @@ using Microsoft.AspNetCore.Identity;
 
 namespace KanjiReader.Domain.Common;
 
-public class CommonConverter
+public static class CommonConverter
 {
     public static User Convert(RegisterRequest request, DateTime loginTime)
     {
-        return new User
+        var user = new User
         {
             UserName = request.UserName, 
             Email = request.Email,
             LastLogin = loginTime
         };
+
+        if (string.IsNullOrEmpty(request.WaniKaniToken))
+        {
+            user.KanjiSourceType = KanjiSourceType.ManualSelection;
+        }
+        else
+        {
+            user.KanjiSourceType = KanjiSourceType.WaniKani;
+            user.WaniKaniToken = request.WaniKaniToken;
+        }
+
+        return user;
     }
     
     public static RegisterResponse Convert(IdentityResult result)
@@ -22,14 +34,5 @@ public class CommonConverter
         return result.Succeeded 
             ? new RegisterResponse { StatusCode = RegistrationResultStatusCode.Success }
             : new RegisterResponse {  StatusCode = RegistrationResultStatusCode.ValidationFailure };
-    }
-    
-    public static GenerationSourceType Convert(string sourceType)
-    {
-        return sourceType switch
-        {
-            "Watanoc" => GenerationSourceType.Watanoc,
-            _ => GenerationSourceType.Unspecified
-        };
     }
 }

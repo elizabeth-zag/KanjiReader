@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using KanjiReader.Domain.Common;
+using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,7 @@ public class UserAccountService
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private User? CurrentUser;
 
     public UserAccountService(
         UserManager<User> userManager, 
@@ -60,20 +62,57 @@ public class UserAccountService
     
     public async Task<User> GetById(string userId)
     {
-        return await _userManager.FindByIdAsync(userId); // todo: NRE
+        if (CurrentUser == null)
+        {
+            CurrentUser = await _userManager.FindByIdAsync(userId); // todo: NRE
+        }
+        return CurrentUser; 
     }
     
     public async Task<User> GetByClaims(ClaimsPrincipal claimsPrincipal)
     {
-        return await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+        if (CurrentUser == null)
+        {
+            CurrentUser = await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+        }
+
+        return CurrentUser;
     }
     
-    public async Task<bool> SetWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
+    public async Task<bool> UpdateWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
     {
-        var user = await GetByClaims(claimsPrincipal); // todo: NRE
+        var user = await GetByClaims(claimsPrincipal);
         user.WaniKaniToken = token;
+        user.KanjiSourceType = KanjiSourceType.WaniKani;
         var result = await _userManager.UpdateAsync(user);
 
-        return result.Succeeded;
+        return result.Succeeded; // todo: handle errors
+    }
+    
+    public async Task UpdateKanjiSourceType(ClaimsPrincipal claimsPrincipal, KanjiSourceType kanjiSourceType)
+    {
+        var user = await GetByClaims(claimsPrincipal);
+        user.KanjiSourceType = kanjiSourceType;
+        await _userManager.UpdateAsync(user);
+    }
+    
+    public async Task UpdateName(ClaimsPrincipal claimsPrincipal, string name)
+    {
+        var user = await GetByClaims(claimsPrincipal);
+        user.UserName = name;
+        await _userManager.UpdateAsync(user);
+    }
+    
+    public async Task UpdateEmail(ClaimsPrincipal claimsPrincipal, string email)
+    {
+        var user = await GetByClaims(claimsPrincipal);
+        user.Email = email;
+        await _userManager.SetEmailAsync(user, email);
+    }
+    
+    public async Task UpdatePassword(ClaimsPrincipal claimsPrincipal, string oldPassword, string newPassword)
+    {
+        var user = await GetByClaims(claimsPrincipal);
+        await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
     }
 }
