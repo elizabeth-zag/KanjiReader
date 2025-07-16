@@ -3,9 +3,12 @@ using KanjiReader.Domain.EventHandlers.StartGenerating;
 using KanjiReader.Domain.EventHandlers.WatanocParsing;
 using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
+using KanjiReader.Domain.Text;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
+using KanjiReader.ExternalServices.KanjiApi;
 using KanjiReader.ExternalServices.WaniKani;
+using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Database.Repositories;
 using KanjiReader.Infrastructure.Redis;
@@ -60,12 +63,19 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<WaniKaniClient>();
 builder.Services.AddScoped<WatanocClient>();
+builder.Services.AddScoped<KanjiApiClient>();
+
 builder.Services.AddScoped<WaniKaniService>();
 builder.Services.AddScoped<UserAccountService>();
 builder.Services.AddScoped<KanjiService>();
 builder.Services.AddScoped<CreateEventsService>();
+builder.Services.AddScoped<TextService>();
+
 builder.Services.AddScoped<IEventRepository, EventRepository>();
-builder.Services.AddScoped<IKanjiRepository, RedisKanjiRepository>();
+builder.Services.AddScoped<IKanjiCacheRepository, RedisKanjiCacheRepository>();
+builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
+builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
+
 builder.Services.AddHostedService<WatanocParsingHandler>();
 builder.Services.AddHostedService<StartGeneratingHandler>();
 
@@ -85,8 +95,9 @@ app.Run();
 
 // AI generated texts
 // More text sources
-// Kanji selection from dictionary
 // exception middleware
 // retries
-// remove read text
 // filter existing texts on repeated searches
+// maybe use hangfire/quartz for background tasks
+// remove events after processing
+// start generation event
