@@ -35,7 +35,8 @@ namespace KanjiReader.Migrations
                 name: "ProcessingResults",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
                     Url = table.Column<string>(type: "text", nullable: false)

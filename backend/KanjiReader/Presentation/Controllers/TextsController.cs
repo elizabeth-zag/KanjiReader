@@ -1,5 +1,6 @@
-﻿using KanjiReader.Domain.EventHandlers;
-using KanjiReader.Presentation.Dtos.Login;
+﻿using AutoMapper;
+using KanjiReader.Domain.EventHandlers;
+using KanjiReader.Domain.Text;
 using KanjiReader.Presentation.Dtos.Texts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,13 @@ namespace KanjiReader.Presentation.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/texts")]
-public class TextsController(CreateEventsService createEventsService) : ControllerBase
+public class TextsController(CreateEventsService createEventsService, TextService textService,
+    IMapper mapper) : ControllerBase
 {
-
     [HttpPost(nameof(GetGenerationSources))]
-    public Task<GetGenerationSourcesResponse> GetGenerationSources()
+    public GetGenerationSourcesResponse GetGenerationSources()
     {
-        return Task.FromResult(new GetGenerationSourcesResponse { Sources = ["Watanoc"] }); // todo: store sources somewhere
+        return new GetGenerationSourcesResponse { Sources = ["Watanoc"] }; // todo: store sources somewhere
     }
 
     [HttpPost(nameof(StartGenerating))]
@@ -24,9 +25,35 @@ public class TextsController(CreateEventsService createEventsService) : Controll
         await createEventsService.CreateStartGeneratingEvents(User, dto.SourceTypes.ToHashSet(), cancellationToken);
     }
 
-    [HttpPost(nameof(StartGenerating))]
-    public async Task GetProcessedText(StartGeneratingRequest dto, CancellationToken cancellationToken)
+    [HttpPost(nameof(GetProcessedTexts))]
+    public async Task<GetProcessedTextsResponse> GetProcessedTexts(GetProcessedTextsRequest dto, 
+        CancellationToken cancellationToken)
     {
-        await createEventsService.CreateStartGeneratingEvents(User, dto.SourceTypes.ToHashSet(), cancellationToken);
+        var processedTexts = await textService.GetProcessedTexts(
+            User, dto.PageNumber, dto.PageSize, cancellationToken);
+
+        return new GetProcessedTextsResponse
+        {
+            ProcessedTexts = mapper.Map<ProcessingResultDto[]>(processedTexts)
+        };
+    }
+
+    [HttpPost(nameof(GetRemovedTexts))]
+    public async Task<GetRemovedTextsResponse> GetRemovedTexts(GetRemovedTextsRequest dto,
+        CancellationToken cancellationToken)
+    {
+        var removedTexts = await textService.GetRemovedTexts(
+            User, dto.PageNumber, dto.PageSize, cancellationToken);
+
+        return new GetRemovedTextsResponse
+        {
+            RemovedTexts = mapper.Map<ProcessingResultDto[]>(removedTexts)
+        };
+    }
+
+    [HttpPost(nameof(RemoveTexts))]
+    public async Task RemoveTexts(RemoveTextsRequest dto, CancellationToken cancellationToken)
+    {
+        await textService.RemoveTexts(dto.TextIds, cancellationToken);
     }
 }

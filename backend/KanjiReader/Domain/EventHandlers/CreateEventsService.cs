@@ -18,12 +18,12 @@ public class CreateEventsService(IEventRepository eventRepository, UserAccountSe
     };
 
     public async Task CreateStartGeneratingEvents(ClaimsPrincipal claimsPrincipal, 
-        IReadOnlySet<string> sourceTypes, CancellationToken cancellationToken)
+        IReadOnlySet<GenerationSourceType> sourceTypes, CancellationToken cancellationToken)
     {
         var user = await userAccountService.GetByClaims(claimsPrincipal);
         var data = new StartGeneratingData
         {
-            SourceTypes = sourceTypes.Select(CommonConverter.Convert).ToArray(),
+            SourceTypes = sourceTypes.Where(t => t != GenerationSourceType.Unspecified).ToArray(),
         };
 
         var ev = new Event(

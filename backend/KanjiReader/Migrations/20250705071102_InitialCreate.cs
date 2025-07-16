@@ -61,8 +61,7 @@ namespace KanjiReader.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Character = table.Column<string>(type: "text", nullable: false),
-                    Meaning = table.Column<string>(type: "text", nullable: false)
+                    Character = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
