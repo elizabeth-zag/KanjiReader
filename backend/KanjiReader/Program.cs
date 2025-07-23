@@ -64,6 +64,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<WaniKaniClient>();
 builder.Services.AddScoped<WatanocClient>();
 builder.Services.AddScoped<KanjiApiClient>();
+builder.Services.AddScoped<NhkClient>();
+builder.Services.AddScoped<SatoriReaderClient>();
+builder.Services.AddScoped<GoogleGenerativeAiClient>();
 
 builder.Services.AddScoped<WaniKaniService>();
 builder.Services.AddScoped<UserAccountService>();

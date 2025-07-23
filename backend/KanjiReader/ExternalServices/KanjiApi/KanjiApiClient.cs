@@ -15,6 +15,7 @@ public class KanjiApiClient
     public async Task<IReadOnlySet<char>> GetKanjiList(IReadOnlyCollection<KanjiListType> kanjiListTypes, 
         CancellationToken cancellationToken)
     {
+        // todo: maybe use semaphore here
         Task<IReadOnlySet<char>>[] tasks = kanjiListTypes
             .Select(t => GetKanjiList(t, cancellationToken))
             .ToArray();
