@@ -1,6 +1,7 @@
 ﻿using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.Login;
+using KanjiReader.Presentation.Dtos.Texts;
 using Microsoft.AspNetCore.Identity;
 
 namespace KanjiReader.Domain.Common;
@@ -29,10 +30,12 @@ public static class CommonConverter
         return user;
     }
     
-    public static RegisterResponse Convert(IdentityResult result)
+    public static ProcessingResultDto Convert(ProcessingResult result)
     {
-        return result.Succeeded 
-            ? new RegisterResponse { StatusCode = RegistrationResultStatusCode.Success }
-            : new RegisterResponse {  StatusCode = RegistrationResultStatusCode.ValidationFailure };
+        return new ProcessingResultDto
+        {
+            Text = result.Text,
+            Url = result.Url
+        };
     }
 }

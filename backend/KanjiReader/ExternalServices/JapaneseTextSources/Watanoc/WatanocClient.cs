@@ -11,12 +11,13 @@ public class WatanocClient
         _httpClient = httpClientFactory.CreateClient();
     }
 
-    public async Task<string[]> GetArticleUrls(string category, int pageNumber)
+    public async Task<string[]> GetArticleUrls(string category, int pageNumber, CancellationToken cancellationToken)
     {
         var urls = new List<string>();
         var doc = new HtmlDocument();
         
-        var result = await _httpClient.GetStringAsync($"https://watanoc.com/category/{category}/page/{pageNumber}");
+        var result = await _httpClient.GetStringAsync(
+            $"https://watanoc.com/category/{category}/page/{pageNumber}", cancellationToken);
         doc.LoadHtml(result);
 
         var links = doc.DocumentNode
@@ -34,10 +35,10 @@ public class WatanocClient
         return urls.ToArray();
     }
     
-    public async Task<string> GetHtml(string url)
+    public async Task<string> GetHtml(string url, CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
-        var result = await client.GetStringAsync(url);
+        var result = await client.GetStringAsync(url, cancellationToken);
         
         var doc = new HtmlDocument();
         doc.LoadHtml(result);
