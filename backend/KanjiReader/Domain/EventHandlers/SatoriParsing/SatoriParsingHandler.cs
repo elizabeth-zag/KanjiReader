@@ -1,72 +1,57 @@
 ﻿using System.Text;
 using System.Text.Json;
-using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.EventData;
 using KanjiReader.Domain.GenerationRules;
 using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Text;
 using KanjiReader.Domain.UserAccount;
-using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
+using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KanjiReader.Domain.EventHandlers.WatanocParsing;
+namespace KanjiReader.Domain.EventHandlers.SatoriParsing;
 
-public class WatanocParsingHandler(IServiceScopeFactory serviceScopeFactory) : CommonEventHandler(serviceScopeFactory)
+public class SatoriParsingHandler(IServiceScopeFactory serviceScopeFactory) : CommonEventHandler(serviceScopeFactory)
 {
+    // dependencies
     private IProcessingResultRepository _processingResultRepository;
     private UserAccountService _userAccountService;
     private KanjiService _kanjiService;
-    private WatanocClient _watanocClient;
-    
-    
-    
-    // dependencies
-    private IGenerationRulesService<WatanocParsingData> _generationRulesService;
+    private SatoriReaderClient _satoriReaderClient;
+    private IGenerationRulesService<SatoriParsingData> _generationRulesService;
     private IUserGenerationStateRepository _userGenerationStateRepository;
     private IEventRepository _eventRepository;
     private TextService _textService;
     private KanjiReaderDbContext _dbContext;
     
+
     protected override async Task Execute(string userId, string stringData, CancellationToken cancellationToken)
     {
         await StartProcessingTexts(userId, stringData, cancellationToken);
     }
-
-    protected override void SetScopedDependencies(IServiceScope scope)
-    {
-        _processingResultRepository = scope.ServiceProvider.GetRequiredService<IProcessingResultRepository>();
-        _userAccountService = scope.ServiceProvider.GetRequiredService<UserAccountService>();
-        _kanjiService = scope.ServiceProvider.GetRequiredService<KanjiService>();
-        _watanocClient = scope.ServiceProvider.GetRequiredService<WatanocClient>();
-    }
     
-    protected override EventType GetEventType()
-    {
-        return EventType.WatanocParsing;
-    }
-
-    protected override GenerationSourceType GetSourceType()
-    {
-        return GenerationSourceType.Watanoc;
-    }
 
     protected override async Task<(ProcessingResult[] results, UserGenerationState state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount, 
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) 
     {
-        WatanocParsingData? previousData = null;
+        SatoriParsingData? previousData = null;
+
+        var seriesUrls = await _satoriReaderClient.GetSeriesUrls(cancellationToken);
+        
         if (generationState != null)
         {
-            previousData = JsonSerializer.Deserialize<WatanocParsingData>(generationState.Data);
+            previousData = JsonSerializer.Deserialize<SatoriParsingData>(generationState.Data);
         }
 
-        var parsingData = _generationRulesService.GetNextState(previousData);
+        previousData?.UpdateMaxNumber(seriesUrls.Length);
+
+        var parsingData = _generationRulesService.GetNextState(previousData).UpdateMaxNumber(seriesUrls.Length);
         generationState = generationState?.UpdateData(JsonSerializer.Serialize(parsingData)) 
                           ?? new UserGenerationState(
                               user.Id,
@@ -75,14 +60,23 @@ public class WatanocParsingHandler(IServiceScopeFactory serviceScopeFactory) : C
         
         var kanjiCharacters = (await _kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
         
+        // todo: config
+        var satoriReaderBatchSize = 4;
+        var satoriReaderArticlesPerUrl = 4;
+        
+        var remainingArticleCount = remainingTextCount / satoriReaderArticlesPerUrl;
+        var batchSize = Math.Min(remainingArticleCount, satoriReaderBatchSize);
+        
+        seriesUrls = seriesUrls.Skip(parsingData.SeriesNumber).Take(batchSize).ToArray();
+        
         var suitableResult = new List<ProcessingResult>();
-        var urls = await _watanocClient.GetArticleUrls(parsingData.Category, parsingData.PageNumber, cancellationToken);
-        if (!urls.Any())
+        var articleUrls = await _satoriReaderClient.GetArticleUrls(seriesUrls, cancellationToken);
+        if (!articleUrls.Any())
         {
-            return ([], generationState);
+            return ([], generationState); // todo: look into this
         }
 
-        foreach (var url in urls)
+        foreach (var url in articleUrls)
         {
             var resultText = await ProcessUrl(kanjiCharacters, url, cancellationToken);
             if (!string.IsNullOrEmpty(resultText))
@@ -98,15 +92,15 @@ public class WatanocParsingHandler(IServiceScopeFactory serviceScopeFactory) : C
                     break;
                 }
             }
-                
         }
+        
         return (suitableResult.ToArray(), generationState);
     }
     
     private async Task<string> ProcessUrl(HashSet<char> kanjiCharacters, string url, CancellationToken cancellationToken)
     {
         var resultString = new StringBuilder();
-        var text = await _watanocClient.GetHtml(url, cancellationToken);
+        var text = await _satoriReaderClient.GetHtml(url, cancellationToken);
         
         foreach (var ch in text)
         {
@@ -120,7 +114,7 @@ public class WatanocParsingHandler(IServiceScopeFactory serviceScopeFactory) : C
         
         return text;
     }
-
+    
     private static bool IsKanji(char c)
     {
         int code = c;
@@ -129,5 +123,20 @@ public class WatanocParsingHandler(IServiceScopeFactory serviceScopeFactory) : C
         if (code >= 0x3400 && code <= 0x4DBF)
             return true;
         return false;
+    }
+
+    protected override void SetScopedDependencies(IServiceScope scope)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override EventType GetEventType()
+    {
+        return EventType.SatoriReaderParsing;
+    }
+
+    protected override GenerationSourceType GetSourceType()
+    {
+        return GenerationSourceType.SatoriReader;
     }
 }

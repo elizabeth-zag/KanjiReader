@@ -2,6 +2,6 @@
 
 public class WatanocParsingData
 {
-    public string Category { get; set; }
-    public int PageNumber { get; set; }
+    public string Category { get; init; }
+    public int PageNumber { get; init; }
 }

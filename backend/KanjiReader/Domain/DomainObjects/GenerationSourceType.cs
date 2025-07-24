@@ -3,5 +3,8 @@
 public enum GenerationSourceType
 {
     Unspecified,
-    Watanoc
+    Watanoc,
+    Nhk,
+    SatoriReader,
+    GoogleAiGeneration
 }

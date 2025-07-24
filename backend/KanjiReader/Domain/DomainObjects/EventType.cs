@@ -4,5 +4,8 @@ public enum EventType
 {
     Unspecified,
     StartGenerating,
-    WatanocParsing
+    WatanocParsing,
+    NhkParsing,
+    SatoriReaderParsing,
+    GoogleAiGeneration
 }

@@ -3,6 +3,7 @@ using System;
 using KanjiReader.Infrastructure.Database.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KanjiReader.Migrations
 {
     [DbContext(typeof(KanjiReaderDbContext))]
-    partial class KanjiReaderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723083409_AddUserGenerationState")]
+    partial class AddUserGenerationState
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +37,7 @@ namespace KanjiReader.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Data")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime>("ExecutionTime")
@@ -191,16 +195,9 @@ namespace KanjiReader.Migrations
                     b.Property<int>("SourceType")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "SourceType")
-                        .IsUnique();
-
-                    b.ToTable("UserGenerationStates", (string)null);
+                    b.ToTable("UserGenerationStates");
                 });
 
             modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.UserKanji", b =>
@@ -351,17 +348,6 @@ namespace KanjiReader.Migrations
                 });
 
             modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResult", b =>
-                {
-                    b.HasOne("KanjiReader.Infrastructure.Database.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.UserGenerationState", b =>
                 {
                     b.HasOne("KanjiReader.Infrastructure.Database.Models.User", "User")
                         .WithMany()

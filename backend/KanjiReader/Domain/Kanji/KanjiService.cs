@@ -4,6 +4,7 @@ using KanjiReader.Domain.DomainObjects.KanjiLists;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.KanjiApi;
+using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 using KanjiReader.Presentation.Dtos.Kanji;
@@ -17,17 +18,22 @@ public class KanjiService
     private readonly IKanjiRepository _kanjiRepository;
     private readonly KanjiApiClient _kanjiApiClient;
     private readonly UserAccountService _userAccountService;
+    private readonly KanjiReaderDbContext _dbContext;
 
     public KanjiService(
         WaniKaniService waniKaniService, 
         IKanjiCacheRepository kanjiCacheRepository, 
-        KanjiApiClient kanjiApiClient, UserAccountService userAccountService, IKanjiRepository kanjiRepository)
+        KanjiApiClient kanjiApiClient,
+        UserAccountService userAccountService, 
+        IKanjiRepository kanjiRepository, 
+        KanjiReaderDbContext dbContext)
     {
         _waniKaniService = waniKaniService;
         _kanjiCacheRepository = kanjiCacheRepository;
         _kanjiApiClient = kanjiApiClient;
         _userAccountService = userAccountService;
         _kanjiRepository = kanjiRepository;
+        _dbContext = dbContext;
     }
 
     public async Task<IReadOnlySet<char>> SelectKanji(
@@ -55,12 +61,17 @@ public class KanjiService
         
         var kanji = await _kanjiRepository.GetKanjiByCharacters(userKanji.ToArray(), cancellationToken);
 
-        await using var transaction = await _kanjiRepository.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         
         try
         {
             await _kanjiRepository.ClearUserKanji(user.Id, cancellationToken);
             await _kanjiRepository.InsertUserKanji(user.Id, kanji, cancellationToken);
+
+            if (!user.HasData)
+            {
+                await _userAccountService.UpdateHasData(user, true);
+            }
 
             await transaction.CommitAsync(cancellationToken);
         }
