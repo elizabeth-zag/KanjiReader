@@ -17,34 +17,27 @@ public class SatoriReaderClient
     }
 
     // todo: classNames in config
-    public async Task<string[]> GetArticleUrls(int skip, int batchSize, CancellationToken cancellationToken)
+    public async Task<string[]> GetSeriesUrls(CancellationToken cancellationToken)
     {
-        var urls = new List<string>();
         var doc = new HtmlDocument();
-        
+
         var result = await _httpClient.GetStringAsync($"{PrefixUrl}/series", cancellationToken);
         doc.LoadHtml(result);
 
-        var links = doc.DocumentNode
-            .SelectNodes("//a[@href]")?
+        return doc.DocumentNode // todo: null check
+            .SelectNodes("//a[@href]")!
             .Where(node => node.GetAttributeValue("href", "").Contains("series/"))
-            .Skip(skip)
-            .Take(batchSize);
-        
-        if (links != null)
+            .Select(node => $"{PrefixUrl}{node.GetAttributeValue("href", string.Empty)}")
+            .ToArray();
+    }
+    
+    public async Task<string[]> GetArticleUrls(string[] seriesUrls, CancellationToken cancellationToken) 
+    { 
+        var urls = new List<string>();
+        foreach (var seriesUrl in seriesUrls) // todo: maybe parallelize this
         {
-            foreach (var link in links) // todo: maybe parallelize this
-            {
-                var href = link.GetAttributeValue("href", string.Empty);
-                if (string.IsNullOrEmpty(href))
-                {
-                    continue;
-                }
-
-                var seriesUrl = $"{PrefixUrl}{href}";
-                var freeArticlesUrls = await GetFreeArticlesUrl(seriesUrl, cancellationToken);
-                urls.AddRange(freeArticlesUrls);
-            }
+            var freeArticlesUrls = await GetFreeArticlesUrl(seriesUrl, cancellationToken);
+            urls.AddRange(freeArticlesUrls);
         }
         
         return urls.ToArray();

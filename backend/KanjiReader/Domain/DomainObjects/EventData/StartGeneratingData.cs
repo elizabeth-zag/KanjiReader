@@ -2,5 +2,5 @@
 
 public class StartGeneratingData
 {
-    public GenerationSourceType[] SourceTypes { get; set; }
+    public GenerationSourceType[] SourceTypes { get; init; }
 }

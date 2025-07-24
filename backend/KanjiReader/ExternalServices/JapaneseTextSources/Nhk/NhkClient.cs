@@ -13,7 +13,7 @@ public class NhkClient
         _httpClient = httpClientFactory.CreateClient();
     }
 
-    public async Task<string[]> GetArticleUrls(CancellationToken cancellationToken)
+    public async Task<Dictionary<DateTime, string[]>> GetArticleUrls(CancellationToken cancellationToken)
     {
         var uri = "https://www3.nhk.or.jp/news/easy/news-list.json";
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
@@ -25,13 +25,15 @@ public class NhkClient
             .DeserializeAsync<Dictionary<DateTime, NhkNewsData[]>[]>(stream, cancellationToken: cancellationToken); // todo: null
      
         return response
-            .SelectMany(r => r.Values)
             .SelectMany(r => r)
-            .Select(r => $"https://www3.nhk.or.jp/news/easy/{r.NewsId}/{r.NewsId}.html")
-            .ToArray(); // todo: dates for storing ??
+            .ToDictionary(
+                r => r.Key, 
+                r => r.Value
+                    .Select(v => $"https://www3.nhk.or.jp/news/easy/{v.NewsId}/{v.NewsId}.html")
+                    .ToArray());
     }
     
-    public async Task<string[]> GetHtml(string url, CancellationToken cancellationToken)
+    public async Task<string> GetHtml(string url, CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
         var response = await client.GetStringAsync(url, cancellationToken);
@@ -41,13 +43,12 @@ public class NhkClient
         
         var className = "article-body";
         
-        var result = doc.DocumentNode
+        return doc.DocumentNode
             .SelectNodes($"//div[contains(@class, '{className}')]/p/span")?
             .Select(GetTextFromNode)
             .OfType<string>()
-            .ToArray();
-        
-        return result ?? [];
+            .Select(s => s.ToCharArray().First()) // todo: handle 
+            .ToString() ?? "";
     }
 
     private string? GetTextFromNode(HtmlNode node)

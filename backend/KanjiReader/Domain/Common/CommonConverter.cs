@@ -38,4 +38,16 @@ public static class CommonConverter
             Url = result.Url
         };
     }
+    
+    public static EventType ConvertToEventType(GenerationSourceType sourceType)
+    {
+        return sourceType switch
+        {
+            GenerationSourceType.GoogleAiGeneration => EventType.GoogleAiGeneration,
+            GenerationSourceType.Watanoc => EventType.WatanocParsing,
+            GenerationSourceType.SatoriReader => EventType.SatoriReaderParsing,
+            GenerationSourceType.Nhk => EventType.NhkParsing,
+            _ => EventType.Unspecified
+        };
+    }
 }

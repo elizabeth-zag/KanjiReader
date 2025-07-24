@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AutoMapper;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
@@ -11,30 +10,32 @@ namespace KanjiReader.Infrastructure.Database.Repositories;
 public class EventRepository : IEventRepository
 {
     private readonly KanjiReaderDbContext _dbContext;
-    private readonly IMapper _mapper;
     
-    
-    public EventRepository(KanjiReaderDbContext dbContext, IMapper mapper)
+    public EventRepository(KanjiReaderDbContext dbContext)
     {
         _dbContext = dbContext;
-        _mapper = mapper;
     }
 
     public async Task<IReadOnlyCollection<Event>> GetByType(EventType eventType, CancellationToken cancellationToken)
     {
-        var result = await _dbContext.Events
+        return await _dbContext.Events
             .Where(e => e.Type == eventType)
-            .Select(e => JsonSerializer.Deserialize<EventDb>(e.Data, JsonSerializerOptions.Default))
-            .OfType<EventDb>()
+            .Select(e => JsonSerializer.Deserialize<Event>(e.Data, JsonSerializerOptions.Default))
+            .OfType<Event>()
             .ToArrayAsync(cancellationToken);
-        
-        return _mapper.Map<Event[]>(result);
     }
 
     public async Task Create(IReadOnlyCollection<Event> events, CancellationToken cancellationToken)
     {
-        var eventsDb = _mapper.Map<IEnumerable<EventDb>>(events);
-        await _dbContext.Events.AddRangeAsync(eventsDb, cancellationToken);
+        await _dbContext.Events.AddRangeAsync(events, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task Delete(IReadOnlyCollection<Event> events, CancellationToken cancellationToken)
+    {
+        await _dbContext.Events
+            .Where(e => events.Any(ev => ev.Id == e.Id))
+            .ExecuteDeleteAsync(cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

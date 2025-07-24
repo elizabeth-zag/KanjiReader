@@ -45,7 +45,7 @@ namespace KanjiReader.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Event");
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Kanji", b =>

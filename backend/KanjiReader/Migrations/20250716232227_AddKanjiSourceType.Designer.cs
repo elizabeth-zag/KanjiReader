@@ -25,7 +25,7 @@ namespace KanjiReader.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.EventDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Event", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,7 @@ namespace KanjiReader.Migrations
                     b.ToTable("Events", (string)null);
                 });
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.KanjiDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Kanji", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,7 +68,7 @@ namespace KanjiReader.Migrations
                     b.ToTable("Kanji");
                 });
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResultDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResult", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,7 +315,7 @@ namespace KanjiReader.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResultDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.ProcessingResult", b =>
                 {
                     b.HasOne("KanjiReader.Infrastructure.Database.Models.User", "User")
                         .WithMany()
@@ -328,7 +328,7 @@ namespace KanjiReader.Migrations
 
             modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.UserKanji", b =>
                 {
-                    b.HasOne("KanjiReader.Infrastructure.Database.Models.KanjiDb", "Kanji")
+                    b.HasOne("KanjiReader.Infrastructure.Database.Models.Kanji", "Kanji")
                         .WithMany("UserKanjis")
                         .HasForeignKey("KanjiId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,7 +396,7 @@ namespace KanjiReader.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.KanjiDb", b =>
+            modelBuilder.Entity("KanjiReader.Infrastructure.Database.Models.Kanji", b =>
                 {
                     b.Navigation("UserKanjis");
                 });
