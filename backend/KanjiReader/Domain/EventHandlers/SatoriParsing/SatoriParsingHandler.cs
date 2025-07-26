@@ -1,64 +1,58 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.EventData;
+using KanjiReader.Domain.DomainObjects.EventData.BaseData;
 using KanjiReader.Domain.GenerationRules;
-using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Text;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace KanjiReader.Domain.EventHandlers.SatoriParsing;
 
-public class SatoriParsingHandler(IServiceScopeFactory serviceScopeFactory) : CommonEventHandler(serviceScopeFactory)
+public class SatoriParsingHandler(IEventRepository eventRepository,
+    IProcessingResultRepository processingResultRepository,
+    UserAccountService userAccountService,
+    IUserGenerationStateRepository userGenerationStateRepository,
+    TextService textService,
+    KanjiReaderDbContext dbContext,
+    SatoriReaderClient satoriReaderClient,
+    TextProcessingService textProcessingService,
+    IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData> generationRulesService) 
+    : CommonEventHandler(eventRepository,
+        processingResultRepository,
+        userAccountService,
+        userGenerationStateRepository,
+        textService,
+        dbContext)
 {
-    // dependencies
-    private IProcessingResultRepository _processingResultRepository;
-    private UserAccountService _userAccountService;
-    private KanjiService _kanjiService;
-    private SatoriReaderClient _satoriReaderClient;
-    private IGenerationRulesService<SatoriParsingData> _generationRulesService;
-    private IUserGenerationStateRepository _userGenerationStateRepository;
-    private IEventRepository _eventRepository;
-    private TextService _textService;
-    private KanjiReaderDbContext _dbContext;
-    
-
     protected override async Task Execute(string userId, string stringData, CancellationToken cancellationToken)
     {
         await StartProcessingTexts(userId, stringData, cancellationToken);
     }
-    
 
-    protected override async Task<(ProcessingResult[] results, UserGenerationState state)> ProcessTexts(
+    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount, 
         CancellationToken cancellationToken) 
     {
-        SatoriParsingData? previousData = null;
+        var previousData = generationState != null
+            ? JsonSerializer.Deserialize<SatoriParsingData>(generationState.Data)
+            : null;
 
-        var seriesUrls = await _satoriReaderClient.GetSeriesUrls(cancellationToken);
+        var seriesUrls = await satoriReaderClient.GetSeriesUrls(cancellationToken);
+        var baseData = new SatoriParsingBaseData(seriesUrls.Length);
+
+        var parsingData = generationRulesService.GetNextState(previousData, baseData);
         
-        if (generationState != null)
-        {
-            previousData = JsonSerializer.Deserialize<SatoriParsingData>(generationState.Data);
-        }
-
-        previousData?.UpdateMaxNumber(seriesUrls.Length);
-
-        var parsingData = _generationRulesService.GetNextState(previousData).UpdateMaxNumber(seriesUrls.Length);
-        generationState = generationState?.UpdateData(JsonSerializer.Serialize(parsingData)) 
-                          ?? new UserGenerationState(
-                              user.Id,
-                              GetSourceType(),
-                              JsonSerializer.Serialize(parsingData));
-        
-        var kanjiCharacters = (await _kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        generationState = UserGenerationState.UpdateOrCreateNew(
+            generationState, 
+            user.Id, 
+            GetSourceType(), 
+            JsonSerializer.Serialize(parsingData));
         
         // todo: config
         var satoriReaderBatchSize = 4;
@@ -69,65 +63,17 @@ public class SatoriParsingHandler(IServiceScopeFactory serviceScopeFactory) : Co
         
         seriesUrls = seriesUrls.Skip(parsingData.SeriesNumber).Take(batchSize).ToArray();
         
-        var suitableResult = new List<ProcessingResult>();
-        var articleUrls = await _satoriReaderClient.GetArticleUrls(seriesUrls, cancellationToken);
-        if (!articleUrls.Any())
-        {
-            return ([], generationState); // todo: look into this
-        }
+        var articleUrls = await satoriReaderClient.GetArticleUrls(seriesUrls, cancellationToken);
 
-        foreach (var url in articleUrls)
-        {
-            var resultText = await ProcessUrl(kanjiCharacters, url, cancellationToken);
-            if (!string.IsNullOrEmpty(resultText))
-            {
-                suitableResult.Add(new ProcessingResult(
-                    user.Id,
-                    GetSourceType(),
-                    resultText,
-                    url));
-                
-                if (suitableResult.Count >= remainingTextCount)
-                {
-                    break;
-                }
-            }
-        }
+        var result = await textProcessingService.ProcessText(
+            user,
+            GetSourceType(),
+            remainingTextCount,
+            articleUrls,
+            satoriReaderClient.ParseHtml,
+            cancellationToken);
         
-        return (suitableResult.ToArray(), generationState);
-    }
-    
-    private async Task<string> ProcessUrl(HashSet<char> kanjiCharacters, string url, CancellationToken cancellationToken)
-    {
-        var resultString = new StringBuilder();
-        var text = await _satoriReaderClient.GetHtml(url, cancellationToken);
-        
-        foreach (var ch in text)
-        {
-            if (IsKanji(ch) && !kanjiCharacters.Contains(ch))
-            {
-                return string.Empty;
-            }
-    
-            resultString.Append(ch);
-        }
-        
-        return text;
-    }
-    
-    private static bool IsKanji(char c)
-    {
-        int code = c;
-        if (code >= 0x4E00 && code <= 0x9FFF)
-            return true;
-        if (code >= 0x3400 && code <= 0x4DBF)
-            return true;
-        return false;
-    }
-
-    protected override void SetScopedDependencies(IServiceScope scope)
-    {
-        throw new NotImplementedException();
+        return (result, generationState);
     }
 
     protected override EventType GetEventType()

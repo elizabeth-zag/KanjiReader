@@ -1,55 +1,49 @@
 ﻿using KanjiReader.Domain.DomainObjects.EventData;
+using KanjiReader.Domain.DomainObjects.EventData.BaseData;
 
 namespace KanjiReader.Domain.GenerationRules;
 
-public class NhkRulesService : IGenerationRulesService<NhkParsingData>
+public class NhkRulesService : IGenerationRulesService<NhkParsingData, NhkParsingBaseData>
 {
-    public NhkParsingData GetNextState(NhkParsingData? data)
+    public NhkParsingData GetNextState(NhkParsingData? data, NhkParsingBaseData baseData)
     {
         if (data == null)
         {
-            return CreateNewState();
+            return GetDefault(baseData);
         }
-        var nextDate = data.OrderedDates.LastOrDefault(d => d > data.FirstDate);
+        
+        var nextDate = baseData.OrderedDates.LastOrDefault(d => d > data.FirstDate);
         if (nextDate != default)
         {
             return new NhkParsingData
             {
                 CurrentDate = nextDate,
                 FirstDate = nextDate,
-                LastDate = data.LastDate,
-                OrderedDates = data.OrderedDates
+                LastDate = data.LastDate
             };
         }
         
-        nextDate = data.OrderedDates.FirstOrDefault(d => d < data.LastDate);
+        nextDate = baseData.OrderedDates.FirstOrDefault(d => d < data.LastDate);
         if (nextDate != default)
         {
             return new NhkParsingData
             {
                 CurrentDate = nextDate,
                 FirstDate = data.FirstDate,
-                LastDate = nextDate,
-                OrderedDates = data.OrderedDates
+                LastDate = nextDate
             };
         }
-        
-        return new NhkParsingData
-        {
-            CurrentDate = data.OrderedDates.First(),
-            FirstDate = data.OrderedDates.First(),
-            LastDate = data.OrderedDates.First(),
-            OrderedDates = data.OrderedDates
-        };
+
+        return GetDefault(baseData);
     }
 
-    private NhkParsingData CreateNewState()
+    private static NhkParsingData GetDefault(NhkParsingBaseData baseData)
     {
         return new NhkParsingData
         {
-            CurrentDate = DateTime.UtcNow,
-            FirstDate = DateTime.UtcNow,
-            LastDate = DateTime.UtcNow
+            CurrentDate = baseData.OrderedDates.First(),
+            FirstDate = baseData.OrderedDates.First(),
+            LastDate = baseData.OrderedDates.First()
         };
     }
 }

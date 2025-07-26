@@ -1,8 +1,9 @@
 ﻿using KanjiReader.Domain.DomainObjects.EventData;
+using KanjiReader.Domain.DomainObjects.EventData.BaseData;
 
 namespace KanjiReader.Domain.GenerationRules;
 
-public class WatanocRulesService : IGenerationRulesService<WatanocParsingData>
+public class WatanocRulesService : IGenerationRulesService<WatanocParsingData, WatanocParsingBaseData>
 {
     private static readonly OrderedDictionary<string, int> WatanocCategoryPages = new()
     {
@@ -11,12 +12,13 @@ public class WatanocRulesService : IGenerationRulesService<WatanocParsingData>
         { "simplejapanese", 5 }
     };
 
-    public WatanocParsingData GetNextState(WatanocParsingData? data)
+    public WatanocParsingData GetNextState(WatanocParsingData? data, WatanocParsingBaseData _)
     {
         if (data == null)
         {
-            return CreateNewState();
+            return CreateDefault();
         }
+        
         var maxCategoryPage = WatanocCategoryPages[data.Category];
         if (data.PageNumber < maxCategoryPage)
         {
@@ -37,7 +39,7 @@ public class WatanocRulesService : IGenerationRulesService<WatanocParsingData>
         };
     }
 
-    private WatanocParsingData CreateNewState()
+    private static WatanocParsingData CreateDefault()
     {
         return new WatanocParsingData
         {

@@ -2,7 +2,7 @@
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 
-public class WatanocClient
+public class WatanocClient : IHtmlParser
 {
     private readonly HttpClient _httpClient;
     
@@ -35,7 +35,7 @@ public class WatanocClient
         return urls.ToArray();
     }
     
-    public async Task<string> GetHtml(string url, CancellationToken cancellationToken)
+    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
         var result = await client.GetStringAsync(url, cancellationToken);

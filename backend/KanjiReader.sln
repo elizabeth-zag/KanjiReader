@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KanjiReader", "KanjiReader\KanjiReader.csproj", "{6F07AB11-7EFD-480C-85F8-D5DB156F6A66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.PostgreSql", "Hangfire.PostgreSql\Hangfire.PostgreSql.csproj", "{E392A65E-098A-444B-A96A-1EF833D1DD55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{6F07AB11-7EFD-480C-85F8-D5DB156F6A66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F07AB11-7EFD-480C-85F8-D5DB156F6A66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F07AB11-7EFD-480C-85F8-D5DB156F6A66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E392A65E-098A-444B-A96A-1EF833D1DD55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E392A65E-098A-444B-A96A-1EF833D1DD55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E392A65E-098A-444B-A96A-1EF833D1DD55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E392A65E-098A-444B-A96A-1EF833D1DD55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
