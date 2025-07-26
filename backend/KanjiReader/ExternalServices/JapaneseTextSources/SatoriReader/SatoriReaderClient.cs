@@ -6,7 +6,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 
-public class SatoriReaderClient
+public class SatoriReaderClient : IHtmlParser
 {
     private const string PrefixUrl = "https://www.satorireader.com";
     private readonly HttpClient _httpClient;
@@ -43,7 +43,7 @@ public class SatoriReaderClient
         return urls.ToArray();
     }
     
-    public async Task<string> GetHtml(string url, CancellationToken cancellationToken)
+    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
         var html = await client.GetStringAsync(url, cancellationToken);

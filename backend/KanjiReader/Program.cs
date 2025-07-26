@@ -78,11 +78,18 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IKanjiCacheRepository, RedisKanjiCacheRepository>();
 builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
 builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
+builder.Services.AddScoped<IUserGenerationStateRepository, UserGenerationStateRepository>();
 
-builder.Services.AddHostedService<WatanocParsingHandler>();
-builder.Services.AddHostedService<StartGeneratingHandler>();
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(c =>
+        c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("SqlConnection"))));
+
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
+
+app.UseHangfireDashboard();
+BackgroundJob.Enqueue<EventHandlingJob>(svc => svc.Execute());
 
 app.UseHttpsRedirection();
 app.UseCors("MyPolicy");

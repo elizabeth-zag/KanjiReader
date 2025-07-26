@@ -15,6 +15,19 @@ public class UserGenerationState
         Data = newData;
         return this;
     }
+    
+    public static UserGenerationState UpdateOrCreateNew(
+        UserGenerationState? generationState, 
+        string userId, 
+        GenerationSourceType sourceType, 
+        string data)
+    {
+        return generationState?.UpdateData(data)
+               ?? new UserGenerationState(
+                   userId,
+                   sourceType,
+                   data);
+    }
 
     public UserGenerationState() {}
     

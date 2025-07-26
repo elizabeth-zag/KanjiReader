@@ -2,27 +2,27 @@
 using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.EventData;
+using KanjiReader.Domain.Text;
+using KanjiReader.Domain.UserAccount;
+using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace KanjiReader.Domain.EventHandlers.StartGenerating;
 
-public class StartGeneratingHandler(IServiceScopeFactory serviceScopeFactory) : CommonEventHandler(serviceScopeFactory)
+public class StartGeneratingHandler(IEventRepository eventRepository,
+    IProcessingResultRepository processingResultRepository,
+    UserAccountService userAccountService,
+    IUserGenerationStateRepository userGenerationStateRepository,
+    TextService textService,
+    KanjiReaderDbContext dbContext) 
+    : CommonEventHandler(eventRepository,
+        processingResultRepository,
+        userAccountService,
+        userGenerationStateRepository,
+        textService,
+        dbContext)
 {
-    private static readonly Dictionary<GenerationSourceType, int> SourceTypeTextCountPerEvent = new()
-    {
-        { GenerationSourceType.GoogleAiGeneration, 1 },
-        { GenerationSourceType.Watanoc, 8 },
-        { GenerationSourceType.SatoriReader, 2 },
-        { GenerationSourceType.Nhk, 4 } // todo: move to config
-    };
-    private CreateEventsService _createEventsService;
-    
-    // dependencies
-    private IProcessingResultRepository _processingResultRepository;
-    private IEventRepository _eventRepository; // we have it in the base class
-
     protected override async Task Execute(string userId, string stringData, CancellationToken cancellationToken)
     {
         var data = JsonSerializer.Deserialize<StartGeneratingData>(stringData); // todo: NRE
@@ -32,21 +32,16 @@ public class StartGeneratingHandler(IServiceScopeFactory serviceScopeFactory) : 
             .Select(st => CreateEventsService.CreateNewEvent(userId, st))
             .ToArray();
 
-        await _eventRepository.Create(events, cancellationToken);
+        await eventRepository.Create(events, cancellationToken);
     }
 
-    protected override Task<(ProcessingResult[] results, UserGenerationState state)> ProcessTexts(
+    protected override Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
         User user, 
         UserGenerationState? generationState, 
         int remainingTextCount,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(); // todo: think about service
-    }
-
-    protected override void SetScopedDependencies(IServiceScope scope)
-    {
-        _createEventsService = scope.ServiceProvider.GetRequiredService<CreateEventsService>();
     }
 
     protected override EventType GetEventType()

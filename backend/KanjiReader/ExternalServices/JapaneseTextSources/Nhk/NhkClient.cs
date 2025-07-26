@@ -4,7 +4,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.Nhk.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 
-public class NhkClient
+public class NhkClient : IHtmlParser
 {
     private readonly HttpClient _httpClient;
     
@@ -33,7 +33,7 @@ public class NhkClient
                     .ToArray());
     }
     
-    public async Task<string> GetHtml(string url, CancellationToken cancellationToken)
+    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
         var response = await client.GetStringAsync(url, cancellationToken);

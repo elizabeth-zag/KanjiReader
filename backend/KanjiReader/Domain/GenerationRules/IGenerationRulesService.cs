@@ -1,6 +1,6 @@
 ﻿namespace KanjiReader.Domain.GenerationRules;
 
-public interface IGenerationRulesService<TData>
+public interface IGenerationRulesService<TData, TBaseData>
 {
-    public TData GetNextState(TData? data);
+    public TData GetNextState(TData? data, TBaseData baseData);
 }
