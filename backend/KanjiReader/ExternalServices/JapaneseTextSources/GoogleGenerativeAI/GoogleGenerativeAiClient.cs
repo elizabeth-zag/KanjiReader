@@ -1,5 +1,4 @@
 ﻿using GenerativeAI;
-using KanjiReader.Domain.Kanji.WaniKani;
 using Microsoft.Extensions.Configuration;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
@@ -13,7 +12,7 @@ public class GoogleGenerativeAiClient
         _config = config;
     }
 
-    public async Task<string> GenerateAnswer(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
+    public async Task<string> GenerateText(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
     {
         var prompt = GetPrompt(string.Join(", ", kanji));
         var apiKey = _config["GoogleAiApiToken"]; // todo: config

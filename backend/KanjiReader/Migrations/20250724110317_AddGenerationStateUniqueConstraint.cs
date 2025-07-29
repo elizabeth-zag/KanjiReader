@@ -17,14 +17,6 @@ namespace KanjiReader.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Data",
-                table: "Events",
-                type: "jsonb",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "jsonb");
-
             migrationBuilder.CreateIndex(
                 name: "IX_UserGenerationStates_UserId_SourceType",
                 table: "UserGenerationStates",
@@ -54,16 +46,6 @@ namespace KanjiReader.Migrations
             migrationBuilder.DropColumn(
                 name: "UserId",
                 table: "UserGenerationStates");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Data",
-                table: "Events",
-                type: "jsonb",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "jsonb",
-                oldNullable: true);
         }
     }
 }

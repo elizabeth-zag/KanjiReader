@@ -1,38 +1,32 @@
 ﻿using System.Text.Json;
 using KanjiReader.Domain.DomainObjects;
-using KanjiReader.Domain.DomainObjects.EventData;
-using KanjiReader.Domain.DomainObjects.EventData.BaseData;
+using KanjiReader.Domain.DomainObjects.TextProcessingData;
+using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 using KanjiReader.Domain.GenerationRules;
-using KanjiReader.Domain.Text;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 
-namespace KanjiReader.Domain.EventHandlers.SatoriParsing;
+namespace KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 
-public class SatoriParsingHandler(IEventRepository eventRepository,
+public class SatoriParsingHandler(
     IProcessingResultRepository processingResultRepository,
     UserAccountService userAccountService,
     IUserGenerationStateRepository userGenerationStateRepository,
     TextService textService,
     KanjiReaderDbContext dbContext,
     SatoriReaderClient satoriReaderClient,
-    TextProcessingService textProcessingService,
+    TextParsingService textParsingService,
     IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData> generationRulesService) 
-    : CommonEventHandler(eventRepository,
+    : CommonTextProcessingHandler(
         processingResultRepository,
         userAccountService,
         userGenerationStateRepository,
         textService,
         dbContext)
 {
-    protected override async Task Execute(string userId, string stringData, CancellationToken cancellationToken)
-    {
-        await StartProcessingTexts(userId, stringData, cancellationToken);
-    }
-
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
@@ -65,7 +59,7 @@ public class SatoriParsingHandler(IEventRepository eventRepository,
         
         var articleUrls = await satoriReaderClient.GetArticleUrls(seriesUrls, cancellationToken);
 
-        var result = await textProcessingService.ProcessText(
+        var result = await textParsingService.ParseAndValidateText(
             user,
             GetSourceType(),
             remainingTextCount,
@@ -74,11 +68,6 @@ public class SatoriParsingHandler(IEventRepository eventRepository,
             cancellationToken);
         
         return (result, generationState);
-    }
-
-    protected override EventType GetEventType()
-    {
-        return EventType.SatoriReaderParsing;
     }
 
     protected override GenerationSourceType GetSourceType()

@@ -9,7 +9,6 @@ public class KanjiReaderDbContext : IdentityDbContext<User>
     public DbSet<User> Users { get; set; }
     public DbSet<UserKanji> UserKanji { get; set; }
     public DbSet<Kanji> Kanji { get; set; }
-    public DbSet<Event> Events { get; set; }
     public DbSet<ProcessingResult> ProcessingResults { get; set; }
     public DbSet<UserGenerationState> UserGenerationStates { get; set; }
 
@@ -27,7 +26,6 @@ public class KanjiReaderDbContext : IdentityDbContext<User>
             .HasIndex(e => new { e.UserId, e.SourceType })
             .IsUnique();
         
-        modelBuilder.Entity<Event>().ToTable("Events");
         modelBuilder.Entity<ProcessingResult>().ToTable("ProcessingResults");
         modelBuilder.Entity<UserGenerationState>().ToTable("UserGenerationStates");
         
@@ -42,9 +40,5 @@ public class KanjiReaderDbContext : IdentityDbContext<User>
             .HasOne(uk => uk.Kanji)
             .WithMany(u => u.UserKanjis)
             .HasForeignKey(uk => uk.KanjiId);
-        
-        modelBuilder.Entity<Event>()
-            .Property(a => a.Data)
-            .HasColumnType("jsonb");
     }
 }

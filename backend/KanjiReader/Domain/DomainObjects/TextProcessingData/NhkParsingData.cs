@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Domain.DomainObjects.EventData;
+﻿namespace KanjiReader.Domain.DomainObjects.TextProcessingData;
 
 public class NhkParsingData
 {
