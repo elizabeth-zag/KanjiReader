@@ -6,7 +6,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 
-public class SatoriReaderClient : IHtmlParser
+public class SatoriReaderClient
 {
     private const string PrefixUrl = "https://www.satorireader.com";
     private readonly HttpClient _httpClient;

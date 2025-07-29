@@ -4,7 +4,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.Nhk.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 
-public class NhkClient : IHtmlParser
+public class NhkClient
 {
     private readonly HttpClient _httpClient;
     
@@ -43,12 +43,12 @@ public class NhkClient : IHtmlParser
         
         var className = "article-body";
         
-        return doc.DocumentNode
+        var textParts = doc.DocumentNode
             .SelectNodes($"//div[contains(@class, '{className}')]/p/span")?
             .Select(GetTextFromNode)
-            .OfType<string>()
-            .Select(s => s.ToCharArray().First()) // todo: handle 
-            .ToString() ?? "";
+            .OfType<string>();
+        
+        return textParts == null ? string.Empty : string.Join("", textParts);
     }
 
     private string? GetTextFromNode(HtmlNode node)

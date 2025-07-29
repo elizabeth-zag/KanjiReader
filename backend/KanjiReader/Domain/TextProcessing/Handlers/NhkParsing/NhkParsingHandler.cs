@@ -1,39 +1,32 @@
-﻿
-using System.Text.Json;
+﻿using System.Text.Json;
 using KanjiReader.Domain.DomainObjects;
-using KanjiReader.Domain.DomainObjects.EventData;
-using KanjiReader.Domain.DomainObjects.EventData.BaseData;
+using KanjiReader.Domain.DomainObjects.TextProcessingData;
+using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 using KanjiReader.Domain.GenerationRules;
-using KanjiReader.Domain.Text;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 
-namespace KanjiReader.Domain.EventHandlers.NhkParsing;
+namespace KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 
-public class NhkParsingHandler(IEventRepository eventRepository,
+public class NhkParsingHandler(
     IProcessingResultRepository processingResultRepository,
     UserAccountService userAccountService,
     IUserGenerationStateRepository userGenerationStateRepository,
     TextService textService,
     KanjiReaderDbContext dbContext,
     NhkClient nhkClient,
-    TextProcessingService textProcessingService,
+    TextParsingService textParsingService,
     IGenerationRulesService<NhkParsingData, NhkParsingBaseData> generationRulesService) 
-    : CommonEventHandler(eventRepository,
+    : CommonTextProcessingHandler(
         processingResultRepository,
         userAccountService,
         userGenerationStateRepository,
         textService,
         dbContext)
 {
-    protected override async Task Execute(string userId, string stringData, CancellationToken cancellationToken)
-    {
-        await StartProcessingTexts(userId, stringData, cancellationToken);
-    }
-    
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
@@ -45,6 +38,7 @@ public class NhkParsingHandler(IEventRepository eventRepository,
             : null;
 
         var articleUrlsByDate = await nhkClient.GetArticleUrls(cancellationToken);
+        
         var baseData = new NhkParsingBaseData(articleUrlsByDate.Keys.ToArray());
 
         var parsingData = generationRulesService.GetNextState(previousData, baseData);
@@ -57,7 +51,7 @@ public class NhkParsingHandler(IEventRepository eventRepository,
         
         var articleUrls = articleUrlsByDate[parsingData.CurrentDate]; // todo: handle empty result
 
-        var result = await textProcessingService.ProcessText(
+        var result = await textParsingService.ParseAndValidateText(
             user,
             GetSourceType(),
             remainingTextCount,
@@ -67,12 +61,7 @@ public class NhkParsingHandler(IEventRepository eventRepository,
         
         return (result, generationState);
     }
-
-    protected override EventType GetEventType()
-    {
-        return EventType.NhkParsing;
-    }
-
+    
     protected override GenerationSourceType GetSourceType()
     {
         return GenerationSourceType.Nhk;

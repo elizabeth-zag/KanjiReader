@@ -1,5 +1,5 @@
-﻿using KanjiReader.Domain.DomainObjects.EventData;
-using KanjiReader.Domain.DomainObjects.EventData.BaseData;
+﻿using KanjiReader.Domain.DomainObjects.TextProcessingData;
+using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 
 namespace KanjiReader.Domain.GenerationRules;
 

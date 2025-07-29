@@ -19,20 +19,6 @@ namespace KanjiReader.Migrations
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "CreationTime",
-                table: "Events",
-                type: "timestamp with time zone",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-            migrationBuilder.AddColumn<int>(
-                name: "RetryCount",
-                table: "Events",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
             migrationBuilder.AddColumn<bool>(
                 name: "HasData",
                 table: "AspNetUsers",
@@ -64,14 +50,6 @@ namespace KanjiReader.Migrations
             migrationBuilder.DropColumn(
                 name: "SourceType",
                 table: "ProcessingResults");
-
-            migrationBuilder.DropColumn(
-                name: "CreationTime",
-                table: "Events");
-
-            migrationBuilder.DropColumn(
-                name: "RetryCount",
-                table: "Events");
 
             migrationBuilder.DropColumn(
                 name: "HasData",

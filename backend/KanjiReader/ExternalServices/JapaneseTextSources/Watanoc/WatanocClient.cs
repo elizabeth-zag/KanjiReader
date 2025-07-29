@@ -2,7 +2,7 @@
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 
-public class WatanocClient : IHtmlParser
+public class WatanocClient
 {
     private readonly HttpClient _httpClient;
     
