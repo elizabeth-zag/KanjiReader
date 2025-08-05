@@ -9,15 +9,25 @@ public class ProcessingResult
     public string UserId { get; set; }
     public User User { get; set; }
     public string Text { get; set; }
-    public string Url { get; set; }
+    public string Url { get; set; } 
+    public double UnknownKanjiRatio { get; set; }
+    public char[] UnknownKanji { get; set; } // todo: think what to do with this field
     
     private ProcessingResult() {}
     
-    public ProcessingResult(string userId, GenerationSourceType sourceType, string text, string url)
+    public ProcessingResult(
+        string userId, 
+        GenerationSourceType sourceType, 
+        string text, 
+        string url, 
+        double ratio,
+        char[] unknownKanji)
     {
         UserId = userId;
         SourceType = sourceType;
         Text = text;
         Url = url;
+        UnknownKanjiRatio = ratio;
+        UnknownKanji = unknownKanji;
     }
 }

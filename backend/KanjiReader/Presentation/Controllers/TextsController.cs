@@ -35,26 +35,19 @@ public class TextsController(
 
         return new GetProcessedTextsResponse
         {
-            ProcessedTexts = mapper.Map<ProcessingResultDto[]>(processedTexts)
-        };
-    }
-
-    [HttpPost(nameof(GetRemovedTexts))]
-    public async Task<GetRemovedTextsResponse> GetRemovedTexts(GetRemovedTextsRequest dto,
-        CancellationToken cancellationToken)
-    {
-        var removedTexts = await textService.GetRemovedTexts(
-            User, dto.PageNumber, dto.PageSize, cancellationToken);
-
-        return new GetRemovedTextsResponse
-        {
-            RemovedTexts = mapper.Map<ProcessingResultDto[]>(removedTexts)
+            ProcessedTexts = processedTexts.Select(CommonConverter.Convert).ToArray()
         };
     }
 
     [HttpPost(nameof(RemoveTexts))]
     public async Task RemoveTexts(RemoveTextsRequest dto, CancellationToken cancellationToken)
     {
-        await textService.RemoveTexts(dto.TextIds, cancellationToken);
+        await deletionService.RemoveTexts(dto.TextIds, cancellationToken);
+    }
+
+    [HttpPost(nameof(RemoveTextsBySourceType))]
+    public async Task RemoveTextsBySourceType(RemoveTextsBySourceTypesRequest dto, CancellationToken cancellationToken)
+    {
+        await deletionService.RemoveUserTextsBySourceType(User, dto.SourceTypes, cancellationToken);
     }
 }

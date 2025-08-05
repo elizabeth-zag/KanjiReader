@@ -114,7 +114,20 @@ public class LoginController(
     [HttpPost(nameof(UpdatePassword))]
     public async Task<IActionResult> UpdatePassword(UpdatePasswordRequest dto)
     {
-        await _userAccountService.UpdatePassword(User, dto.OldPassword, dto.NewPassword);
+        await userAccountService.UpdatePassword(User, dto.OldPassword, dto.NewPassword);
+        return Ok();
+    }
+    
+    [Authorize]
+    [HttpPost(nameof(DeleteUserAccount))]
+    public async Task<IActionResult> DeleteUserAccount(DeleteUserAccountRequest dto, CancellationToken cancellationToken)
+    {
+        var isDeletionSuccessful = await deletionService.DeleteUser(User, dto.Password, cancellationToken);
+        if (!isDeletionSuccessful)
+        {
+            return Unauthorized(new { message = "Invalid password" });
+        }
+        
         return Ok();
     }
 }

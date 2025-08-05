@@ -1,22 +1,18 @@
 ﻿using Hangfire;
+using Hangfire.Server;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.TextProcessing.Handlers;
 
 namespace KanjiReader.Domain.Jobs;
 
-[AutomaticRetry(Attempts = 3)]
-public class TextProcessingJob
+[AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 60, 120, 600 })]
+public class TextProcessingJob(TextProcessingHandlersFactory textProcessingHandlersFactory)
 {
-    private readonly TextProcessingHandlersFactory _textProcessingHandlersFactory;
-
-    public TextProcessingJob(TextProcessingHandlersFactory textProcessingHandlersFactory)
+    public async Task Execute(string userId, GenerationSourceType sourceType, PerformContext context, CancellationToken cancellationToken)
     {
-        _textProcessingHandlersFactory = textProcessingHandlersFactory;
-    }
-
-    public async Task Execute(string userId, GenerationSourceType sourceType, CancellationToken cancellationToken)
-    {
-        var handler = _textProcessingHandlersFactory.GetHandler(sourceType);
-        await handler.Handle(userId, cancellationToken);
+        var retryCount = context.GetJobParameter<int>("RetryCount");
+        var isLastRetry = retryCount == 3; // todo: config?
+        var handler = textProcessingHandlersFactory.GetHandler(sourceType);
+        await handler.Handle(userId, isLastRetry, cancellationToken);
     }
 }
