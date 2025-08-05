@@ -37,20 +37,13 @@ using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Hangfire.PostgreSql
 {
-  public class PostgreSqlConnection : JobStorageConnection
+  public class PostgreSqlConnection(PostgreSqlStorage storage) : JobStorageConnection
   {
-    private readonly Dictionary<string, HashSet<Guid>> _lockedResources;
-    private readonly PostgreSqlStorageOptions _options;
-    private readonly PostgreSqlStorage _storage;
+    private readonly Dictionary<string, HashSet<Guid>> _lockedResources = new();
+    private readonly PostgreSqlStorageOptions _options = storage.Options ?? throw new ArgumentNullException(nameof(storage.Options));
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     private DbConnection _dedicatedConnection;
-
-    public PostgreSqlConnection(PostgreSqlStorage storage)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      _options = storage.Options ?? throw new ArgumentNullException(nameof(storage.Options));
-      _lockedResources = new Dictionary<string, HashSet<Guid>>();
-    }
 
     public override void Dispose()
     {
@@ -761,22 +754,12 @@ namespace Hangfire.PostgreSql
       }
     }
 
-    private class DisposableLock : IDisposable
+    private class DisposableLock(PostgreSqlConnection connection, string resource, Guid lockId)
+      : IDisposable
     {
-      private readonly PostgreSqlConnection _connection;
-      private readonly Guid _lockId;
-      private readonly string _resource;
-
-      public DisposableLock(PostgreSqlConnection connection, string resource, Guid lockId)
-      {
-        _connection = connection;
-        _resource = resource;
-        _lockId = lockId;
-      }
-
       public void Dispose()
       {
-        _connection.ReleaseLock(_resource, _lockId, true);
+        connection.ReleaseLock(resource, lockId, true);
       }
     }
   }

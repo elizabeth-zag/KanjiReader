@@ -1,35 +1,30 @@
-﻿using System.Security.Claims;
-using KanjiReader.Domain.UserAccount;
-using KanjiReader.ExternalServices.WaniKani;
+﻿using KanjiReader.ExternalServices.WaniKani;
+using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 
 namespace KanjiReader.Domain.Kanji.WaniKani;
 
-public class WaniKaniService
+public class WaniKaniService(WaniKaniClient waniKaniClient, IKanjiCacheRepository kanjiCacheRepository)
 {
-    private readonly WaniKaniClient _waniKaniClient;
-    private readonly UserAccountService _userAccountService;
-    private readonly IKanjiCacheRepository _kanjiCacheRepository;
-    
-    public WaniKaniService(WaniKaniClient waniKaniClient, UserAccountService userAccountService, IKanjiCacheRepository kanjiCacheRepository)
+    public async Task FillWaniKaniKanjiCache(User user, CancellationToken cancellationToken)
     {
-        _waniKaniClient = waniKaniClient;
-        _userAccountService = userAccountService;
-        _kanjiCacheRepository = kanjiCacheRepository;
-    }
-
-    public async Task FillWaniKaniKanjiCache(ClaimsPrincipal claimsPrincipal, string token,
-        CancellationToken cancellationToken)
-    {
-        var userKanji = await GetWaniKaniKanji(token, cancellationToken);
-        var user = await _userAccountService.GetByClaims(claimsPrincipal);
-        await _kanjiCacheRepository.SetUserKanji(user.Id, userKanji);
+        if (string.IsNullOrWhiteSpace(user.WaniKaniToken))
+        {
+            return;
+        }
+        
+        var userKanji = await GetWaniKaniKanji(user.WaniKaniToken, cancellationToken);
+        await kanjiCacheRepository.SetUserKanji(user.Id, userKanji);
     }
     
     public async Task<IReadOnlySet<char>> GetWaniKaniKanji(string token, CancellationToken cancellationToken)
     {
-        // todo: NRE
-        var subjectIds = await _waniKaniClient.GetAssignments(token, cancellationToken);
-        return await _waniKaniClient.GetBurnedKanji(token, subjectIds, cancellationToken);
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new ArgumentNullException(nameof(token));
+        }
+        
+        var subjectIds = await waniKaniClient.GetAssignments(token, cancellationToken);
+        return await waniKaniClient.GetMasteredKanji(token, subjectIds, cancellationToken);
     }
 }

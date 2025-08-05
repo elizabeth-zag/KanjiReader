@@ -3,15 +3,10 @@ using KanjiReader.Domain.DomainObjects.KanjiLists;
 
 namespace KanjiReader.ExternalServices.KanjiApi;
 
-public class KanjiApiClient
+public class KanjiApiClient(IHttpClientFactory httpClientFactory)
 {
-    private readonly HttpClient _httpClient;
-    
-    public KanjiApiClient(IHttpClientFactory httpClientFactory)
-    {
-        _httpClient = httpClientFactory.CreateClient();
-    }
-    
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+
     public async Task<IReadOnlySet<char>> GetKanjiList(IReadOnlyCollection<KanjiListType> kanjiListTypes, 
         CancellationToken cancellationToken)
     {
@@ -33,11 +28,11 @@ public class KanjiApiClient
         using var responseMessage = await _httpClient.SendAsync(request, cancellationToken);
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
     
-        var response = await JsonSerializer.DeserializeAsync<char[]>(stream, cancellationToken: cancellationToken);
+        var response = await JsonSerializer.DeserializeAsync<string[]>(stream, cancellationToken: cancellationToken);
         
         // todo: exception handling 
     
-        return response.ToHashSet();
+        return response.Where(r => r.Length == 1).Select(char.Parse).ToHashSet();
     }
 
     private string ConvertKanjiListToUrl(KanjiListType kanjiListType)
@@ -57,6 +52,7 @@ public class KanjiApiClient
             KanjiListType.JlptN2 => "jlpt-2",
             KanjiListType.JlptN1 => "jlpt-1",
             KanjiListType.Kyouiku => "kyouiku",
+            KanjiListType.Jouyou => "jouyou",
             KanjiListType.Heisig => "heisig",
             _ => throw new ArgumentOutOfRangeException(nameof(kanjiListType), kanjiListType, null) // todo: handle this case properly
         };

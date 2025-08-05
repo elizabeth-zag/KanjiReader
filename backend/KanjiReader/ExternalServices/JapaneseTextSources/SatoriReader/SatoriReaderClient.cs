@@ -6,15 +6,10 @@ using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 
-public class SatoriReaderClient
+public class SatoriReaderClient(IHttpClientFactory httpClientFactory)
 {
     private const string PrefixUrl = "https://www.satorireader.com";
-    private readonly HttpClient _httpClient;
-    
-    public SatoriReaderClient(IHttpClientFactory httpClientFactory)
-    {
-        _httpClient = httpClientFactory.CreateClient();
-    }
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
     // todo: classNames in config
     public async Task<string[]> GetSeriesUrls(CancellationToken cancellationToken)

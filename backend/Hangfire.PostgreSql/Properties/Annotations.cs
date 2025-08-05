@@ -207,19 +207,13 @@ namespace Hangfire.PostgreSql.Properties
   ///   </list>
   /// </examples>
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-  public sealed class ContractAnnotationAttribute : Attribute
+  public sealed class ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates) : Attribute
   {
     public ContractAnnotationAttribute([NotNull] string contract)
       : this(contract, false) { }
 
-    public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates)
-    {
-      Contract = contract;
-      ForceFullStates = forceFullStates;
-    }
-
-    public string Contract { get; }
-    public bool ForceFullStates { get; }
+    public string Contract { get; } = contract;
+    public bool ForceFullStates { get; } = forceFullStates;
   }
 
   /// <summary>
@@ -234,16 +228,11 @@ namespace Hangfire.PostgreSql.Properties
   /// </code>
   /// </example>
   [AttributeUsage(AttributeTargets.All)]
-  public sealed class LocalizationRequiredAttribute : Attribute
+  public sealed class LocalizationRequiredAttribute(bool required) : Attribute
   {
     public LocalizationRequiredAttribute() : this(true) { }
 
-    public LocalizationRequiredAttribute(bool required)
-    {
-      Required = required;
-    }
-
-    public bool Required { get; }
+    public bool Required { get; } = required;
   }
 
   /// <summary>
@@ -284,14 +273,9 @@ namespace Hangfire.PostgreSql.Properties
   /// </example>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   [BaseTypeRequired(typeof(Attribute))]
-  public sealed class BaseTypeRequiredAttribute : Attribute
+  public sealed class BaseTypeRequiredAttribute([NotNull] Type baseType) : Attribute
   {
-    public BaseTypeRequiredAttribute([NotNull] Type baseType)
-    {
-      BaseType = baseType;
-    }
-
-    [NotNull] public Type BaseType { get; }
+    [NotNull] public Type BaseType { get; } = baseType;
   }
 
   /// <summary>
@@ -301,7 +285,10 @@ namespace Hangfire.PostgreSql.Properties
   /// </summary>
   [AttributeUsage(AttributeTargets.All)]
   [MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class UsedImplicitlyAttribute : Attribute
+  public sealed class UsedImplicitlyAttribute(
+    ImplicitUseKindFlags useKindFlags,
+    ImplicitUseTargetFlags targetFlags)
+    : Attribute
   {
     public UsedImplicitlyAttribute()
       : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
@@ -312,16 +299,8 @@ namespace Hangfire.PostgreSql.Properties
     public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags) { }
 
-    public UsedImplicitlyAttribute(
-      ImplicitUseKindFlags useKindFlags,
-      ImplicitUseTargetFlags targetFlags)
-    {
-      UseKindFlags = useKindFlags;
-      TargetFlags = targetFlags;
-    }
-
-    public ImplicitUseKindFlags UseKindFlags { get; }
-    public ImplicitUseTargetFlags TargetFlags { get; }
+    public ImplicitUseKindFlags UseKindFlags { get; } = useKindFlags;
+    public ImplicitUseTargetFlags TargetFlags { get; } = targetFlags;
   }
 
   /// <summary>
@@ -330,7 +309,10 @@ namespace Hangfire.PostgreSql.Properties
   ///   (as well as by other usage inspections)
   /// </summary>
   [AttributeUsage(AttributeTargets.Class)]
-  public sealed class MeansImplicitUseAttribute : Attribute
+  public sealed class MeansImplicitUseAttribute(
+    ImplicitUseKindFlags useKindFlags,
+    ImplicitUseTargetFlags targetFlags)
+    : Attribute
   {
     public MeansImplicitUseAttribute()
       : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
@@ -341,16 +323,8 @@ namespace Hangfire.PostgreSql.Properties
     public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags) { }
 
-    public MeansImplicitUseAttribute(
-      ImplicitUseKindFlags useKindFlags,
-      ImplicitUseTargetFlags targetFlags)
-    {
-      UseKindFlags = useKindFlags;
-      TargetFlags = targetFlags;
-    }
-
-    [UsedImplicitly] public ImplicitUseKindFlags UseKindFlags { get; }
-    [UsedImplicitly] public ImplicitUseTargetFlags TargetFlags { get; }
+    [UsedImplicitly] public ImplicitUseKindFlags UseKindFlags { get; } = useKindFlags;
+    [UsedImplicitly] public ImplicitUseTargetFlags TargetFlags { get; } = targetFlags;
   }
 
   [Flags]
@@ -644,14 +618,9 @@ namespace Hangfire.PostgreSql.Properties
   }
 
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  public sealed class HtmlAttributeValueAttribute : Attribute
+  public sealed class HtmlAttributeValueAttribute([NotNull] string name) : Attribute
   {
-    public HtmlAttributeValueAttribute([NotNull] string name)
-    {
-      Name = name;
-    }
-
-    [NotNull] public string Name { get; }
+    [NotNull] public string Name { get; } = name;
   }
 
   // Razor attributes

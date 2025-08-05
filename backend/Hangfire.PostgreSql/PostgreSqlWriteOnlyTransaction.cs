@@ -33,21 +33,16 @@ using Hangfire.Storage;
 
 namespace Hangfire.PostgreSql
 {
-  public class PostgreSqlWriteOnlyTransaction : JobStorageTransaction
+  public class PostgreSqlWriteOnlyTransaction(
+    PostgreSqlStorage storage,
+    Func<DbConnection> dedicatedConnectionFunc)
+    : JobStorageTransaction
   {
     private readonly Queue<Action<IDbConnection>> _commandQueue = new();
-    private readonly Func<DbConnection> _dedicatedConnectionFunc;
+    private readonly Func<DbConnection> _dedicatedConnectionFunc = dedicatedConnectionFunc ?? throw new ArgumentNullException(nameof(dedicatedConnectionFunc));
     private readonly List<string> _queuesWithAddedJobs = new();
 
-    private readonly PostgreSqlStorage _storage;
-
-    public PostgreSqlWriteOnlyTransaction(
-      PostgreSqlStorage storage,
-      Func<DbConnection> dedicatedConnectionFunc)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      _dedicatedConnectionFunc = dedicatedConnectionFunc ?? throw new ArgumentNullException(nameof(dedicatedConnectionFunc));
-    }
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public override void Commit()
     {

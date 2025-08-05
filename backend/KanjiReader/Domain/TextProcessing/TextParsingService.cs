@@ -1,19 +1,12 @@
-﻿using System.Text;
-using KanjiReader.Domain.DomainObjects;
+﻿using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.Kanji;
 using KanjiReader.Infrastructure.Database.Models;
+using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Domain.TextProcessing;
 
-public class TextParsingService
+public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingService> logger)
 {
-    private readonly KanjiService _kanjiService;
-
-    public TextParsingService(KanjiService kanjiService)
-    {
-        _kanjiService = kanjiService;
-    }
-
     public async Task<IReadOnlyCollection<ProcessingResult>> ParseAndValidateText(
         User user,
         GenerationSourceType sourceType,
@@ -22,48 +15,66 @@ public class TextParsingService
         Func<string, CancellationToken, Task<string>> parseHtmlFunction,
         CancellationToken cancellationToken)
     {
-        var kanjiCharacters = (await _kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        if (articleUrls.Length == 0)
+        {
+            logger.LogWarning("No article urls were found for {SourceType}, user {UserId}", nameof(sourceType), user.Id);
+
+            return [];
+        }
+        
+        var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        
+        var threshold = CalculateThreshold(kanjiCharacters.Count);
         
         var suitableResult = new List<ProcessingResult>();
         foreach (var url in articleUrls)
         {
-            var rawText = await parseHtmlFunction.Invoke(url, cancellationToken);
-            var resultText = ValidateText(kanjiCharacters, rawText, out var ratio);
+            var text = await parseHtmlFunction.Invoke(url, cancellationToken);
+            ValidateText(kanjiCharacters, text, out var ratio, out var unknownKanji);
     
-            if (string.IsNullOrEmpty(resultText)) continue;
+            if (string.IsNullOrEmpty(text) || ratio > threshold) continue;
             
-            suitableResult.Add(new ProcessingResult(user.Id, sourceType, resultText, url, ratio));
+            suitableResult.Add(new ProcessingResult(user.Id, sourceType, text, url, ratio, unknownKanji.ToArray()));
                 
             if (suitableResult.Count >= remainingTextCount)
             {
                 break;
             }
         }
-        var orderedResults = suitableResult
-            .OrderBy(r => r.UnknownKanji)
-            .ToList();
         
         return suitableResult.ToArray();
     }
     
-    private string ValidateText(HashSet<char> knownKanji, string text, out double ratio)
+    public void ValidateText(HashSet<char> userKanji, string text, out double ratio, out HashSet<char> unknownKanji)
     {
-        var resultString = new StringBuilder();
-        var unknownKanji = new HashSet<char>();
+        var knownKanji = new HashSet<char>();
+        unknownKanji = new HashSet<char>();
         
         foreach (var ch in text)
         {
-            if (IsKanji(ch) && !knownKanji.Contains(ch))
+            if (!IsKanji(ch)) continue;
+            if (userKanji.Contains(ch))
+            {
+                knownKanji.Add(ch);
+            }
+            else
             {
                 unknownKanji.Add(ch);
             }
-    
-            resultString.Append(ch);
         }
  
         ratio = Math.Round((double)unknownKanji.Count / knownKanji.Count, 2);
+    }
+
+    private static double CalculateThreshold(int knownKanji)
+    {
+        double maxThreshold = 0.5; // todo: config
+        var maxPossibleKanji = 3033;
         
-        return text;
+        double normalizedLevel = (double)knownKanji / maxPossibleKanji;
+        double ease = Math.Pow(1 - normalizedLevel, 2);
+        
+        return maxThreshold * ease;
     }
     
     private static bool IsKanji(char c)

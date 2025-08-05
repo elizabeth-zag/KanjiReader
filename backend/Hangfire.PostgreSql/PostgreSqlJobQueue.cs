@@ -33,22 +33,15 @@ using Npgsql;
 
 namespace Hangfire.PostgreSql
 {
-  public class PostgreSqlJobQueue : IPersistentJobQueue
+  public class PostgreSqlJobQueue(PostgreSqlStorage storage) : IPersistentJobQueue
   {
     private const string JobNotificationChannel = "new_job";
 
     internal static readonly AutoResetEventRegistry _queueEventRegistry = new();
-    private readonly PostgreSqlStorage _storage;
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
-    public PostgreSqlJobQueue(PostgreSqlStorage storage)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      SignalDequeue = new AutoResetEvent(false);
-      JobQueueNotification = new AutoResetEvent(false);
-    }
-
-    private AutoResetEvent SignalDequeue { get; }
-    private AutoResetEvent JobQueueNotification { get; }
+    private AutoResetEvent SignalDequeue { get; } = new(false);
+    private AutoResetEvent JobQueueNotification { get; } = new(false);
 
     [NotNull]
     public IFetchedJob Dequeue(string[] queues, CancellationToken cancellationToken)

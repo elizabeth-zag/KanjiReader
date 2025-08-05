@@ -12,18 +12,7 @@ public class NhkRulesService : IGenerationRulesService<NhkParsingData, NhkParsin
             return GetDefault(baseData);
         }
         
-        var nextDate = baseData.OrderedDates.LastOrDefault(d => d > data.FirstDate);
-        if (nextDate != default)
-        {
-            return new NhkParsingData
-            {
-                CurrentDate = nextDate,
-                FirstDate = nextDate,
-                LastDate = data.LastDate
-            };
-        }
-        
-        nextDate = baseData.OrderedDates.FirstOrDefault(d => d < data.LastDate);
+        var nextDate = baseData.OrderedDates.LastOrDefault(d => d > data.LastDate);
         if (nextDate != default)
         {
             return new NhkParsingData
@@ -31,6 +20,17 @@ public class NhkRulesService : IGenerationRulesService<NhkParsingData, NhkParsin
                 CurrentDate = nextDate,
                 FirstDate = data.FirstDate,
                 LastDate = nextDate
+            };
+        }
+        
+        nextDate = baseData.OrderedDates.FirstOrDefault(d => d < data.FirstDate);
+        if (nextDate != default)
+        {
+            return new NhkParsingData
+            {
+                CurrentDate = nextDate,
+                FirstDate = nextDate,
+                LastDate = data.LastDate
             };
         }
 

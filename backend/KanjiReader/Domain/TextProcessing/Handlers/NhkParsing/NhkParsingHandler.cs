@@ -8,6 +8,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 
@@ -27,7 +28,7 @@ public class NhkParsingHandler(
         textService,
         dbContext)
 {
-    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
+    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount, 
@@ -49,8 +50,8 @@ public class NhkParsingHandler(
             GetSourceType(), 
             JsonSerializer.Serialize(parsingData));
         
-        var articleUrls = articleUrlsByDate[parsingData.CurrentDate]; // todo: handle empty result
-
+        var articleUrls = articleUrlsByDate[parsingData.CurrentDate];
+        
         var result = await textParsingService.ParseAndValidateText(
             user,
             GetSourceType(),

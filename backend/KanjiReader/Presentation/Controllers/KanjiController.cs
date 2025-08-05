@@ -8,19 +8,12 @@ namespace KanjiReader.Presentation.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/kanji")]
-public class KanjiController : ControllerBase
+public class KanjiController(KanjiService kanjiService) : ControllerBase
 {
-    private readonly KanjiService _kanjiService;
-
-    public KanjiController(KanjiService kanjiService)
-    {
-        _kanjiService = kanjiService;
-    }
-
     [HttpPost(nameof(GetKanjiForManualSelection))]
     public async Task<GetKanjiForManualSelectionResponse> GetKanjiForManualSelection(CancellationToken cancellationToken)
     {
-        var kanji = await _kanjiService.GetKanjiForManualSelection(cancellationToken);
+        var kanji = await kanjiService.GetKanjiForManualSelection(cancellationToken);
         
         return new GetKanjiForManualSelectionResponse
         {
@@ -33,14 +26,14 @@ public class KanjiController : ControllerBase
     {
         return new GetKanjiListsForSelectionResponse 
             {
-                KanjiLists = _kanjiService.GetKanjiLists().ToArray()
+                KanjiLists = kanjiService.GetKanjiLists().ToArray()
             };
     }
 
     [HttpPost(nameof(SelectKanji))]
     public async Task<SelectKanjiResponse> SelectKanji(SelectKanjiRequest dto, CancellationToken cancellationToken)
     {
-        var kanji = await _kanjiService.SelectKanji(User, dto.Kanji.ToHashSet(), dto.KanjiLists, cancellationToken);
+        var kanji = await kanjiService.SelectKanji(User, dto.Kanji.ToHashSet(), dto.KanjiLists, cancellationToken);
 
         return new SelectKanjiResponse
         {

@@ -6,19 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanjiReader.Infrastructure.Database.Repositories;
 
-public class ProcessingResultRepository : IProcessingResultRepository
+public class ProcessingResultRepository(KanjiReaderDbContext dbContext) : IProcessingResultRepository
 {
-    private readonly KanjiReaderDbContext _dbContext;
-
-    public ProcessingResultRepository(KanjiReaderDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task Insert(IReadOnlyCollection<ProcessingResult> results, CancellationToken cancellationToken)
     {
-        await _dbContext.ProcessingResults.AddRangeAsync(results, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.ProcessingResults.AddRangeAsync(results, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<ProcessingResult>> GetByUser(
@@ -27,7 +20,7 @@ public class ProcessingResultRepository : IProcessingResultRepository
         int pageSize,
         CancellationToken cancellationToken)
     {
-        return await _dbContext.ProcessingResults
+        return await dbContext.ProcessingResults
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.Id)
             .Skip((pageNumber - 1) * pageSize)
@@ -37,25 +30,25 @@ public class ProcessingResultRepository : IProcessingResultRepository
 
     public async Task<int> GetCountByUser(string userId, CancellationToken cancellationToken)
     {
-        return await _dbContext.ProcessingResults.CountAsync(r => r.UserId == userId, cancellationToken);
+        return await dbContext.ProcessingResults.CountAsync(r => r.UserId == userId, cancellationToken);
     }
 
     public async Task Delete(IReadOnlyCollection<int> textIds, CancellationToken cancellationToken)
     {
-        await _dbContext.ProcessingResults
+        await dbContext.ProcessingResults
             .Where(u => textIds.Contains(u.Id))
             .ExecuteDeleteAsync(cancellationToken);
         
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteForUser(string userId, CancellationToken cancellationToken)
     {
-        await _dbContext.ProcessingResults
+        await dbContext.ProcessingResults
             .Where(u => u.UserId == userId)
             .ExecuteDeleteAsync(cancellationToken);
         
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteForUserBySourceTypes(
@@ -63,10 +56,10 @@ public class ProcessingResultRepository : IProcessingResultRepository
         IReadOnlyCollection<GenerationSourceType> sourceTypes, 
         CancellationToken cancellationToken)
     {
-        await _dbContext.ProcessingResults
+        await dbContext.ProcessingResults
             .Where(u => u.UserId == userId && sourceTypes.Contains(u.SourceType))
             .ExecuteDeleteAsync(cancellationToken);
         
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

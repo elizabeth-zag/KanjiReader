@@ -4,15 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanjiReader.Infrastructure.Database.DbContext;
 
-public class KanjiReaderDbContext : IdentityDbContext<User>
+public class KanjiReaderDbContext(DbContextOptions<KanjiReaderDbContext> options) : IdentityDbContext<User>(options)
 {
     public DbSet<User> Users { get; set; }
     public DbSet<UserKanji> UserKanji { get; set; }
     public DbSet<Kanji> Kanji { get; set; }
     public DbSet<ProcessingResult> ProcessingResults { get; set; }
     public DbSet<UserGenerationState> UserGenerationStates { get; set; }
-
-    public KanjiReaderDbContext(DbContextOptions<KanjiReaderDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

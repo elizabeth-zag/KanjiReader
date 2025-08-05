@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using KanjiReader.Domain.EventHandlers;
-using KanjiReader.Domain.Text;
+﻿using KanjiReader.Domain.Common;
+using KanjiReader.Domain.Deletion;
+using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Presentation.Dtos.Texts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +10,9 @@ namespace KanjiReader.Presentation.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/texts")]
-public class TextsController(CreateEventsService createEventsService, TextService textService,
-    IMapper mapper) : ControllerBase
+public class TextsController(
+    TextService textService, 
+    DeletionService deletionService) : ControllerBase
 {
     [HttpPost(nameof(GetGenerationSources))]
     public GetGenerationSourcesResponse GetGenerationSources()
@@ -22,7 +23,7 @@ public class TextsController(CreateEventsService createEventsService, TextServic
     [HttpPost(nameof(StartGenerating))]
     public async Task StartGenerating(StartGeneratingRequest dto, CancellationToken cancellationToken)
     {
-        await createEventsService.CreateStartGeneratingEvents(User, dto.SourceTypes.ToHashSet(), cancellationToken);
+        await textService.StartProcessingTexts(User, dto.SourceTypes.ToHashSet(), cancellationToken);
     }
 
     [HttpPost(nameof(GetProcessedTexts))]
