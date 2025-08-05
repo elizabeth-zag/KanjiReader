@@ -2,18 +2,13 @@
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
 
-public class WatanocClient
+public class WatanocClient(IHttpClientFactory httpClientFactory)
 {
-    private readonly HttpClient _httpClient;
-    
-    public WatanocClient(IHttpClientFactory httpClientFactory)
-    {
-        _httpClient = httpClientFactory.CreateClient();
-    }
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
     public async Task<string[]> GetArticleUrls(string category, int pageNumber, CancellationToken cancellationToken)
     {
-        var urls = new List<string>();
+        var urls = new HashSet<string>();
         var doc = new HtmlDocument();
         
         var result = await _httpClient.GetStringAsync(
@@ -21,8 +16,7 @@ public class WatanocClient
         doc.LoadHtml(result);
 
         var links = doc.DocumentNode
-            .SelectNodes("//a[@href]")?
-            .Where(node => node.GetAttributeValue("href", "").Contains("post"));
+            .SelectNodes("//div[@id='content']/section/div/article/div[@class='loop-article-content']/h1/a[@href]");
         
         if (links != null)
         {

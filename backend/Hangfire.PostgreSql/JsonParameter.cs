@@ -8,19 +8,12 @@ using NpgsqlTypes;
 
 namespace Hangfire.PostgreSql;
 
-internal class JsonParameter : SqlMapper.ICustomQueryParameter
+internal class JsonParameter([CanBeNull] object value, JsonParameter.ValueType type) : SqlMapper.ICustomQueryParameter
 {
-  [CanBeNull] private readonly object _value;
-  private readonly ValueType _type;
+  [CanBeNull] private readonly object _value = value;
 
   public JsonParameter([CanBeNull] object value) : this(value, ValueType.Object)
   {
-  }
-
-  public JsonParameter([CanBeNull] object value, ValueType type)
-  {
-    _value = value;
-    _type = type;
   }
 
   public void AddParameter(IDbCommand command, string name)
@@ -35,7 +28,7 @@ internal class JsonParameter : SqlMapper.ICustomQueryParameter
 
   private string GetDefaultValue()
   {
-    return _type switch
+    return type switch
     {
       ValueType.Object => "{}",
       ValueType.Array => "[]",

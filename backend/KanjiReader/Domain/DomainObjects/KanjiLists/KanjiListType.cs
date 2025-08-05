@@ -16,5 +16,6 @@ public enum KanjiListType
     JlptN2,
     JlptN1,
     Kyouiku,
+    Jouyou,
     Heisig
 }

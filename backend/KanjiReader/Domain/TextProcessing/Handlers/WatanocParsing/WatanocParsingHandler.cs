@@ -27,7 +27,7 @@ public class WatanocParsingHandler(
         textService,
         dbContext)
 {
-    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
+    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount, 

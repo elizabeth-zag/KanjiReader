@@ -2,7 +2,6 @@
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.Login;
 using KanjiReader.Presentation.Dtos.Texts;
-using Microsoft.AspNetCore.Identity;
 
 namespace KanjiReader.Domain.Common;
 

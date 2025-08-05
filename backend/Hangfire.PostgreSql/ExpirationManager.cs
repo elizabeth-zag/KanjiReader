@@ -31,7 +31,8 @@ using Hangfire.Storage;
 namespace Hangfire.PostgreSql
 {
 #pragma warning disable CS0618
-  internal class ExpirationManager : IBackgroundProcess, IServerComponent
+  internal class ExpirationManager(PostgreSqlStorage storage, TimeSpan checkInterval)
+    : IBackgroundProcess, IServerComponent
 #pragma warning restore CS0618
   {
     private const string DistributedLockKey = "locks:expirationmanager";
@@ -53,17 +54,11 @@ namespace Hangfire.PostgreSql
       "hash",
     };
 
-    private readonly TimeSpan _checkInterval;
-    private readonly PostgreSqlStorage _storage;
+    private readonly TimeSpan _checkInterval = checkInterval;
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public ExpirationManager(PostgreSqlStorage storage)
       : this(storage ?? throw new ArgumentNullException(nameof(storage)), storage.Options.JobExpirationCheckInterval) { }
-
-    public ExpirationManager(PostgreSqlStorage storage, TimeSpan checkInterval)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      _checkInterval = checkInterval;
-    }
 
     public void Execute(BackgroundProcessContext context)
     {

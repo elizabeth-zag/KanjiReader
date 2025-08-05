@@ -6,24 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanjiReader.Infrastructure.Database.Repositories;
 
-public class UserGenerationStateRepository : IUserGenerationStateRepository
+public class UserGenerationStateRepository(KanjiReaderDbContext dbContext) : IUserGenerationStateRepository
 {
-    private readonly KanjiReaderDbContext _dbContext;
-
-    public UserGenerationStateRepository(KanjiReaderDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task Insert(UserGenerationState state, CancellationToken cancellationToken)
     {
-        _dbContext.UserGenerationStates.Update(state);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        dbContext.UserGenerationStates.Update(state);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<UserGenerationState?> Get(string userId, GenerationSourceType sourceType, CancellationToken cancellationToken)
     {
-        return await _dbContext.UserGenerationStates
+        return await dbContext.UserGenerationStates
             .SingleOrDefaultAsync(r => r.UserId == userId && r.SourceType == sourceType, cancellationToken);
     }
 }

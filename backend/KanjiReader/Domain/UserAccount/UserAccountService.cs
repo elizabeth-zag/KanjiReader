@@ -4,115 +4,173 @@ using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace KanjiReader.Domain.UserAccount;
 
 // todo: add validation
-public class UserAccountService
+public class UserAccountService(
+    UserManager<User> userManager,
+    SignInManager<User> signInManager)
 {
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
-    private User? CurrentUser;
+    private User? _currentUser;
 
-    public UserAccountService(
-        UserManager<User> userManager, 
-        SignInManager<User> signInManager)
+    public async Task Register(RegisterRequest dto, DateTime loginTime)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-    }
-
-    public async Task<RegisterResponse> Register(RegisterRequest dto, DateTime loginTime)
-    {
-        try
+        var user = CommonConverter.Convert(dto, loginTime);
+        var result = await userManager.CreateAsync(user, dto.Password);
+        
+        if (!result.Succeeded)
         {
-            var user = CommonConverter.Convert(dto, loginTime);
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            return CommonConverter.Convert(result);
-        }
-        catch (Exception ex)
-        {
-            // todo: exception middleware
-            return new RegisterResponse { StatusCode = RegistrationResultStatusCode.ServerError, ErrorMessage = ex.Message };
+            throw new Exception($"{nameof(Register)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }
 
-    public async Task<string> LogIn(LogInRequest dto, DateTime loginTime) // todo: update login time
+    public async Task<User?> LogIn(LogInRequest dto, DateTime loginTime)
     {
-        try
-        {
-            var user = await _userManager.FindByNameAsync(dto.UserName);
-            if (user == null)
-                return "Invalid username or password";
+        var user = await userManager.FindByNameAsync(dto.UserName);
+        if (user == null)
+            return null;
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
-            if (!result.Succeeded)
-                return "Invalid username or password";
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+        if (!signInResult.Succeeded)
+            return null;
             
-            await _signInManager.SignInAsync(user, isPersistent: true);
-            
-            return string.Empty;
-        }
-        catch (Exception ex)
-        {
-            // todo: exception middleware
-            return ex.Message;
-        }
+        await signInManager.SignInAsync(user, isPersistent: true);
+        await UpdateLoginTime(user, loginTime);
+        return user;
     }
     
     public async Task<User> GetById(string userId)
     {
-        if (CurrentUser == null)
+        _currentUser ??= _currentUser = await userManager.FindByIdAsync(userId);
+
+        if (_currentUser == null)
         {
-            CurrentUser = await _userManager.FindByIdAsync(userId); // todo: NRE
+            throw new KeyNotFoundException($"User {userId} not found by id");
         }
-        return CurrentUser; 
+
+        return _currentUser;
     }
     
     public async Task<User> GetByClaims(ClaimsPrincipal claimsPrincipal)
     {
-        if (CurrentUser == null)
+        _currentUser ??= await userManager.GetUserAsync(claimsPrincipal);
+
+        if (_currentUser == null)
         {
-            CurrentUser = await _userManager.GetUserAsync(claimsPrincipal); // todo: NRE
+            throw new KeyNotFoundException($"User {claimsPrincipal.Identity?.Name ?? string.Empty} not found by claims principal");
         }
 
-        return CurrentUser;
+        return _currentUser;
+    }
+
+    private async Task UpdateLoginTime(User user, DateTime loginTime)
+    {
+        user.LastLogin = loginTime;
+        var result = await userManager.UpdateAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateLoginTime)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
     
-    public async Task<bool> UpdateWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
+    public async Task UpdateHasData(User user, bool hasData)
+    {
+        user.HasData = hasData;
+        var result = await userManager.UpdateAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateHasData)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    
+    public async Task UpdateWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
     {
         var user = await GetByClaims(claimsPrincipal);
         user.WaniKaniToken = token;
         user.KanjiSourceType = KanjiSourceType.WaniKani;
-        var result = await _userManager.UpdateAsync(user);
+        var result = await userManager.UpdateAsync(user);
 
-        return result.Succeeded; // todo: handle errors
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateWaniKaniToken)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
     
     public async Task UpdateKanjiSourceType(ClaimsPrincipal claimsPrincipal, KanjiSourceType kanjiSourceType)
     {
         var user = await GetByClaims(claimsPrincipal);
         user.KanjiSourceType = kanjiSourceType;
-        await _userManager.UpdateAsync(user);
+        var result = await userManager.UpdateAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateKanjiSourceType)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
     
     public async Task UpdateName(ClaimsPrincipal claimsPrincipal, string name)
     {
         var user = await GetByClaims(claimsPrincipal);
         user.UserName = name;
-        await _userManager.UpdateAsync(user);
+        var result = await userManager.UpdateAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateName)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
     
     public async Task UpdateEmail(ClaimsPrincipal claimsPrincipal, string email)
     {
         var user = await GetByClaims(claimsPrincipal);
-        user.Email = email;
-        await _userManager.SetEmailAsync(user, email);
+        var result = await userManager.SetEmailAsync(user, email);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateEmail)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
     
     public async Task UpdatePassword(ClaimsPrincipal claimsPrincipal, string oldPassword, string newPassword)
     {
         var user = await GetByClaims(claimsPrincipal);
-        await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdatePassword)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    
+    public async Task<bool> DeleteUserAccount(ClaimsPrincipal claimsPrincipal, string password)
+    {
+        var user = await GetByClaims(claimsPrincipal);
+
+        var isPasswordValid = await userManager.CheckPasswordAsync(user, password);
+        if (!isPasswordValid)
+        {
+            return false;
+        }
+        
+        var result = await userManager.DeleteAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(DeleteUserAccount)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+        
+        await signInManager.SignOutAsync();
+        return true;
+    }
+    
+    public async Task<IReadOnlyCollection<User>> GetInactiveUsers(CancellationToken cancellationToken)
+    {
+        return await userManager.Users
+            .Where(u => u.LastLogin < DateTime.UtcNow.AddMonths(-3))
+            .ToArrayAsync(cancellationToken); // todo: config
     }
 }

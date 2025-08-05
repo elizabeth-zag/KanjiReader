@@ -33,18 +33,13 @@ using Hangfire.Storage.Monitoring;
 
 namespace Hangfire.PostgreSql
 {
-  public class PostgreSqlMonitoringApi : IMonitoringApi
+  public class PostgreSqlMonitoringApi(
+    PostgreSqlStorage storage,
+    PersistentJobQueueProviderCollection queueProviders)
+    : IMonitoringApi
   {
-    private readonly PersistentJobQueueProviderCollection _queueProviders;
-    private readonly PostgreSqlStorage _storage;
-
-    public PostgreSqlMonitoringApi(
-      PostgreSqlStorage storage,
-      PersistentJobQueueProviderCollection queueProviders)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      _queueProviders = queueProviders ?? throw new ArgumentNullException(nameof(queueProviders));
-    }
+    private readonly PersistentJobQueueProviderCollection _queueProviders = queueProviders ?? throw new ArgumentNullException(nameof(queueProviders));
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public long ScheduledCount()
     {
@@ -560,11 +555,9 @@ namespace Hangfire.PostgreSql
     ///   Overloaded dictionary that doesn't throw if given an invalid key
     ///   Fixes issues such as https://github.com/frankhommers/Hangfire.PostgreSql/issues/79
     /// </summary>
-    private class SafeDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+    private class SafeDictionary<TKey, TValue>(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+      : Dictionary<TKey, TValue>(dictionary, comparer)
     {
-      public SafeDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
-        : base(dictionary, comparer) { }
-
       public new TValue this[TKey i]
       {
         // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident

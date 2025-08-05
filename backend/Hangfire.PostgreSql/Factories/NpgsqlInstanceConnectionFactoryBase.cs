@@ -4,16 +4,11 @@ using Npgsql;
 
 namespace Hangfire.PostgreSql.Factories;
 
-public abstract class NpgsqlInstanceConnectionFactoryBase : IConnectionFactory
+public abstract class NpgsqlInstanceConnectionFactoryBase(PostgreSqlStorageOptions options) : IConnectionFactory
 {
-  private readonly PostgreSqlStorageOptions _options;
+  private readonly PostgreSqlStorageOptions _options = options ?? throw new ArgumentNullException(nameof(options));
   [CanBeNull] private NpgsqlConnectionStringBuilder _connectionStringBuilder;
   [CanBeNull] private string _connectionString;
-
-  protected NpgsqlInstanceConnectionFactoryBase(PostgreSqlStorageOptions options)
-  {
-    _options = options ?? throw new ArgumentNullException(nameof(options));
-  }
 
   /// <summary>
   /// Gets the connection string builder associated with the current instance.

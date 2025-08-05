@@ -25,10 +25,5 @@ using Hangfire.Storage;
 namespace Hangfire.PostgreSql
 {
   [Serializable]
-  public class PostgreSqlDistributedLockException : DistributedLockTimeoutException
-  {
-    public PostgreSqlDistributedLockException(string resource) : base(resource)
-    {
-    }
-  }
+  public class PostgreSqlDistributedLockException(string resource) : DistributedLockTimeoutException(resource);
 }

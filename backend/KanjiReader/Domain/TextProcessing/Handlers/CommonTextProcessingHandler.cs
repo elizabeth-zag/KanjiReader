@@ -15,7 +15,7 @@ public abstract class CommonTextProcessingHandler(
     TextService textService,
     KanjiReaderDbContext dbContext)
 {
-    public async Task Handle(string userId, CancellationToken cancellationToken)
+    public async Task Handle(string userId, bool isLastRetry, CancellationToken cancellationToken)
     {
         var remainingTextCount = await textService.GetRemainingTextCount(userId, cancellationToken);
         if (remainingTextCount <= 0)
@@ -26,8 +26,24 @@ public abstract class CommonTextProcessingHandler(
         var generationState = await userGenerationStateRepository.Get(userId, GetSourceType(), cancellationToken);
         
         var user = await userAccountService.GetById(userId);
-        var (processingResults, updatedGenerationState) = await ProcessTexts(
-            user, generationState, remainingTextCount, cancellationToken);
+
+        IReadOnlyCollection<ProcessingResult> processingResults;
+        UserGenerationState? updatedGenerationState = null;
+        try
+        {
+            (processingResults, updatedGenerationState) = await ProcessTexts(user, generationState, remainingTextCount, cancellationToken);
+        }
+        catch
+        {
+            if (!isLastRetry) throw;
+            if (updatedGenerationState != null)
+            {
+                await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
+            }
+            BackgroundJob.Enqueue<TextProcessingJob>(svc =>
+                svc.Execute(userId, GetSourceType(), null!, CancellationToken.None));
+            throw;
+        }
         
         var isGenerationCompleted = await textService.GetRemainingTextCount(userId, cancellationToken) <= 0;
         
@@ -35,7 +51,10 @@ public abstract class CommonTextProcessingHandler(
         
         try
         {
-            await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
+            if (updatedGenerationState != null)
+            {
+                await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
+            }
             
             if (processingResults.Count > 0)
             {
@@ -49,7 +68,7 @@ public abstract class CommonTextProcessingHandler(
             if (!isGenerationCompleted)
             {
                 BackgroundJob.Enqueue<TextProcessingJob>(svc =>
-                    svc.Execute(userId, GetSourceType(), CancellationToken.None));
+                    svc.Execute(userId, GetSourceType(), null!, CancellationToken.None));
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -61,7 +80,7 @@ public abstract class CommonTextProcessingHandler(
         }
     }
 
-    protected abstract Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
+    protected abstract Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount,

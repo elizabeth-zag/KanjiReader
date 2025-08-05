@@ -1,54 +1,54 @@
-﻿using KanjiReader.Domain.Kanji.WaniKani;
+﻿using KanjiReader.Domain.Deletion;
+using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.UserAccount;
-using KanjiReader.Presentation.Dtos.Kanji;
 using KanjiReader.Presentation.Dtos.Login;
 using KanjiReader.Presentation.Dtos.Login.UpdateUserInfo;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Presentation.Controllers;
 
 [ApiController]
-[Route("api/auth")]
-public class LoginController : ControllerBase
+[Route("api/login")]
+public class LoginController(
+    UserAccountService userAccountService,
+    WaniKaniService waniKaniService,
+    DeletionService deletionService,
+    ILogger<LoginController> logger)
+    : ControllerBase
 {
-    private readonly UserAccountService _userAccountService;
-    private readonly WaniKaniService _waniKaniService;
-    
-    public LoginController(UserAccountService userAccountService, WaniKaniService waniKaniService)
-    {
-        _userAccountService = userAccountService;
-        _waniKaniService = waniKaniService;
-    }
-    
     [HttpPost(nameof(Register))]
-    public async Task<RegisterResponse> Register(RegisterRequest dto, CancellationToken cancellationToken)
+    public async Task<IActionResult> Register(RegisterRequest dto)
     {
-        var response = await _userAccountService.Register(dto, DateTime.UtcNow);
-        
-        if (!string.IsNullOrEmpty(dto.WaniKaniToken))
-        {
-            try
-            {
-                await _waniKaniService.FillWaniKaniKanjiCache(User, dto.WaniKaniToken, cancellationToken);
-            }
-            catch { } // create some logging
-        }
-        
-        return response;
+        await userAccountService.Register(dto, DateTime.UtcNow);
+
+        return Ok();
     }
     
     [HttpPost(nameof(LogIn))]
-    public async Task<IActionResult> LogIn(LogInRequest dto)
+    public async Task<IActionResult> LogIn(LogInRequest dto, CancellationToken cancellationToken)
     {
-        var errorMessage = await _userAccountService.LogIn(dto, DateTime.UtcNow);
-        
-        if (string.IsNullOrEmpty(errorMessage))
+        var loggedInUser = await userAccountService.LogIn(dto, DateTime.UtcNow);
+        if (loggedInUser == null)
         {
-            return Unauthorized(new { message = errorMessage });
+            return Unauthorized(new { message = "Invalid username or password" });
         }
+        
+        if (!string.IsNullOrEmpty(loggedInUser.WaniKaniToken))
+        {
+            try
+            {
+                await waniKaniService.FillWaniKaniKanjiCache(loggedInUser, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Redis filling failed");
+            }
+        }
+        
         return Ok();
     }
     
@@ -73,20 +73,24 @@ public class LoginController : ControllerBase
     [HttpPost(nameof(SetWaniKaniToken))]
     public async Task SetWaniKaniToken(UpdateWaniKaniTokenRequest dto, CancellationToken cancellationToken)
     {
-        await _userAccountService.UpdateWaniKaniToken(User, dto.Token);
+        await userAccountService.UpdateWaniKaniToken(User, dto.Token);
+        var user = await userAccountService.GetByClaims(User);
 
         try
         {
-            await _waniKaniService.FillWaniKaniKanjiCache(User, dto.Token, cancellationToken);
+            await waniKaniService.FillWaniKaniKanjiCache(user, cancellationToken);
         }
-        catch { } // create some logging
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Redis filling failed");
+        }
     }
     
     [Authorize]
     [HttpPost(nameof(UpdateName))]
     public async Task<IActionResult> UpdateName(UpdateNameRequest dto)
     {
-        await _userAccountService.UpdateName(User, dto.Name);
+        await userAccountService.UpdateName(User, dto.Name);
         return Ok();
     }
     
@@ -94,7 +98,7 @@ public class LoginController : ControllerBase
     [HttpPost(nameof(UpdateKanjiSourceType))]
     public async Task<IActionResult> UpdateKanjiSourceType(UpdateKanjiSourceTypeRequest dto)
     {
-        await _userAccountService.UpdateKanjiSourceType(User, dto.KanjiSourceType);
+        await userAccountService.UpdateKanjiSourceType(User, dto.KanjiSourceType);
         return Ok();
     }
     
@@ -102,7 +106,7 @@ public class LoginController : ControllerBase
     [HttpPost(nameof(UpdateEmail))]
     public async Task<IActionResult> UpdateEmail(UpdateEmailRequest dto)
     {
-        await _userAccountService.UpdateEmail(User, dto.Email);
+        await userAccountService.UpdateEmail(User, dto.Email);
         return Ok();
     }
     

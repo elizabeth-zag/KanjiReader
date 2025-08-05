@@ -3,19 +3,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
 
-public class GoogleGenerativeAiClient
+public class GoogleGenerativeAiClient(IConfiguration config)
 {
-    private readonly IConfiguration _config;
-
-    public GoogleGenerativeAiClient(IConfiguration config)
-    {
-        _config = config;
-    }
-
     public async Task<string> GenerateText(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
     {
         var prompt = GetPrompt(string.Join(", ", kanji));
-        var apiKey = _config["GoogleAiApiToken"]; // todo: config
+        var apiKey = config["GoogleAiApiToken"]; // todo: config
         var googleAi = new GoogleAi(apiKey);
 
         var googleModel = googleAi.CreateGenerativeModel("models/gemini-2.5-pro");

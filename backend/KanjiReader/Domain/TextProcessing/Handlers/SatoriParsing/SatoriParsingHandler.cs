@@ -8,6 +8,7 @@ using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 
@@ -27,7 +28,7 @@ public class SatoriParsingHandler(
         textService,
         dbContext)
 {
-    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState state)> ProcessTexts(
+    protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
         int remainingTextCount, 

@@ -26,14 +26,9 @@ using Dapper;
 
 namespace Hangfire.PostgreSql
 {
-  internal class PostgreSqlJobQueueMonitoringApi : IPersistentJobQueueMonitoringApi
+  internal class PostgreSqlJobQueueMonitoringApi(PostgreSqlStorage storage) : IPersistentJobQueueMonitoringApi
   {
-    private readonly PostgreSqlStorage _storage;
-
-    public PostgreSqlJobQueueMonitoringApi(PostgreSqlStorage storage)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-    }
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public IEnumerable<string> GetQueues()
     {

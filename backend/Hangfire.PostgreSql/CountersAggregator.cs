@@ -29,7 +29,7 @@ using Hangfire.Server;
 namespace Hangfire.PostgreSql
 {
 #pragma warning disable 618
-  internal class CountersAggregator : IServerComponent
+  internal class CountersAggregator(PostgreSqlStorage storage, TimeSpan interval) : IServerComponent
 #pragma warning restore 618
   {
     // This number should be high enough to aggregate counters efficiently,
@@ -40,14 +40,7 @@ namespace Hangfire.PostgreSql
     private static readonly TimeSpan _delayBetweenPasses = TimeSpan.FromMilliseconds(500);
 
     private readonly ILog _logger = LogProvider.For<CountersAggregator>();
-    private readonly TimeSpan _interval;
-    private readonly PostgreSqlStorage _storage;
-
-    public CountersAggregator(PostgreSqlStorage storage, TimeSpan interval)
-    {
-      _storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      _interval = interval;
-    }
+    private readonly PostgreSqlStorage _storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public void Execute(CancellationToken cancellationToken)
     {
@@ -75,7 +68,7 @@ namespace Hangfire.PostgreSql
 
       _logger.Trace("Records from the 'Counter' table aggregated.");
 
-      cancellationToken.Wait(_interval);
+      cancellationToken.Wait(interval);
     }
 
     private string GetAggregationQuery()

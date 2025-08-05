@@ -3,29 +3,23 @@ using StackExchange.Redis;
 
 namespace KanjiReader.Infrastructure.Redis;
 
-public class RedisKanjiCacheRepository : IKanjiCacheRepository
+public class RedisKanjiCacheRepository(IConnectionMultiplexer redis) : IKanjiCacheRepository
 {
-    private readonly IConnectionMultiplexer _redis;
-
-    public RedisKanjiCacheRepository(IConnectionMultiplexer redis)
-    {
-        _redis = redis;
-    }
-
     public async Task SetUserKanji(string userId, IReadOnlySet<char> kanji)
     {
-        var key = $"userid:{userId}";
         var value = new string(kanji.ToArray());
         
-        var db = _redis.GetDatabase();
-        await db.StringSetAsync(key, value);
+        var db = redis.GetDatabase();
+        await db.StringSetAsync(GetKey(userId), value);
     }
 
     public async Task<IReadOnlySet<char>> GetUserKanji(string userId)
     {
-        var db = _redis.GetDatabase();
-        var result = await db.StringGetAsync(userId);
+        var db = redis.GetDatabase();
+        var result = await db.StringGetAsync(GetKey(userId));
         
         return result.ToString().ToCharArray().ToHashSet();
     }
+    
+    private static string GetKey(string userId) => $"userid:{userId}";
 }

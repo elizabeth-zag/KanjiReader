@@ -23,16 +23,11 @@ using System;
 
 namespace Hangfire.PostgreSql
 {
-  public class PostgreSqlJobQueueProvider : IPersistentJobQueueProvider
+  public class PostgreSqlJobQueueProvider(PostgreSqlStorage storage, PostgreSqlStorageOptions options)
+    : IPersistentJobQueueProvider
   {
-    public PostgreSqlJobQueueProvider(PostgreSqlStorage storage, PostgreSqlStorageOptions options)
-    {
-      Storage = storage ?? throw new ArgumentNullException(nameof(storage));
-      Options = options ?? throw new ArgumentNullException(nameof(options));
-    }
-
-    public PostgreSqlStorageOptions Options { get; }
-    public PostgreSqlStorage Storage { get; }
+    public PostgreSqlStorageOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
+    public PostgreSqlStorage Storage { get; } = storage ?? throw new ArgumentNullException(nameof(storage));
 
     public IPersistentJobQueue GetJobQueue()
     {

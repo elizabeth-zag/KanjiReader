@@ -4,14 +4,9 @@ using KanjiReader.ExternalServices.JapaneseTextSources.Nhk.Contracts;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 
-public class NhkClient
+public class NhkClient(IHttpClientFactory httpClientFactory)
 {
-    private readonly HttpClient _httpClient;
-    
-    public NhkClient(IHttpClientFactory httpClientFactory)
-    {
-        _httpClient = httpClientFactory.CreateClient();
-    }
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
     public async Task<Dictionary<DateTime, string[]>> GetArticleUrls(CancellationToken cancellationToken)
     {

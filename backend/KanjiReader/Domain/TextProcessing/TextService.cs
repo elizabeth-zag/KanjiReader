@@ -8,26 +8,17 @@ using KanjiReader.Infrastructure.Repositories;
 
 namespace KanjiReader.Domain.TextProcessing;
 
-public class TextService
+public class TextService(IProcessingResultRepository processingResultRepository, UserAccountService userAccountService)
 {
-    private readonly IProcessingResultRepository _processingResultRepository;
-    private readonly UserAccountService _userAccountService;
-
-    public TextService(IProcessingResultRepository processingResultRepository, UserAccountService userAccountService)
-    {
-        _processingResultRepository = processingResultRepository;
-        _userAccountService = userAccountService;
-    }
-    
     public async Task StartProcessingTexts(
         ClaimsPrincipal claimsPrincipal, 
         IReadOnlySet<GenerationSourceType> sourceTypes, 
         CancellationToken cancellationToken)
     {
-        var user = await _userAccountService.GetByClaims(claimsPrincipal);
+        var user = await userAccountService.GetByClaims(claimsPrincipal);
         
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await _processingResultRepository.GetCountByUser(user.Id, cancellationToken);
+        var currentTextCount = await processingResultRepository.GetCountByUser(user.Id, cancellationToken);
         
         if (currentTextCount >= textCountLimit)
         {
@@ -36,7 +27,7 @@ public class TextService
 
         foreach (var sourceType in sourceTypes.Where(st => st != GenerationSourceType.Unspecified))
         {
-            BackgroundJob.Enqueue<TextProcessingJob>(svc => svc.Execute(user.Id, sourceType, CancellationToken.None));
+            BackgroundJob.Enqueue<TextProcessingJob>(svc => svc.Execute(user.Id, sourceType, null!, CancellationToken.None));
         }
     }
     
@@ -46,8 +37,8 @@ public class TextService
         int pageSize,
         CancellationToken cancellationToken)
     {
-        var user = await _userAccountService.GetByClaims(claimsPrincipal);
-        var processingResults = await _processingResultRepository
+        var user = await userAccountService.GetByClaims(claimsPrincipal);
+        var processingResults = await processingResultRepository
             .GetByUser(user.Id, pageNumber, pageSize, cancellationToken);
 
         return processingResults;
@@ -56,7 +47,7 @@ public class TextService
     public async Task<int> GetRemainingTextCount(string userId, CancellationToken cancellationToken)
     {
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await _processingResultRepository.GetCountByUser(userId, cancellationToken);
+        var currentTextCount = await processingResultRepository.GetCountByUser(userId, cancellationToken);
         return Math.Max(textCountLimit - currentTextCount, 0);
     }
 }
