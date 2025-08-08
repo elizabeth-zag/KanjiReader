@@ -1,0 +1,118 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.register-header {
+  text-align: center;
+  margin-top: 2px;
+}
+
+.register-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: -10px;
+  border-radius: 10px;
+}
+
+.register-title {
+  margin-bottom: 8px;
+  color: #ffffffff;
+}
+
+.register-subtitle {
+  font-size: 1.2rem;
+  color: #ffffffff;
+  margin: 0;
+}
+
+.register-form-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 300px;
+}
+
+.register-form .MuiTextField-root .MuiOutlinedInput-root {
+  background-color: white;
+  height: 50px;
+}
+
+.register-form .MuiTextField-root .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #ccc;
+}
+
+.register-form .MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #999;
+}
+
+.register-form .MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800;
+}
+
+.register-button-container {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.register-button {
+  background-color: #FF9800 !important;
+  color: white !important;
+}
+
+.register-error {
+  color: red;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.register-form-switch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.register-form-switch-text {
+  color: white;
+  display: inline;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+.register-form-switch-link {
+  color: rgb(187, 143, 244) !important;
+  display: inline;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.register-form-switch-link:hover {
+  text-decoration: underline;
+} 
+
+@media (prefers-color-scheme: light) {
+  .register-form-switch-text {
+    color: #213547;
+  }
+  .register-form-switch-link {
+    color: #7225de !important;
+  }
+}

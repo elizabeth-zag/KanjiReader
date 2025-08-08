@@ -1,0 +1,48 @@
+.kanjisetup-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  gap: 16px;
+  margin-top: 100px;
+}
+
+.kanjisetup-message {
+  margin-bottom: 16px;
+}
+
+.kanjisetup-buttons {
+  display: flex;
+  gap: 30px;
+}
+
+.kanjisetup-button {
+  background-color: #FF9800 !important;
+  color: black !important;
+  width: 150px;
+  font-weight: 700 !important;
+  font-family: 'Inter' !important;
+}
+
+.kanjisetup-button:hover {
+  background-color: rgb(255, 128, 0) !important;
+}
+
+.kanjisetup-placeholder {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.kanjisetup-or {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  font-weight: 700 !important;
+  font-family: 'Inter' !important;
+  color: orange;
+  font-style: italic;
+}

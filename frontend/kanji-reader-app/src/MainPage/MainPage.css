@@ -1,0 +1,21 @@
+.mainpage-container {
+}
+
+.mainpage-centered {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin-right: 30px;
+  margin-left: 30px;
+  margin-bottom: 30px;
+}
+
+.mainpage-welcome {
+  margin-bottom: 16px;
+}
+
+.mainpage-loading {
+  margin-top: 30px !important;
+}

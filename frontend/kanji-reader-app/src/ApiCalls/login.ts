@@ -1,9 +1,17 @@
 ﻿import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/auth'; // todo: move to config
+const API_URL = 'http://localhost:5000/api/login'; // todo: move to config
 
 export type LoginResponse = {
   userName: string;
+};
+
+export async function register(username: string, password: string, email: string, waniKaniToken: string) {
+  await axios.post(
+    `${API_URL}/Register`,
+    { username, password, email, waniKaniToken },
+    { withCredentials: true }
+  );
 };
 
 export async function login(username: string, password: string) {
@@ -18,6 +26,15 @@ export async function logout() {
   const res = await axios.post(
     `${API_URL}/LogOut`,
     {},
+    { withCredentials: true }
+  );
+  return res.data;
+}
+
+export async function updateKanjiSourceType(kanjiSourceType: string)  {
+  const res = await axios.post(
+    `${API_URL}/UpdateKanjiSourceType`,
+    { kanjiSourceType },
     { withCredentials: true }
   );
   return res.data;
