@@ -1,17 +1,9 @@
 import './App.css'
-import Login from './Login.tsx';
-import MainPage from './MainPage';
+import LoginPage from './Login/LoginPage.tsx';
+import MainPage from './MainPage/MainPage.tsx';
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from './auth';
-import { ThemeProvider, createTheme } from "@mui/material";
-import { lightBlue, deepPurple } from '@mui/material/colors';
-
-const theme = createTheme({
-  palette: {
-    primary: deepPurple,
-    secondary: lightBlue,
-  }
-});
+import { getCurrentUser } from './ApiCalls/login.ts';
+import { Box, createTheme } from "@mui/material";
 
 function App() {
   const [userName, setUserName] = useState<string | null>(null);
@@ -31,9 +23,9 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      {userName ? <MainPage userName={userName} /> : <Login onLogin={setUserName} />}
-    </ThemeProvider>
+    <Box>
+      {userName ? <MainPage userName={userName} /> : <LoginPage onLogin={setUserName} />}
+    </Box>
   );
 }
 

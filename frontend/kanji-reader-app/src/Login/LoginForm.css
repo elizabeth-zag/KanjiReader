@@ -1,0 +1,88 @@
+.login-form-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 300px;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root {
+  background-color: white;
+  height: 50px;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #ccc;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #999;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800;
+}
+
+.login-button-container {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.login-button {
+  background-color: #FF9800 !important;
+  color: white !important;
+}
+
+.login-error {
+  color: red;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.login-form-switch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.login-form-switch-text {
+  color: white;
+  display: inline;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+.login-form-switch-link {
+  color: rgb(187, 143, 244) !important;
+  display: inline;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.login-form-switch-link:hover {
+  text-decoration: underline;
+} 
+
+@media (prefers-color-scheme: light) {
+  .login-form-switch-text {
+    color: #213547;
+  }
+  .login-form-switch-link {
+    color: #7225de !important;
+  }
+}

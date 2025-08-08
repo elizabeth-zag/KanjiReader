@@ -1,0 +1,24 @@
+.individual-kanji-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  background-color: white;
+  transition: all 0.2s ease;
+  color: black !important
+}
+
+.individual-kanji-item:hover {
+  background-color: #f5f5f5;
+  border-color: #FF9800;
+}
+
+.individual-kanji-checkbox {
+  color: #FF9800 !important;
+}
+
+.individual-kanji-checkbox.Mui-checked {
+  color: #FF9800 !important;
+}
