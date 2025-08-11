@@ -55,8 +55,8 @@ public class LoginController(
     [HttpPost(nameof(LogOut))]
     public async Task<IActionResult> LogOut()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok(new { message = "Logged out" });
+        await userAccountService.LogOut();
+        return Ok();
     }
     
     [Authorize]

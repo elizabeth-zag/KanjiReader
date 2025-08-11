@@ -15,6 +15,22 @@
   background-color: #000 !important;
 }
 
+.uppermenubar-toolbar {
+  justify-content: space-between
+}
+
+.uppermenubar-logo {
+  width: 70px;
+  height: 70px;
+  margin-left: -10px;
+  margin-right: 10px;
+}
+
+.uppermenubar-title-container {
+  display: flex;
+  align-items: center;
+}
+
 .uppermenubar-title {
   margin-left: 16px;
   font-family: "Inter", sans-serif !important;
@@ -25,7 +41,50 @@
 .uppermenubar-center {
   display: flex;
   align-items: center;
-  gap: 60px;
+  justify-content: space-evenly;
   flex: 1;
+}
+
+.kanjimenu-button {
+  margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+  border-color: #FF9800 !important;
+  color: #FF9800 !important;
+}
+.kanjimenu-button:focus,
+.kanjimenu-button.Mui-focusVisible {
+  outline: none;
+}
+.kanjimenu-button:active {
+  background-color: transparent;
+}
+.kanjimenu-button:hover {
+  background-color: #21170b;
+}
+
+.readingsmenu-button {
+  margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+  border-color: #FF9800 !important;
+  color: #FF9800 !important;
+}
+.readingsmenu-button:focus,
+.readingsmenu-button.Mui-focusVisible {
+  outline: none;
+}
+.readingsmenu-button:active {
+  background-color: transparent;
+}
+.readingsmenu-button:hover {
+  background-color: #21170b;
 }
