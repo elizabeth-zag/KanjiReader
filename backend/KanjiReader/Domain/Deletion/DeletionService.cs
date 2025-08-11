@@ -13,7 +13,7 @@ public class DeletionService(
 {
     public async Task<bool> DeleteUser(ClaimsPrincipal userPrincipal, string password, CancellationToken cancellationToken)
     {
-        var user = await userAccountService.GetByClaims(userPrincipal);
+        var user = await userAccountService.GetByClaimsPrincipal(userPrincipal);
         var isDeletionSuccessful = await userAccountService.DeleteUserAccount(userPrincipal, password);
         
         if (!isDeletionSuccessful)
@@ -31,6 +31,11 @@ public class DeletionService(
         await processingResultRepository.DeleteForUser(user.Id, cancellationToken);
     }
     
+    public async Task DeleteUserTexts(User user, CancellationToken cancellationToken)
+    {
+        await processingResultRepository.DeleteForUser(user.Id, cancellationToken);
+    }
+    
     public async Task RemoveTexts(IReadOnlyCollection<int> textIds, CancellationToken cancellationToken)
     {
         await processingResultRepository.Delete(textIds, cancellationToken);
@@ -41,7 +46,7 @@ public class DeletionService(
         IReadOnlyCollection<GenerationSourceType> sourceTypes, 
         CancellationToken cancellationToken)
     {
-        var user = await userAccountService.GetByClaims(claimsPrincipal);
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         await processingResultRepository.DeleteForUserBySourceTypes(user.Id, sourceTypes, cancellationToken);
     }
 }

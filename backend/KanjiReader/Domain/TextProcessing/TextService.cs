@@ -15,7 +15,7 @@ public class TextService(IProcessingResultRepository processingResultRepository,
         IReadOnlySet<GenerationSourceType> sourceTypes, 
         CancellationToken cancellationToken)
     {
-        var user = await userAccountService.GetByClaims(claimsPrincipal);
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
         var textCountLimit = 30; // todo: move to config
         var currentTextCount = await processingResultRepository.GetCountByUser(user.Id, cancellationToken);
@@ -37,7 +37,7 @@ public class TextService(IProcessingResultRepository processingResultRepository,
         int pageSize,
         CancellationToken cancellationToken)
     {
-        var user = await userAccountService.GetByClaims(claimsPrincipal);
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         var processingResults = await processingResultRepository
             .GetByUser(user.Id, pageNumber, pageSize, cancellationToken);
 

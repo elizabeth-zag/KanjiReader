@@ -2,6 +2,7 @@
 using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.KanjiLists;
+using KanjiReader.Domain.Exceptions;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.KanjiApi;
@@ -9,6 +10,7 @@ using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 using KanjiReader.Presentation.Dtos.Kanji;
+using KanjiDb = KanjiReader.Infrastructure.Database.Models.Kanji;
 
 namespace KanjiReader.Domain.Kanji;
 
@@ -20,9 +22,9 @@ public class KanjiService(
     IKanjiRepository kanjiRepository,
     KanjiReaderDbContext dbContext)
 {
-    public async Task<IReadOnlySet<char>> SelectKanji(
+    public async Task<IReadOnlySet<char>> SetUserKanji(
         ClaimsPrincipal claimsPrincipal, 
-        IReadOnlySet<char> selectedKanji, 
+        IReadOnlySet<char> individualSelectionKanji, 
         IReadOnlyCollection<KanjiListType> kanjiLists, 
         CancellationToken cancellationToken)
     {
@@ -30,21 +32,18 @@ public class KanjiService(
             .Where(t => t != KanjiListType.Unspecified)
             .ToArray();
         
-        IReadOnlySet<char> kanjiFromLists = new HashSet<char>();
-
-        if (kanjiListTypes.Length > 0)
-        {
-            kanjiFromLists = await kanjiApiClient.GetKanjiList(kanjiListTypes, cancellationToken);
-        }
+        IReadOnlySet<char> kanjiFromLists = kanjiListTypes.Length > 0 
+            ? await kanjiApiClient.GetKanjiList(kanjiListTypes, cancellationToken)
+            : new HashSet<char>();
         
-        var userKanji = new HashSet<char>(selectedKanji.Union(kanjiFromLists));
+        var userKanji = new HashSet<char>(individualSelectionKanji.Union(kanjiFromLists));
 
         if (userKanji.Count == 0)
         {
             throw new ArgumentException("No kanji were provided by the user");
         }
 
-        var user = await userAccountService.GetByClaims(claimsPrincipal);
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
         var kanji = await kanjiRepository.GetKanjiByCharacters(userKanji.ToArray(), cancellationToken);
 
@@ -55,10 +54,7 @@ public class KanjiService(
             await kanjiRepository.ClearUserKanji(user.Id, cancellationToken);
             await kanjiRepository.InsertUserKanji(user.Id, kanji, cancellationToken);
 
-            if (!user.HasData)
-            {
-                await userAccountService.UpdateHasData(user, true);
-            }
+            await userAccountService.UpdateKanjiSourceType(user, KanjiSourceType.ManualSelection);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -68,12 +64,12 @@ public class KanjiService(
             throw;
         }
         
-        await kanjiCacheRepository.SetUserKanji(user.Id, selectedKanji);
+        await kanjiCacheRepository.SetUserKanji(user.Id, userKanji);
         
-        return selectedKanji;
+        return userKanji;
     }
     
-    public Task<IReadOnlySet<char>> GetKanjiForManualSelection(CancellationToken cancellationToken)
+    public Task<IReadOnlySet<char>> GetAllKanji(CancellationToken cancellationToken)
     {
         return kanjiApiClient.GetKanjiList([KanjiListType.Heisig], cancellationToken);
     }
@@ -88,27 +84,76 @@ public class KanjiService(
             })
             .ToArray();
     }
-    
-    public async Task<IReadOnlyCollection<char>> GetUserKanji(User user, CancellationToken cancellationToken)
-    {
-        var kanji = await kanjiCacheRepository.GetUserKanji(user.Id);
 
-        if (!kanji.Any())
+    public async Task<bool> TryUpdateUserKanjiSource(
+        ClaimsPrincipal claimsPrincipal,
+        KanjiSourceType kanjiSource,
+        CancellationToken cancellationToken)
+    {
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
+        if (IsWaniKaniTokenMissing(kanjiSource, user.WaniKaniToken))
         {
-            var kanjiSource = user.KanjiSourceType;
-            if (kanjiSource == KanjiSourceType.WaniKani && !string.IsNullOrWhiteSpace(user.WaniKaniToken))
-            {
-                kanji = await waniKaniService.GetWaniKaniKanji(user.WaniKaniToken, cancellationToken);
-                
-            }
-            else
-            {
-                var userKanji = await kanjiRepository.GetKanjiByUser(user.Id, cancellationToken);
-                kanji = userKanji.Select(uk => uk.Character).ToHashSet();
-            }
+            return false;
+        } 
+        var kanjiFromUpdatedSource = await GetUserKanjiBySource(user, kanjiSource, cancellationToken);
+
+        var sourceHasKanji = kanjiFromUpdatedSource.Any();
+        if (sourceHasKanji)
+        {
+            await userAccountService.UpdateKanjiSourceType(user, kanjiSource);
+            await kanjiCacheRepository.SetUserKanji(user.Id, kanjiFromUpdatedSource);
+        }
+
+        return sourceHasKanji;
+    }
+    
+    public async Task<IReadOnlySet<char>> GetUserKanji(User user, CancellationToken cancellationToken)
+    {
+        IReadOnlySet<char> kanji = await kanjiCacheRepository.GetUserKanji(user.Id);
+
+        if (kanji.Any()) return kanji;
+        
+        if (IsWaniKaniTokenMissing(user.KanjiSourceType, user.WaniKaniToken))
+        {
+            await userAccountService.UpdateKanjiSourceType(user, KanjiSourceType.ManualSelection);
+        }
+
+        kanji = await GetUserKanjiBySource(user, user.KanjiSourceType, cancellationToken);
+        
+        if (user.KanjiSourceType == KanjiSourceType.WaniKani && !kanji.Any())
+        {
+            throw new NoKanjiException("No kanji found in WaniKani. Please check your WaniKani token and ensure you have mastered some kanji");
+        }
+        
+        if (kanji.Any())
+        {
             await kanjiCacheRepository.SetUserKanji(user.Id, kanji);
         }
 
         return kanji;
+    }
+
+    private async Task<IReadOnlySet<char>> GetUserKanjiBySource(
+        User user, 
+        KanjiSourceType kanjiSource, 
+        CancellationToken cancellationToken)
+    {
+        IReadOnlySet<char> kanji;
+        if (kanjiSource == KanjiSourceType.WaniKani)
+        {
+            kanji = await waniKaniService.GetWaniKaniKanji(user.WaniKaniToken!, cancellationToken);
+        }
+        else
+        {
+            var userKanji = await kanjiRepository.GetKanjiByUser(user.Id, cancellationToken);
+            kanji = userKanji.Select(uk => uk.Character).ToHashSet();
+        }
+
+        return kanji;
+    }
+
+    private bool IsWaniKaniTokenMissing(KanjiSourceType kanjiSource, string? token)
+    {
+        return kanjiSource == KanjiSourceType.WaniKani && string.IsNullOrWhiteSpace(token);
     }
 }

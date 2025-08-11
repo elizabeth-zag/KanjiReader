@@ -18,7 +18,7 @@ public class DeleteUnusedDataJob(
         {
             foreach (var user in inactiveUsers)
             {
-                await deletionService.DeleteUserData(user, cancellationToken);
+                await deletionService.DeleteUserTexts(user, cancellationToken);
                 logger.LogWarning("Data deleted for user {UserId}", user.Id);
                 await userAccountService.UpdateHasData(user, false);
             }

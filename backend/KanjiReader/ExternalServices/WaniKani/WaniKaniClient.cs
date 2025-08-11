@@ -19,10 +19,8 @@ public class WaniKaniClient(IHttpClientFactory httpClientFactory)
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
 
         var response = await JsonSerializer.DeserializeAsync<ApiPage<Assignment>>(stream, cancellationToken: cancellationToken);
-        
-        // todo: exception handling 
 
-        return response.Data.Select(d => d.Data.SubjectId).ToArray();
+        return response?.Data?.Select(d => d.Data.SubjectId).ToArray() ?? [];
     }
     
     public async Task<IReadOnlySet<char>> GetMasteredKanji(string token, 
@@ -44,8 +42,8 @@ public class WaniKaniClient(IHttpClientFactory httpClientFactory)
             await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
 
             var response = await JsonSerializer.DeserializeAsync<ApiPage<Subject>>(stream, cancellationToken: cancellationToken);
-            // todo: exception handling 
-            characters.AddRange(response.Data.Select(d => d.Data.Characters).ToArray());
+            
+            characters.AddRange(response?.Data?.Select(d => d.Data.Characters).ToArray() ?? []);
         }
 
         return characters.ToHashSet();

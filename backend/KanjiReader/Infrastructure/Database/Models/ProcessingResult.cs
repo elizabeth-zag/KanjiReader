@@ -13,7 +13,7 @@ public class ProcessingResult
     public double UnknownKanjiRatio { get; set; }
     public char[] UnknownKanji { get; set; } // todo: think what to do with this field
     
-    private ProcessingResult() {}
+    public ProcessingResult() {}
     
     public ProcessingResult(
         string userId, 

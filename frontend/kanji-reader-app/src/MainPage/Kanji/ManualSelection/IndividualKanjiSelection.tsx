@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Box, Typography, Checkbox, FormControlLabel, TextField, InputAdornment, Button, Pagination } from '@mui/material';
+import { Box, Typography, TextField, InputAdornment, Pagination } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import './IndividualKanjiSelection.css';
 import KanjiItem from './KanjiItem';

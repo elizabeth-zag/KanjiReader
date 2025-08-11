@@ -1,10 +1,9 @@
 ﻿using KanjiReader.Domain.Deletion;
+using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.Presentation.Dtos.Login;
 using KanjiReader.Presentation.Dtos.Login.UpdateUserInfo;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,6 +14,7 @@ namespace KanjiReader.Presentation.Controllers;
 [Route("api/login")]
 public class LoginController(
     UserAccountService userAccountService,
+    KanjiService kanjiService,
     WaniKaniService waniKaniService,
     DeletionService deletionService,
     ILogger<LoginController> logger)
@@ -61,12 +61,12 @@ public class LoginController(
     
     [Authorize]
     [HttpGet(nameof(GetCurrentUser))]
-    public IActionResult GetCurrentUser()
+    public GetCurrentUserResponse GetCurrentUser()
     {
-        return Ok(new
+        return new GetCurrentUserResponse
         {
-            userName = User.Identity?.Name ?? string.Empty,
-        });
+            UserName = User.Identity?.Name ?? string.Empty,
+        };
     }
     
     [Authorize]
@@ -74,7 +74,7 @@ public class LoginController(
     public async Task SetWaniKaniToken(UpdateWaniKaniTokenRequest dto, CancellationToken cancellationToken)
     {
         await userAccountService.UpdateWaniKaniToken(User, dto.Token);
-        var user = await userAccountService.GetByClaims(User);
+        var user = await userAccountService.GetByClaimsPrincipal(User);
 
         try
         {
@@ -91,14 +91,6 @@ public class LoginController(
     public async Task<IActionResult> UpdateName(UpdateNameRequest dto)
     {
         await userAccountService.UpdateName(User, dto.Name);
-        return Ok();
-    }
-    
-    [Authorize]
-    [HttpPost(nameof(UpdateKanjiSourceType))]
-    public async Task<IActionResult> UpdateKanjiSourceType(UpdateKanjiSourceTypeRequest dto)
-    {
-        await userAccountService.UpdateKanjiSourceType(User, dto.KanjiSourceType);
         return Ok();
     }
     

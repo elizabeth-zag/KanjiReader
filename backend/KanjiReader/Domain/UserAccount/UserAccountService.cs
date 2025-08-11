@@ -53,7 +53,7 @@ public class UserAccountService(
         return _currentUser;
     }
     
-    public async Task<User> GetByClaims(ClaimsPrincipal claimsPrincipal)
+    public async Task<User> GetByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
     {
         _currentUser ??= await userManager.GetUserAsync(claimsPrincipal);
 
@@ -89,7 +89,7 @@ public class UserAccountService(
     
     public async Task UpdateWaniKaniToken(ClaimsPrincipal claimsPrincipal, string token)
     {
-        var user = await GetByClaims(claimsPrincipal);
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
         user.WaniKaniToken = token;
         user.KanjiSourceType = KanjiSourceType.WaniKani;
         var result = await userManager.UpdateAsync(user);
@@ -100,9 +100,8 @@ public class UserAccountService(
         }
     }
     
-    public async Task UpdateKanjiSourceType(ClaimsPrincipal claimsPrincipal, KanjiSourceType kanjiSourceType)
+    public async Task UpdateKanjiSourceType(User user, KanjiSourceType kanjiSourceType)
     {
-        var user = await GetByClaims(claimsPrincipal);
         user.KanjiSourceType = kanjiSourceType;
         var result = await userManager.UpdateAsync(user);
         
@@ -114,7 +113,7 @@ public class UserAccountService(
     
     public async Task UpdateName(ClaimsPrincipal claimsPrincipal, string name)
     {
-        var user = await GetByClaims(claimsPrincipal);
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
         user.UserName = name;
         var result = await userManager.UpdateAsync(user);
         
@@ -126,7 +125,7 @@ public class UserAccountService(
     
     public async Task UpdateEmail(ClaimsPrincipal claimsPrincipal, string email)
     {
-        var user = await GetByClaims(claimsPrincipal);
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
         var result = await userManager.SetEmailAsync(user, email);
         
         if (!result.Succeeded)
@@ -137,7 +136,7 @@ public class UserAccountService(
     
     public async Task UpdatePassword(ClaimsPrincipal claimsPrincipal, string oldPassword, string newPassword)
     {
-        var user = await GetByClaims(claimsPrincipal);
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
         var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
         
         if (!result.Succeeded)
@@ -148,7 +147,7 @@ public class UserAccountService(
     
     public async Task<bool> DeleteUserAccount(ClaimsPrincipal claimsPrincipal, string password)
     {
-        var user = await GetByClaims(claimsPrincipal);
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
 
         var isPasswordValid = await userManager.CheckPasswordAsync(user, password);
         if (!isPasswordValid)
