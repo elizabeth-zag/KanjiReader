@@ -41,4 +41,10 @@ public class KanjiRepository(KanjiReaderDbContext dbContext) : IKanjiRepository
         await dbContext.UserKanji.AddRangeAsync(userKanji, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task InsertKanji(IReadOnlyCollection<Kanji> kanji, CancellationToken cancellationToken)
+    {
+        await dbContext.Kanji.AddRangeAsync(kanji, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

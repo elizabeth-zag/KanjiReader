@@ -106,6 +106,13 @@ public class KanjiService(
 
         return sourceHasKanji;
     }
+
+    public async Task FillKanjiDatabase(CancellationToken cancellationToken)
+    {
+        var allKanji = await GetAllKanji(cancellationToken);
+        var kanji = allKanji.Select(k => new KanjiDb { Character = k }).ToArray();
+        await kanjiRepository.InsertKanji(kanji, cancellationToken);
+    }
     
     public async Task<IReadOnlySet<char>> GetUserKanji(User user, CancellationToken cancellationToken)
     {
