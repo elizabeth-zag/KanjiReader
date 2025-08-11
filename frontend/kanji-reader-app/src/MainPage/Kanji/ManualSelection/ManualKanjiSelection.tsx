@@ -1,15 +1,24 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { getKanjiForManualSelection, getKanjiLists } from '../../../ApiCalls/kanji';
-import type { KanjiForSelectionResponse, KanjiListsResponse } from '../../../ApiCalls/kanji';
+import { getKanjiForManualSelection, getKanjiLists, saveSelectedKanji } from '../../../ApiCalls/kanji';
 import IndividualKanjiSelection from './IndividualKanjiSelection';
 import KanjiListsSelection from './KanjiListsSelection';
 import './ManualKanjiSelection.css';
 
-export default function ManualKanjiSelection() {
+interface ManualKanjiSelectionProps {
+  onSelectionSave: () => {},
+  existingUserKanji?: string[],
+  onLoadingComplete?: () => void,
+}
+
+export default function ManualKanjiSelection( { 
+  onSelectionSave, 
+  existingUserKanji,
+  onLoadingComplete
+}: ManualKanjiSelectionProps) {
   const [availableKanji, setAvailableKanji] = useState<string[]>([]);
   const [kanjiLists, setKanjiLists] = useState<{ kanjiList: string; description: string; }[]>([]);
-  const [selectedKanji, setSelectedKanji] = useState<string[]>([]);
+  const [selectedKanji, setSelectedKanji] = useState<string[]>(existingUserKanji || []);
   const [selectedLists, setSelectedLists] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const selectedKanjiRef = useRef(selectedKanji);
@@ -33,11 +42,12 @@ export default function ManualKanjiSelection() {
         console.error('Error fetching kanji data:', error);
       } finally {
         setIsLoading(false);
+        onLoadingComplete && onLoadingComplete();
       }
     };
 
     fetchData();
-  }, []);
+  }, [onLoadingComplete]);
 
   const handleKanjiToggle = (kanji: string) => {
     const isSelected = selectedKanjiRef.current.includes(kanji);
@@ -57,19 +67,10 @@ export default function ManualKanjiSelection() {
     );
   };
 
-  const handleSaveSelection = () => {
-    console.log('Selected kanji:', selectedKanji);
-    console.log('Selected lists:', selectedLists);
-    // TODO: Implement save functionality
+  const handleSaveSelection = async () => {
+    await saveSelectedKanji(selectedKanjiRef.current, selectedLists); // todo: handle errors
+    onSelectionSave && onSelectionSave()
   };
-
-  if (isLoading) {
-    return (
-      <Box className="manual-kanji-loading">
-        <Typography variant="h6">Loading kanji options...</Typography>
-      </Box>
-    );
-  }
 
   return (
     <Box className="manual-kanji-container">

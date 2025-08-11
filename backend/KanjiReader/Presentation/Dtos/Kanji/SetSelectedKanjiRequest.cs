@@ -3,10 +3,8 @@ using KanjiReader.Domain.DomainObjects.KanjiLists;
 
 namespace KanjiReader.Presentation.Dtos.Kanji;
 
-public class SelectKanjiRequest
+public class SetSelectedKanjiRequest
 {
     public char[] Kanji { get; set; }
-    
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public KanjiListType[] KanjiLists { get; set; }
 }

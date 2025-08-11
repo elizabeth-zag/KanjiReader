@@ -4,13 +4,6 @@
   margin: 0 auto;
 }
 
-.manual-kanji-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
 .manual-kanji-title {
   margin-bottom: 24px !important;
   text-align: center;

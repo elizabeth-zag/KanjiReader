@@ -31,15 +31,6 @@ export async function logout() {
   return res.data;
 }
 
-export async function updateKanjiSourceType(kanjiSourceType: string)  {
-  const res = await axios.post(
-    `${API_URL}/UpdateKanjiSourceType`,
-    { kanjiSourceType },
-    { withCredentials: true }
-  );
-  return res.data;
-}
-
 export async function getCurrentUser(): Promise<LoginResponse | null> {
   try {
     const res = await axios.get<LoginResponse>(
@@ -50,4 +41,13 @@ export async function getCurrentUser(): Promise<LoginResponse | null> {
   } catch {
     return null;
   }
+}
+
+export async function setWaniKaniToken(token: string)  {
+  const res = await axios.post(
+    `${API_URL}/SetWaniKaniToken`,
+    { token },
+    { withCredentials: true }
+  );
+  return res.data;
 }

@@ -4,9 +4,9 @@ public class Kanji
 {
     public int Id { get; set; }
     public char Character { get; set; }
-    public ICollection<UserKanji> UserKanjis { get; set; }
+    public ICollection<UserKanji> UserKanjis { get; set; } // todo: don't take
     
-    private Kanji() {}
+    public Kanji() {}
     
     public Kanji(int id, char character)
     {
