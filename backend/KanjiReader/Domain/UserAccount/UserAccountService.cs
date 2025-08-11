@@ -40,6 +40,11 @@ public class UserAccountService(
         await UpdateLoginTime(user, loginTime);
         return user;
     }
+
+    public async Task LogOut()
+    {
+        await signInManager.SignOutAsync();
+    }
     
     public async Task<User> GetById(string userId)
     {

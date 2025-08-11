@@ -1,0 +1,24 @@
+.profilemenu-iconbutton {
+  margin-right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+}
+.profilemenu-iconbutton:focus,
+.profilemenu-iconbutton.Mui-focusVisible {
+  outline: none;
+}
+.profilemenu-iconbutton:active {
+  background-color: transparent;
+}
+.profilemenu-iconbutton:hover {
+  background-color: rgba(0,0,0,0.04);
+}
+
+.profilemenu-label {
+  font-size: 0.8rem;
+  margin-top: 4px;
+}

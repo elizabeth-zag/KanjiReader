@@ -1,17 +1,25 @@
 import * as React from 'react';
-import { AppBar, Box, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Toolbar, Typography, Button } from '@mui/material';
 import ProfileMenu from './ProfileMenu';
-import KanjiMenu from './Kanji/KanjiMenu';
-import ReadingsMenu from './ReadingsMenu';
 import './UpperMenuBar.css';
 
-export default function UpperMenuBar({ onShowKanji, onShowReadings }:
-   { onShowKanji?: () => void, onShowReadings?: () => void }) {
+interface UpperMenuBarProps {
+  onShowKanji?: () => void;
+  onShowReadings?: () => void;
+  onLogout: () => void;
+}
+
+export default function UpperMenuBar({ onShowKanji, onShowReadings, onLogout }: UpperMenuBarProps) {
   return (
     <Box className="uppermenubar-outer">
       <AppBar position="static">
-        <Toolbar style={{ justifyContent: 'space-between' }}>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
+        <Toolbar className="uppermenubar-toolbar">
+          <img
+              src="/logo.png" 
+              alt="Kanji Reader Logo" 
+              className="uppermenubar-logo"
+            />
+          <Box className="uppermenubar-title-container">
             <Typography
               variant="h3"
               className="uppermenubar-title"
@@ -20,10 +28,22 @@ export default function UpperMenuBar({ onShowKanji, onShowReadings }:
             </Typography>
           </Box>
           <Box className="uppermenubar-center">
-            <KanjiMenu onShowKanji={onShowKanji} />
-            <ReadingsMenu onShowReadings={onShowReadings} />
+            <Button
+              variant="outlined"
+              onClick={onShowKanji}
+              className="kanjimenu-button"
+            >
+              Kanji
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={onShowReadings}
+              className="readingsmenu-button"
+            >
+              Readings
+            </Button>
           </Box>
-          <ProfileMenu />
+          <ProfileMenu onLogout={onLogout} />
         </Toolbar>
       </AppBar>
     </Box>
