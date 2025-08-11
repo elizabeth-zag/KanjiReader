@@ -64,4 +64,10 @@ public class KanjiController(KanjiService kanjiService, UserAccountService userA
         var result = await kanjiService.TryUpdateUserKanjiSource(User, dto.KanjiSourceType, cancellationToken);
         return new TryUpdateKanjiSourceResponse { Success = result };
     }
+    
+    [HttpPost(nameof(FillKanjiDatabase))]
+    public async Task FillKanjiDatabase(CancellationToken cancellationToken)
+    {
+        await kanjiService.FillKanjiDatabase(cancellationToken);
+    }
 }

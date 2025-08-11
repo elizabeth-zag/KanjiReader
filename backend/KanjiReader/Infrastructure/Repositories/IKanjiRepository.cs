@@ -8,4 +8,5 @@ public interface IKanjiRepository
     Task<IReadOnlyCollection<Kanji>> GetKanjiByUser(string userId, CancellationToken cancellationToken);
     Task ClearUserKanji(string userId, CancellationToken cancellationToken);
     Task InsertUserKanji(string userId, IReadOnlyCollection<Kanji> kanji, CancellationToken cancellationToken);
+    Task InsertKanji(IReadOnlyCollection<Kanji> kanji, CancellationToken cancellationToken);
 }
