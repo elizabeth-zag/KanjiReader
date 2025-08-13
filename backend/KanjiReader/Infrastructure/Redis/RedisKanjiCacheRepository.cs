@@ -1,4 +1,4 @@
-﻿using KanjiReader.Infrastructure.Repositories;
+﻿using KanjiReader.Infrastructure.Repositories.Cache;
 using StackExchange.Redis;
 
 namespace KanjiReader.Infrastructure.Redis;

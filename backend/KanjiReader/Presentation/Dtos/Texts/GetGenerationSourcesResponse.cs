@@ -2,5 +2,5 @@
 
 public class GetGenerationSourcesResponse
 {
-    public string[] Sources { get; set; }
+    public GenerationSourceDto[] Sources { get; set; }
 }

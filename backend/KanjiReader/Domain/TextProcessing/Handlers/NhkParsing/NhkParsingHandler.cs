@@ -8,7 +8,6 @@ using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 

@@ -9,6 +9,7 @@ using KanjiReader.ExternalServices.KanjiApi;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Infrastructure.Repositories.Cache;
 using KanjiReader.Presentation.Dtos.Kanji;
 using KanjiDb = KanjiReader.Infrastructure.Database.Models.Kanji;
 
@@ -37,11 +38,6 @@ public class KanjiService(
             : new HashSet<char>();
         
         var userKanji = new HashSet<char>(individualSelectionKanji.Union(kanjiFromLists));
-
-        if (userKanji.Count == 0)
-        {
-            throw new ArgumentException("No kanji were provided by the user");
-        }
 
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
@@ -76,7 +72,7 @@ public class KanjiService(
 
     public IReadOnlyCollection<KanjiListResponse> GetKanjiLists()
     {
-        return KanjiListsDescription.KanjiListDescriptions
+        return ConstantValues.KanjiListDescriptions
             .Select(d => new KanjiListResponse
             {
                 KanjiList = d.Key.ToString(),

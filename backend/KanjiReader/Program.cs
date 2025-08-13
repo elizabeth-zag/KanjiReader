@@ -10,6 +10,7 @@ using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.TextProcessing.Handlers;
+using KanjiReader.Domain.TextProcessing.Handlers.GoogleAiGeneration;
 using KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.WatanocParsing;
@@ -25,6 +26,7 @@ using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Database.Repositories;
 using KanjiReader.Infrastructure.Redis;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Infrastructure.Repositories.Cache;
 using KanjiReader.Presentation.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -86,6 +88,7 @@ builder.Services.AddScoped<GoogleGenerativeAiClient>();
 builder.Services.AddScoped<WatanocParsingHandler>();
 builder.Services.AddScoped<NhkParsingHandler>();
 builder.Services.AddScoped<SatoriParsingHandler>();
+builder.Services.AddScoped<GoogleAiGenerationHandler>();
 
 builder.Services.AddScoped<WaniKaniService>();
 builder.Services.AddScoped<UserAccountService>();
@@ -99,6 +102,9 @@ builder.Services.AddScoped<IGenerationRulesService<WatanocParsingData, WatanocPa
 builder.Services.AddScoped<IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData>, SatoriRulesService>();
 
 builder.Services.AddScoped<IKanjiCacheRepository, RedisKanjiCacheRepository>();
+builder.Services.AddScoped<IWatanocCacheRepository, RedisWatanocCacheRepository>();
+builder.Services.AddScoped<ISatoriReaderCacheRepository, RedisSatoriReaderCacheRepository>();
+builder.Services.AddScoped<INhkCacheRepository, RedisNhkCacheRepository>();
 builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
 builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
 builder.Services.AddScoped<IUserGenerationStateRepository, UserGenerationStateRepository>();
@@ -126,7 +132,6 @@ app.MapControllers();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-
 RecurringJob.AddOrUpdate<DeleteUnusedDataJob>(
     nameof(DeleteUnusedDataJob),
     job => job.Execute(CancellationToken.None),
@@ -150,4 +155,7 @@ app.Run();
 // maybe add wanikani and threshold customization 
 // add indices
 // add warning for insufficient kanji count
-// cache for website calls
+// hangfire jobs weird behaviour
+// frontend unknown kanji, url, maybe new line save
+// google ai sometimes returns empty text - check it (also test request limit overflow)
+// checkboxes frontend

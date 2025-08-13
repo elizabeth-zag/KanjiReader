@@ -1,6 +1,6 @@
 ﻿using KanjiReader.ExternalServices.WaniKani;
 using KanjiReader.Infrastructure.Database.Models;
-using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Infrastructure.Repositories.Cache;
 
 namespace KanjiReader.Domain.Kanji.WaniKani;
 
