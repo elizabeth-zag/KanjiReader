@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Infrastructure.Repositories;
+﻿namespace KanjiReader.Infrastructure.Repositories.Cache;
 
 public interface IKanjiCacheRepository
 {

@@ -1,16 +1,31 @@
 ﻿using System.Security.Claims;
 using Hangfire;
+using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.Jobs;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Presentation.Dtos.Texts;
 
 namespace KanjiReader.Domain.TextProcessing;
 
 public class TextService(IProcessingResultRepository processingResultRepository, UserAccountService userAccountService)
 {
-    public async Task StartProcessingTexts(
+    public static GenerationSourceDto[] GetGenerationSources()
+    {
+        return Enum.GetValues<GenerationSourceType>()
+            .Where(s => s != GenerationSourceType.Unspecified)
+            .Select(st => new GenerationSourceDto
+            {
+                Value = st.ToString(),
+                Name = ConstantValues.SourceTypeNames[st],
+                Description = ConstantValues.SourceTypeDescriptions[st]
+            })
+            .ToArray();
+    }
+    
+    public async Task StartCollectingTexts(
         ClaimsPrincipal claimsPrincipal, 
         IReadOnlySet<GenerationSourceType> sourceTypes, 
         CancellationToken cancellationToken)

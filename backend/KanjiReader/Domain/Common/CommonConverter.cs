@@ -29,12 +29,13 @@ public static class CommonConverter
         return user;
     }
     
-    public static ProcessingResultDto Convert(ProcessingResult result)
+    public static ProcessingResultDto Convert(ProcessingResult result) // todo: can we add title?
     {
         return new ProcessingResultDto
         {
             Text = result.Text,
-            Url = result.Url
+            Url = result.Url,
+            SourceType = result.SourceType
         };
     }
 }

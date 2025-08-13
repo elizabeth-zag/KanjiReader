@@ -1,5 +1,6 @@
 ﻿using KanjiReader.Domain.Common;
 using KanjiReader.Domain.Deletion;
+using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Presentation.Dtos.Texts;
 using Microsoft.AspNetCore.Authorization;
@@ -14,16 +15,16 @@ public class TextsController(
     TextService textService, 
     DeletionService deletionService) : ControllerBase
 {
-    [HttpPost(nameof(GetGenerationSources))]
+    [HttpGet(nameof(GetGenerationSources))]
     public GetGenerationSourcesResponse GetGenerationSources()
     {
-        return new GetGenerationSourcesResponse { Sources = ["Watanoc"] }; // todo: store sources somewhere
+        return new GetGenerationSourcesResponse { Sources = TextService.GetGenerationSources() };
     }
 
-    [HttpPost(nameof(StartGenerating))]
-    public async Task StartGenerating(StartGeneratingRequest dto, CancellationToken cancellationToken)
+    [HttpPost(nameof(StartCollecting))]
+    public async Task StartCollecting(StartCollectingRequest dto, CancellationToken cancellationToken)
     {
-        await textService.StartProcessingTexts(User, dto.SourceTypes.ToHashSet(), cancellationToken);
+        await textService.StartCollectingTexts(User, dto.Sources.ToHashSet(), cancellationToken);
     }
 
     [HttpPost(nameof(GetProcessedTexts))]
