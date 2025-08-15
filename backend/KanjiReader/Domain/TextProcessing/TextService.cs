@@ -3,6 +3,7 @@ using Hangfire;
 using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.Jobs;
+using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
@@ -10,7 +11,10 @@ using KanjiReader.Presentation.Dtos.Texts;
 
 namespace KanjiReader.Domain.TextProcessing;
 
-public class TextService(IProcessingResultRepository processingResultRepository, UserAccountService userAccountService)
+public class TextService(
+    IProcessingResultRepository processingResultRepository, 
+    UserAccountService userAccountService,
+    KanjiService kanjiService)
 {
     public static GenerationSourceDto[] GetGenerationSources()
     {
@@ -24,6 +28,17 @@ public class TextService(IProcessingResultRepository processingResultRepository,
             })
             .ToArray();
     }
+
+    public async Task<int> GetCountByUser(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
+    {
+        var userId = (await userAccountService.GetByClaimsPrincipal(claimsPrincipal)).Id;
+        return await processingResultRepository.GetCountByUser(userId, cancellationToken);
+    }
+
+    public async Task<int> GetCountByUser(string userId, CancellationToken cancellationToken)
+    {
+        return await processingResultRepository.GetCountByUser(userId, cancellationToken);
+    }
     
     public async Task StartCollectingTexts(
         ClaimsPrincipal claimsPrincipal, 
@@ -33,11 +48,11 @@ public class TextService(IProcessingResultRepository processingResultRepository,
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await processingResultRepository.GetCountByUser(user.Id, cancellationToken);
+        var currentTextCount = await GetCountByUser(user.Id, cancellationToken);
         
         if (currentTextCount >= textCountLimit)
         {
-            throw new InvalidOperationException($"You have reached the limit of {textCountLimit} texts. Please delete some texts before generating new ones.");
+            throw new InvalidOperationException($"You have reached the limit of {textCountLimit} texts. Please delete some texts before collecting new ones.");
         }
 
         foreach (var sourceType in sourceTypes.Where(st => st != GenerationSourceType.Unspecified))
@@ -62,7 +77,15 @@ public class TextService(IProcessingResultRepository processingResultRepository,
     public async Task<int> GetRemainingTextCount(string userId, CancellationToken cancellationToken)
     {
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await processingResultRepository.GetCountByUser(userId, cancellationToken);
+        var currentTextCount = await GetCountByUser(userId, cancellationToken);
         return Math.Max(textCountLimit - currentTextCount, 0);
+    }
+    
+    public async Task<double> GetThreshold(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
+    {
+        var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
+        var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        
+        return TextParsingService.CalculateThreshold(kanjiCharacters.Count);
     }
 }

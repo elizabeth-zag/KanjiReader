@@ -106,7 +106,16 @@ public class KanjiService(
     public async Task FillKanjiDatabase(CancellationToken cancellationToken)
     {
         var allKanji = await GetAllKanji(cancellationToken);
-        var kanji = allKanji.Select(k => new KanjiDb { Character = k }).ToArray();
+        var allKanjiData = await kanjiApiClient.GetKanjiData(allKanji, cancellationToken);
+        
+        var kanji = allKanjiData.Select(k => new KanjiDb
+        {
+            Character = k.Kanji,
+            KunReading = string.Join(", ", k.KunReadings),
+            OnReading = string.Join(", ", k.OnReadings),
+            Meaning = string.Join(", ", k.Meanings)
+        }).ToArray();
+        
         await kanjiRepository.InsertKanji(kanji, cancellationToken);
     }
     
