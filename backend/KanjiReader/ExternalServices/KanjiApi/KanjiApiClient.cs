@@ -1,11 +1,13 @@
 ﻿using System.Text.Json;
 using KanjiReader.Domain.DomainObjects.KanjiLists;
+using KanjiReader.ExternalServices.KanjiApi.Contracts;
 
 namespace KanjiReader.ExternalServices.KanjiApi;
 
 public class KanjiApiClient(IHttpClientFactory httpClientFactory)
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private const int MaxConcurrent = 200; // todo: config
 
     public async Task<IReadOnlySet<char>> GetKanjiList(IReadOnlyCollection<KanjiListType> kanjiListTypes, 
         CancellationToken cancellationToken)
@@ -29,10 +31,41 @@ public class KanjiApiClient(IHttpClientFactory httpClientFactory)
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
     
         var response = await JsonSerializer.DeserializeAsync<string[]>(stream, cancellationToken: cancellationToken);
-        
-        // todo: exception handling 
     
-        return response.Where(r => r.Length == 1).Select(char.Parse).ToHashSet();
+        return response?.Where(r => r.Length == 1).Select(char.Parse).ToHashSet() ?? [];
+    }
+
+    public async Task<IReadOnlyList<KanjiData>> GetKanjiData(IEnumerable<char> kanji, CancellationToken ct = default)
+    {
+        using var sem = new SemaphoreSlim(MaxConcurrent);
+        var tasks = kanji.Select(async kanjiChar =>
+        {
+            await sem.WaitAsync(ct);
+            try
+            {
+                var resp = await GetKanjiData(kanjiChar, ct);
+                return resp;
+            }
+            finally
+            {
+                sem.Release();
+            }
+        });
+
+        var result = await Task.WhenAll(tasks);
+        return result
+            .Where(k => k != null)
+            .Select(k => k!)
+            .ToArray();
+    }
+    private async Task<KanjiData?> GetKanjiData(char character, CancellationToken cancellationToken)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://kanjiapi.dev/v1/kanji/{character}");
+        
+        using var responseMessage = await _httpClient.SendAsync(request, cancellationToken);
+        await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
+    
+        return await JsonSerializer.DeserializeAsync<KanjiData>(stream, cancellationToken: cancellationToken);
     }
 
     private string ConvertKanjiListToUrl(KanjiListType kanjiListType)
