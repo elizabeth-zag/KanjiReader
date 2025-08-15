@@ -31,11 +31,19 @@ public class GoogleAiGenerationHandler(
         CancellationToken cancellationToken)
     {
         var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
-        var text = await client.GenerateText(kanjiCharacters, cancellationToken);
+        var (title, text) = await client.GenerateText(kanjiCharacters, cancellationToken);
 
-        textParsingService.ValidateText(kanjiCharacters, text, out var ratio, out var unknownKanji);
+        textParsingService.ValidateText(kanjiCharacters, title, text, out var ratio, out var unknownKanji);
 
-        var result = new ProcessingResult(user.Id, GenerationSourceType.GoogleAiGeneration, text, "", ratio, unknownKanji.ToArray());
+        var result = new ProcessingResult(
+            user.Id, 
+            GenerationSourceType.GoogleAiGeneration, 
+            title,
+            text,
+            "",
+            ratio,
+            unknownKanji.ToArray(),
+            DateTime.UtcNow);
         
         return ([result], generationState);
     }

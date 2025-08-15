@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System.Text;
+using HtmlAgilityPack;
 using KanjiReader.Infrastructure.Repositories.Cache;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
@@ -38,12 +39,14 @@ public class WatanocClient(IHttpClientFactory httpClientFactory, IWatanocCacheRe
         return urls.ToArray();
     }
     
-    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
+    public async Task<(string, string)> ParseHtml(string url, CancellationToken cancellationToken)
     {
+        var cachedHtmlTitle = await cacheRepository.GetHtmlTitle(url);
         var cachedHtml = await cacheRepository.GetHtml(url);
-        if (!string.IsNullOrEmpty(cachedHtml))
+        
+        if (!string.IsNullOrEmpty(cachedHtml) && !string.IsNullOrEmpty(cachedHtmlTitle))
         {
-            return cachedHtml;
+            return (cachedHtmlTitle, cachedHtml);
         }
         
         using var client = new HttpClient();
@@ -51,15 +54,33 @@ public class WatanocClient(IHttpClientFactory httpClientFactory, IWatanocCacheRe
         
         var doc = new HtmlDocument();
         doc.LoadHtml(resultString);
+
+        var potentialContent = new StringBuilder();
         
-        var html = doc.DocumentNode.SelectSingleNode($"//div[contains(@class, 'entry entry-content')]");
-        var result = html is null ? String.Empty : html.InnerText;
+        var htmlTitle = doc.DocumentNode.SelectSingleNode($"//h1[contains(@class, 'entry-title single-title')]");
+        var htmlContent = doc.DocumentNode.SelectSingleNode($"//div[contains(@class, 'entry entry-content')]");
         
-        if (!string.IsNullOrEmpty(result))
+        foreach (var contentChild in htmlContent?.ChildNodes ?? Enumerable.Empty<HtmlNode>())
         {
-            await cacheRepository.SetHtml(url, result);
+            var innerText = contentChild.InnerText.Trim();
+            
+            if (innerText.Length > 0)
+            {
+                potentialContent.Append(innerText);
+                potentialContent.AppendLine();
+                potentialContent.AppendLine();
+            }
+        }
+        
+        var title = htmlTitle is null ? String.Empty : htmlTitle.InnerText.Trim();
+        var content = potentialContent.ToString();
+        
+        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(content))
+        {
+            await cacheRepository.SetHtmlTitle(url, title);
+            await cacheRepository.SetHtml(url, content);
         }
 
-        return result;
+        return (title, content);
     }
 }

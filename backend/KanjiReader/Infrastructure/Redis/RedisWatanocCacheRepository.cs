@@ -7,6 +7,7 @@ public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatano
 {
     private const string Separator = ",";
     private static string GetArticlesKey(string category, int pageNumber) => $"watanoc-article-urls:{category}:{pageNumber}";
+    private static string GetHtmlTitleKey(string url) => $"watanoc-html-title:{url}";
     private static string GetHtmlKey(string url) => $"watanoc-html:{url}";
     
     public async Task SetArticleUrls(string category, int pageNumber, string[] articleUrls)
@@ -35,6 +36,20 @@ public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatano
     {
         var db = redis.GetDatabase();
         var result = await db.StringGetAsync(GetHtmlKey(url));
+        
+        return result.ToString();
+    }
+    
+    public async Task SetHtmlTitle(string url, string title)
+    {
+        var db = redis.GetDatabase();
+        await db.StringSetAsync(GetHtmlTitleKey(url), title, TimeSpan.FromDays(1)); // todo: config
+    }
+    
+    public async Task<string> GetHtmlTitle(string url)
+    {
+        var db = redis.GetDatabase();
+        var result = await db.StringGetAsync(GetHtmlTitleKey(url));
         
         return result.ToString();
     }

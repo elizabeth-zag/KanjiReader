@@ -8,6 +8,7 @@ public class RedisSatoriReaderCacheRepository(IConnectionMultiplexer redis) : IS
     private const string Separator = ",";
     private static string GetSeriesKey() => "satori-series-urls";
     private static string GetArticlesKey(string seriesUrl) => $"satori-article-urls:{seriesUrl}";
+    private static string GetHtmlTitleKey(string url) => $"satori-html-title:{url}";
     private static string GetHtmlKey(string url) => $"satori-html:{url}";
     
     public async Task SetSeriesUrls(string[] urls)
@@ -52,6 +53,20 @@ public class RedisSatoriReaderCacheRepository(IConnectionMultiplexer redis) : IS
     {
         var db = redis.GetDatabase();
         var result = await db.StringGetAsync(GetHtmlKey(url));
+        
+        return result.ToString();
+    }
+    
+    public async Task SetHtmlTitle(string url, string title)
+    {
+        var db = redis.GetDatabase();
+        await db.StringSetAsync(GetHtmlTitleKey(url), title, TimeSpan.FromDays(1)); // todo: config
+    }
+    
+    public async Task<string> GetHtmlTitle(string url)
+    {
+        var db = redis.GetDatabase();
+        var result = await db.StringGetAsync(GetHtmlTitleKey(url));
         
         return result.ToString();
     }

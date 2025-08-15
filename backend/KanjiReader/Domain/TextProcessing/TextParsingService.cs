@@ -12,7 +12,7 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         GenerationSourceType sourceType,
         int remainingTextCount,
         string[] articleUrls,
-        Func<string, CancellationToken, Task<string>> parseHtmlFunction,
+        Func<string, CancellationToken, Task<(string, string)>> parseHtmlFunction,
         CancellationToken cancellationToken)
     {
         if (articleUrls.Length == 0)
@@ -29,12 +29,20 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         var suitableResult = new List<ProcessingResult>();
         foreach (var url in articleUrls)
         {
-            var text = await parseHtmlFunction.Invoke(url, cancellationToken);
-            ValidateText(kanjiCharacters, text, out var ratio, out var unknownKanji);
+            var (title, text) = await parseHtmlFunction.Invoke(url, cancellationToken);
+            ValidateText(kanjiCharacters, title, text, out var ratio, out var unknownKanji);
     
             if (string.IsNullOrEmpty(text) || ratio > threshold) continue;
             
-            suitableResult.Add(new ProcessingResult(user.Id, sourceType, text, url, ratio, unknownKanji.ToArray()));
+            suitableResult.Add(new ProcessingResult(
+                user.Id,
+                sourceType,
+                title,
+                text,
+                url,
+                ratio,
+                unknownKanji.ToArray(),
+                DateTime.UtcNow));
                 
             if (suitableResult.Count >= remainingTextCount)
             {
@@ -45,12 +53,17 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         return suitableResult.ToArray();
     }
     
-    public void ValidateText(HashSet<char> userKanji, string text, out double ratio, out HashSet<char> unknownKanji)
+    public void ValidateText(
+        HashSet<char> userKanji, 
+        string title, 
+        string text, 
+        out double ratio, 
+        out HashSet<char> unknownKanji)
     {
         var knownKanji = new HashSet<char>();
         unknownKanji = new HashSet<char>();
         
-        foreach (var ch in text)
+        foreach (var ch in title.Concat(text))
         {
             if (!IsKanji(ch)) continue;
             if (userKanji.Contains(ch))
@@ -64,9 +77,10 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         }
  
         ratio = Math.Round((double)unknownKanji.Count / knownKanji.Count, 2);
+        if (double.IsNaN(ratio)) ratio = 0;
     }
 
-    private static double CalculateThreshold(int knownKanji)
+    public static double CalculateThreshold(int knownKanji)
     {
         double maxThreshold = 0.5; // todo: config
         var maxPossibleKanji = 3033;

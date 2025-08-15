@@ -7,6 +7,7 @@ namespace KanjiReader.Infrastructure.Redis;
 public class RedisNhkCacheRepository(IConnectionMultiplexer redis) : INhkCacheRepository
 {
     private static string GetArticlesKey() => "nhk-article-urls";
+    private static string GetHtmlTitleKey(string url) => $"nhk-html-title:{url}";
     private static string GetHtmlKey(string url) => $"nhk-html:{url}";
     
     public async Task SetArticleUrls(Dictionary<DateTime, string[]> articleUrls)
@@ -37,6 +38,20 @@ public class RedisNhkCacheRepository(IConnectionMultiplexer redis) : INhkCacheRe
     {
         var db = redis.GetDatabase();
         var result = await db.StringGetAsync(GetHtmlKey(url));
+        
+        return result.ToString();
+    }
+    
+    public async Task SetHtmlTitle(string url, string title)
+    {
+        var db = redis.GetDatabase();
+        await db.StringSetAsync(GetHtmlTitleKey(url), title, TimeSpan.FromDays(1)); // todo: config
+    }
+    
+    public async Task<string> GetHtmlTitle(string url)
+    {
+        var db = redis.GetDatabase();
+        var result = await db.StringGetAsync(GetHtmlTitleKey(url));
         
         return result.ToString();
     }

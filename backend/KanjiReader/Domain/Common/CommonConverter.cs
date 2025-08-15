@@ -29,13 +29,18 @@ public static class CommonConverter
         return user;
     }
     
-    public static ProcessingResultDto Convert(ProcessingResult result) // todo: can we add title?
+    public static ProcessingResultDto Convert(ProcessingResult result)
     {
         return new ProcessingResultDto
         {
-            Text = result.Text,
+            Id = result.Id,
+            Title = result.Title,
+            Content = result.Text,
             Url = result.Url,
-            SourceType = result.SourceType
+            SourceType = result.SourceType,
+            Ratio = result.UnknownKanjiRatio,
+            UnknownKanji = result.UnknownKanji.ToArray(),
+            CreateDate = result.CreateDate
         };
     }
 }
