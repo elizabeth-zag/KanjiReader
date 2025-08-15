@@ -1,6 +1,5 @@
 ﻿using KanjiReader.Domain.Common;
 using KanjiReader.Domain.Deletion;
-using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Presentation.Dtos.Texts;
 using Microsoft.AspNetCore.Authorization;
@@ -33,10 +32,12 @@ public class TextsController(
     {
         var processedTexts = await textService.GetProcessedTexts(
             User, dto.PageNumber, dto.PageSize, cancellationToken);
+        var allTextsCount = await textService.GetCountByUser(User, cancellationToken);
 
         return new GetProcessedTextsResponse
         {
-            ProcessedTexts = processedTexts.Select(CommonConverter.Convert).ToArray()
+            ProcessedTexts = processedTexts.Select(CommonConverter.Convert).ToArray(),
+            AllTextsCount = allTextsCount
         };
     }
 
@@ -50,5 +51,16 @@ public class TextsController(
     public async Task RemoveTextsBySourceType(RemoveTextsBySourceTypesRequest dto, CancellationToken cancellationToken)
     {
         await deletionService.RemoveUserTextsBySourceType(User, dto.SourceTypes, cancellationToken);
+    }
+
+    [HttpPost(nameof(GetUserThreshold))]
+    public async Task<GetUserThresholdResponse> GetUserThreshold(CancellationToken cancellationToken)
+    {
+        var result = await textService.GetThreshold(User, cancellationToken);
+        
+        return new GetUserThresholdResponse
+        {
+            Threshold = result
+        };
     }
 }

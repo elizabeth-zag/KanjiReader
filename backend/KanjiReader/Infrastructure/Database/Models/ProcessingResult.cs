@@ -9,25 +9,31 @@ public class ProcessingResult
     public string UserId { get; set; }
     public User User { get; set; }
     public string Text { get; set; }
+    public string Title { get; set; }
     public string Url { get; set; } 
     public double UnknownKanjiRatio { get; set; }
-    public char[] UnknownKanji { get; set; } // todo: think what to do with this field
+    public char[] UnknownKanji { get; set; }
+    public DateTimeOffset CreateDate { get; set; }
     
     public ProcessingResult() {}
     
     public ProcessingResult(
         string userId, 
         GenerationSourceType sourceType, 
+        string title, 
         string text, 
         string url, 
         double ratio,
-        char[] unknownKanji)
+        char[] unknownKanji,
+        DateTime createDate)
     {
         UserId = userId;
         SourceType = sourceType;
+        Title = title;
         Text = text;
         Url = url;
         UnknownKanjiRatio = ratio;
         UnknownKanji = unknownKanji;
+        CreateDate = createDate;
     }
 }

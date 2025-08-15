@@ -51,26 +51,35 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
         return urls.ToArray();
     }
     
-    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
+    public async Task<(string, string)> ParseHtml(string url, CancellationToken cancellationToken)
     {
+        var cachedHtmlTitle = await cacheRepository.GetHtmlTitle(url);
         var cachedHtml = await cacheRepository.GetHtml(url);
-        if (!string.IsNullOrEmpty(cachedHtml))
+        
+        if (!string.IsNullOrEmpty(cachedHtml) && !string.IsNullOrEmpty(cachedHtmlTitle))
         {
-            return cachedHtml;
+            return (cachedHtmlTitle, cachedHtml);
         }
         
         using var client = new HttpClient();
         var html = await client.GetStringAsync(url, cancellationToken);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var title = doc.DocumentNode
+            .SelectSingleNode("//div[contains(@class, 'article-title')]")?
+            .InnerText
+            .Trim() ?? string.Empty;
         
         var match = Regex.Match(html, @"var content = (\{.*?\});", RegexOptions.Singleline);
         var articleResponse = JsonSerializer.Deserialize<SatoriArticleResponse>(match.Groups[1].Value);
 
         if (articleResponse == null)
         {
-            return string.Empty;
+            return (string.Empty, string.Empty);
         }
 
-        var resultText = new StringBuilder();
+        var content = new StringBuilder();
 
         foreach (var paragraph in articleResponse.Paragraphs)
         {
@@ -82,7 +91,7 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
                     {
                         if (!string.IsNullOrEmpty(part.Text))
                         {
-                            resultText.Append(part.Text);
+                            content.Append(part.Text);
                         }
                         else
                         {
@@ -90,7 +99,7 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
                             {
                                 if (!string.IsNullOrEmpty(text.Text))
                                 {
-                                    resultText.Append(text.Text);
+                                    content.Append(text.Text);
                                 }
                             }   
                         }
@@ -98,13 +107,16 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
                 }
             }
         }
+        
+        var contentText = content.ToString().Trim();
 
-        if (!string.IsNullOrEmpty(resultText.ToString()))
+        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(contentText))
         {
-            await cacheRepository.SetHtml(url, resultText.ToString());
+            await cacheRepository.SetHtmlTitle(url, title);
+            await cacheRepository.SetHtml(url, contentText);
         }
         
-        return resultText.ToString();
+        return (title, contentText);
     }
 
     private async Task<string[]> GetFreeArticlesUrl(string url, CancellationToken cancellationToken)

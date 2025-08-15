@@ -30,7 +30,7 @@ public class WatanocRulesService : IGenerationRulesService<WatanocParsingData, W
         }
         
         var currentIndex = WatanocCategoryPages.IndexOf(data.Category);
-        var newIndex = currentIndex < WatanocCategoryPages.Count ? currentIndex + 1 : 0;
+        var newIndex = currentIndex < WatanocCategoryPages.Count - 1 ? currentIndex + 1 : 0;
 
         return new WatanocParsingData
         {

@@ -40,12 +40,13 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
         return result ?? new Dictionary<DateTime, string[]>();
     }
     
-    public async Task<string> ParseHtml(string url, CancellationToken cancellationToken)
+    public async Task<(string, string)> ParseHtml(string url, CancellationToken cancellationToken)
     {
+        var cachedHtmlTitle = await cacheRepository.GetHtmlTitle(url);
         var cachedHtml = await cacheRepository.GetHtml(url);
         if (!string.IsNullOrEmpty(cachedHtml))
         {
-            return cachedHtml;
+            return (cachedHtmlTitle, cachedHtml);
         }
         
         using var client = new HttpClient();
@@ -54,23 +55,45 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
         var doc = new HtmlDocument();
         doc.LoadHtml(response);
         
-        var className = "article-body";
+        var titleParts = doc.DocumentNode
+            .SelectSingleNode($"//h1[contains(@class, 'article-title')]")?
+            .ChildNodes
+            .Select(GetTitleFromNode)
+            .OfType<string>();
         
         var textParts = doc.DocumentNode
-            .SelectNodes($"//div[contains(@class, '{className}')]/p/span")?
+            .SelectNodes($"//div[contains(@class, 'article-body')]/p")?
             .Select(GetTextFromNode)
             .OfType<string>();
         
-        var result = textParts == null ? string.Empty : string.Join("", textParts);
-        if (!string.IsNullOrEmpty(result))
+        var title = titleParts == null ? string.Empty : string.Join("", titleParts).Trim();
+        var content = textParts == null ? string.Empty : string.Join("", textParts).Trim();
+        
+        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(content))
         {
-            await cacheRepository.SetHtml(url, result);
+            await cacheRepository.SetHtmlTitle(url, title);
+            await cacheRepository.SetHtml(url, content);
         }
 
-        return result;
+        return (title, content);
     }
 
-    private string? GetTextFromNode(HtmlNode node)
+    private string? GetTitleFromNode(HtmlNode node)
+    {
+        var a = node.HasChildNodes 
+            ? node.ChildNodes
+                .FirstOrDefault(cn => cn.Name == "#text")?
+                .InnerText
+            : node.InnerText;
+        return a;
+    }
+
+    private string GetTextFromNode(HtmlNode node)
+    {
+        return string.Join("", node.ChildNodes.Select(GetTextFromParagraph)) + "\n \n";
+    }
+    
+    private string? GetTextFromParagraph(HtmlNode node)
     {
         var innerText = node.ChildNodes.FirstOrDefault(cn => cn.Name is "ruby" or "#text");
 
