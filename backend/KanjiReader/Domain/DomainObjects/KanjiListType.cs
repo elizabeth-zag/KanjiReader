@@ -1,4 +1,4 @@
-﻿namespace KanjiReader.Domain.DomainObjects.KanjiLists;
+﻿namespace KanjiReader.Domain.DomainObjects;
 
 public enum KanjiListType
 {
