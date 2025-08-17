@@ -71,7 +71,7 @@ public class LoginController(
     
     [Authorize]
     [HttpPost(nameof(SetWaniKaniToken))]
-    public async Task SetWaniKaniToken(UpdateWaniKaniTokenRequest dto, CancellationToken cancellationToken)
+    public async Task SetWaniKaniToken(SetWaniKaniTokenRequest dto, CancellationToken cancellationToken)
     {
         await userAccountService.UpdateWaniKaniToken(User, dto.Token);
         var user = await userAccountService.GetByClaimsPrincipal(User);

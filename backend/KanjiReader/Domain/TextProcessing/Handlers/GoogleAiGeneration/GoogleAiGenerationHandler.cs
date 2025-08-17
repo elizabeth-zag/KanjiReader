@@ -30,7 +30,7 @@ public class GoogleAiGenerationHandler(
         int remainingTextCount, 
         CancellationToken cancellationToken)
     {
-        var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        var kanjiCharacters = (await kanjiService.GetUserKanjiCharacters(user, cancellationToken)).ToHashSet();
         var (title, text) = await client.GenerateText(kanjiCharacters, cancellationToken);
 
         textParsingService.ValidateText(kanjiCharacters, title, text, out var ratio, out var unknownKanji);

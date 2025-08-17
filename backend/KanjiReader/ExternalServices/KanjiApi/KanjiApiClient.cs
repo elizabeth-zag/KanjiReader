@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
-using KanjiReader.Domain.DomainObjects.KanjiLists;
+using KanjiReader.Domain.Common;
+using KanjiReader.Domain.DomainObjects;
 using KanjiReader.ExternalServices.KanjiApi.Contracts;
 
 namespace KanjiReader.ExternalServices.KanjiApi;
@@ -35,7 +36,7 @@ public class KanjiApiClient(IHttpClientFactory httpClientFactory)
         return response?.Where(r => r.Length == 1).Select(char.Parse).ToHashSet() ?? [];
     }
 
-    public async Task<IReadOnlyList<KanjiData>> GetKanjiData(IEnumerable<char> kanji, CancellationToken ct = default)
+    public async Task<IReadOnlyList<KanjiWithData>> GetKanjiData(IEnumerable<char> kanji, CancellationToken ct = default)
     {
         using var sem = new SemaphoreSlim(MaxConcurrent);
         var tasks = kanji.Select(async kanjiChar =>
@@ -55,17 +56,17 @@ public class KanjiApiClient(IHttpClientFactory httpClientFactory)
         var result = await Task.WhenAll(tasks);
         return result
             .Where(k => k != null)
-            .Select(k => k!)
+            .Select(CommonConverter.Convert!)
             .ToArray();
     }
-    private async Task<KanjiData?> GetKanjiData(char character, CancellationToken cancellationToken)
+    private async Task<KanjiApiDto?> GetKanjiData(char character, CancellationToken cancellationToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"https://kanjiapi.dev/v1/kanji/{character}");
         
         using var responseMessage = await _httpClient.SendAsync(request, cancellationToken);
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
     
-        return await JsonSerializer.DeserializeAsync<KanjiData>(stream, cancellationToken: cancellationToken);
+        return await JsonSerializer.DeserializeAsync<KanjiApiDto>(stream, cancellationToken: cancellationToken);
     }
 
     private string ConvertKanjiListToUrl(KanjiListType kanjiListType)

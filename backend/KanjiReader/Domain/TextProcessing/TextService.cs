@@ -28,17 +28,6 @@ public class TextService(
             })
             .ToArray();
     }
-
-    public async Task<int> GetCountByUser(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
-    {
-        var userId = (await userAccountService.GetByClaimsPrincipal(claimsPrincipal)).Id;
-        return await processingResultRepository.GetCountByUser(userId, cancellationToken);
-    }
-
-    public async Task<int> GetCountByUser(string userId, CancellationToken cancellationToken)
-    {
-        return await processingResultRepository.GetCountByUser(userId, cancellationToken);
-    }
     
     public async Task StartCollectingTexts(
         ClaimsPrincipal claimsPrincipal, 
@@ -48,7 +37,7 @@ public class TextService(
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await GetCountByUser(user.Id, cancellationToken);
+        var currentTextCount = await processingResultRepository.GetCountByUser(user.Id, cancellationToken);
         
         if (currentTextCount >= textCountLimit)
         {
@@ -62,14 +51,12 @@ public class TextService(
     }
     
     public async Task<IReadOnlyCollection<ProcessingResult>> GetProcessedTexts(
-        ClaimsPrincipal claimsPrincipal, 
-        int pageNumber,
-        int pageSize,
+        ClaimsPrincipal claimsPrincipal,
         CancellationToken cancellationToken)
     {
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         var processingResults = await processingResultRepository
-            .GetByUser(user.Id, pageNumber, pageSize, cancellationToken);
+            .GetByUser(user.Id, cancellationToken);
 
         return processingResults;
     }
@@ -77,14 +64,14 @@ public class TextService(
     public async Task<int> GetRemainingTextCount(string userId, CancellationToken cancellationToken)
     {
         var textCountLimit = 30; // todo: move to config
-        var currentTextCount = await GetCountByUser(userId, cancellationToken);
+        var currentTextCount = await processingResultRepository.GetCountByUser(userId, cancellationToken);
         return Math.Max(textCountLimit - currentTextCount, 0);
     }
     
     public async Task<double> GetThreshold(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken)
     {
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
-        var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        var kanjiCharacters = (await kanjiService.GetUserKanjiFromCache(user, cancellationToken)).ToHashSet();
         
         return TextParsingService.CalculateThreshold(kanjiCharacters.Count);
     }

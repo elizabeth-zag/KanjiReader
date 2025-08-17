@@ -47,7 +47,7 @@ public class KanjiController(KanjiService kanjiService, UserAccountService userA
     public async Task<GetUserKanjiResponse> GetUserKanji(CancellationToken cancellationToken)
     {
         var user = await userAccountService.GetByClaimsPrincipal(User);
-        var kanji = await kanjiService.GetUserKanji(user, cancellationToken);
+        var kanji = await kanjiService.GetUserKanjiFromCache(user, cancellationToken);
 
         return new GetUserKanjiResponse
         {
@@ -68,6 +68,6 @@ public class KanjiController(KanjiService kanjiService, UserAccountService userA
     [HttpPost(nameof(FillKanjiDatabase))]
     public async Task FillKanjiDatabase(CancellationToken cancellationToken)
     {
-        await kanjiService.FillKanjiDatabase(cancellationToken);
+        await kanjiService.FillKanjiDatabase(User, cancellationToken);
     }
 }
