@@ -105,6 +105,31 @@ public class UserAccountService(
         }
     }
     
+    public async Task UpdateWaniKaniStages(ClaimsPrincipal claimsPrincipal, WaniKaniStage[] stages)
+    {
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
+        user.WaniKaniStages = stages;
+        user.KanjiSourceType = KanjiSourceType.WaniKani;
+        var result = await userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateWaniKaniToken)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    
+    public async Task UpdateThreshold(ClaimsPrincipal claimsPrincipal, double threshold)
+    {
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
+        user.Threshold = threshold;
+        var result = await userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateThreshold)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    
     public async Task UpdateKanjiSourceType(User user, KanjiSourceType kanjiSourceType)
     {
         user.KanjiSourceType = kanjiSourceType;

@@ -2,7 +2,7 @@
 
 namespace KanjiReader.Presentation.Dtos.Login.UpdateUserInfo;
 
-public class UpdateWaniKaniTokenRequest
+public class SetWaniKaniTokenRequest
 {
     [Required]
     public string Token { get; set; }

@@ -58,11 +58,6 @@ public class RedisKanjiCacheRepository(IConnectionMultiplexer redis, IKanjiRepos
         var chars = (await GetUserKanjiCharacters(userId)).ToArray();
         var db = redis.GetDatabase();
         
-        foreach (var key in redis.GetServer("classic-sawfly-53318.upstash.io:6379").Keys(pattern: "kanji:*"))
-        {
-            await db.KeyDeleteAsync(key);
-        }
-        
         var hashes = await Task.WhenAll(chars.Select(ch => db.HashGetAllAsync(KanjiKey(ch))));
 
         var byChar = new Dictionary<char, KanjiWithData>(chars.Length);
@@ -86,8 +81,8 @@ public class RedisKanjiCacheRepository(IConnectionMultiplexer redis, IKanjiRepos
         }
 
         var missing = new List<char>(chars.Length);
-        for (int i = 0; i < chars.Length; i++)
-            if (!byChar.ContainsKey(chars[i])) missing.Add(chars[i]);
+        foreach (var t in chars)
+            if (!byChar.ContainsKey(t)) missing.Add(t);
 
         if (missing.Count > 0)
         {

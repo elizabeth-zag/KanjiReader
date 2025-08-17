@@ -87,6 +87,30 @@ public class LoginController(
     }
     
     [Authorize]
+    [HttpPost(nameof(SetWaniKaniStages))]
+    public async Task SetWaniKaniStages(SetWaniKaniStagesRequest dto, CancellationToken cancellationToken)
+    {
+        await userAccountService.UpdateWaniKaniStages(User, dto.Stages);
+        var user = await userAccountService.GetByClaimsPrincipal(User);
+
+        try
+        {
+            await waniKaniService.FillWaniKaniKanjiCache(user, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Redis filling failed");
+        }
+    }
+    
+    [Authorize]
+    [HttpPost(nameof(SetUserThreshold))]
+    public async Task SetUserThreshold(SetUserThresholdRequest dto)
+    {
+        await userAccountService.UpdateThreshold(User, dto.Threshold);
+    }
+    
+    [Authorize]
     [HttpPost(nameof(UpdateName))]
     public async Task<IActionResult> UpdateName(UpdateNameRequest dto)
     {
