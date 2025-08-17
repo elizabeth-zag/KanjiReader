@@ -97,7 +97,7 @@ public class KanjiService(
         if (sourceHasKanji)
         {
             await userAccountService.UpdateKanjiSourceType(user, kanjiSource);
-            await kanjiCacheRepository.SetUserKanji(user.Id, kanjiFromUpdatedSource);
+            await kanjiCacheRepository.SetUserKanji(user.Id, kanjiFromUpdatedSource.Select(k => k.Character).ToArray());
         }
 
         return sourceHasKanji;

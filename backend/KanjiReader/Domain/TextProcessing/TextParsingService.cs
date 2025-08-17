@@ -24,7 +24,7 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         
         var kanjiCharacters = (await kanjiService.GetUserKanjiCharacters(user, cancellationToken)).ToHashSet();
         
-        var threshold = CalculateThreshold(kanjiCharacters.Count);
+        var threshold = GetUserThreshold(user, kanjiCharacters.Count);
         
         var suitableResult = new List<ProcessingResult>();
         foreach (var url in articleUrls)
@@ -80,7 +80,12 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         if (double.IsNaN(ratio)) ratio = 0;
     }
 
-    public static double CalculateThreshold(int knownKanji)
+    public static double GetUserThreshold(User user, int knownKanji)
+    {
+        return user.Threshold ?? CalculateThreshold(knownKanji);
+    }
+    
+    private static double CalculateThreshold(int knownKanji)
     {
         double maxThreshold = 0.5; // todo: config
         var maxPossibleKanji = 3033;

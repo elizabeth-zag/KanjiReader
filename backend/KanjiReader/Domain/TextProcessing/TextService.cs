@@ -73,6 +73,6 @@ public class TextService(
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         var kanjiCharacters = (await kanjiService.GetUserKanjiFromCache(user, cancellationToken)).ToHashSet();
         
-        return TextParsingService.CalculateThreshold(kanjiCharacters.Count);
+        return TextParsingService.GetUserThreshold(user, kanjiCharacters.Count);
     }
 }

@@ -26,18 +26,14 @@ public class TextsController(
         await textService.StartCollectingTexts(User, dto.Sources.ToHashSet(), cancellationToken);
     }
 
-    [HttpPost(nameof(GetProcessedTexts))]
-    public async Task<GetProcessedTextsResponse> GetProcessedTexts(GetProcessedTextsRequest dto, 
-        CancellationToken cancellationToken)
+    [HttpGet(nameof(GetProcessedTexts))]
+    public async Task<GetProcessedTextsResponse> GetProcessedTexts(CancellationToken cancellationToken)
     {
-        var processedTexts = await textService.GetProcessedTexts(
-            User, dto.PageNumber, dto.PageSize, cancellationToken);
-        var allTextsCount = await textService.GetCountByUser(User, cancellationToken);
+        var processedTexts = await textService.GetProcessedTexts(User, cancellationToken);
 
         return new GetProcessedTextsResponse
         {
-            ProcessedTexts = processedTexts.Select(CommonConverter.Convert).ToArray(),
-            AllTextsCount = allTextsCount
+            ProcessedTexts = processedTexts.Select(CommonConverter.Convert).ToArray()
         };
     }
 
