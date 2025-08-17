@@ -22,7 +22,7 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
             return [];
         }
         
-        var kanjiCharacters = (await kanjiService.GetUserKanji(user, cancellationToken)).ToHashSet();
+        var kanjiCharacters = (await kanjiService.GetUserKanjiCharacters(user, cancellationToken)).ToHashSet();
         
         var threshold = CalculateThreshold(kanjiCharacters.Count);
         

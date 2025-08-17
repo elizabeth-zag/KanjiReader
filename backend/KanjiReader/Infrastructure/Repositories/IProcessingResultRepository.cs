@@ -6,11 +6,7 @@ namespace KanjiReader.Infrastructure.Repositories;
 public interface IProcessingResultRepository
 {
     Task Insert(IReadOnlyCollection<ProcessingResult> result, CancellationToken cancellationToken);
-    Task<IReadOnlyCollection<ProcessingResult>> GetByUser(
-        string userId,
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<ProcessingResult>> GetByUser(string userId, CancellationToken cancellationToken);
     Task<int> GetCountByUser(string userId, CancellationToken cancellationToken);
     Task Delete(IReadOnlyCollection<int> textIds, CancellationToken cancellationToken);
     Task DeleteForUser(string userId, CancellationToken cancellationToken);

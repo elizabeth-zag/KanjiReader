@@ -2,7 +2,7 @@
 
 namespace KanjiReader.ExternalServices.KanjiApi.Contracts;
 
-public class KanjiData
+public class KanjiApiDto
 {
     [JsonPropertyName("kanji")]
     public char Kanji { get; set; }

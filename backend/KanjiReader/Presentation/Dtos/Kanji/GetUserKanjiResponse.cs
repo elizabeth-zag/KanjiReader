@@ -1,7 +1,9 @@
-﻿namespace KanjiReader.Presentation.Dtos.Kanji;
+﻿using KanjiReader.Domain.DomainObjects;
+
+namespace KanjiReader.Presentation.Dtos.Kanji;
 
 public class GetUserKanjiResponse
 {
-    public char[] Kanji { get; set; }
+    public KanjiWithData[] Kanji { get; set; }
     public string KanjiSourceType { get; set; }
 }

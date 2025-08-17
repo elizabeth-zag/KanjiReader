@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using KanjiReader.Domain.DomainObjects.KanjiLists;
+﻿using KanjiReader.Domain.DomainObjects;
 
 namespace KanjiReader.Presentation.Dtos.Kanji;
 

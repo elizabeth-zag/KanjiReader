@@ -14,17 +14,11 @@ public class ProcessingResultRepository(KanjiReaderDbContext dbContext) : IProce
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<ProcessingResult>> GetByUser(
-        string userId, 
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<ProcessingResult>> GetByUser(string userId, CancellationToken cancellationToken)
     {
         return await dbContext.ProcessingResults
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
             .ToArrayAsync(cancellationToken);
     }
 

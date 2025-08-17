@@ -1,5 +1,4 @@
 ﻿using KanjiReader.Domain.DomainObjects;
-using KanjiReader.Domain.DomainObjects.KanjiLists;
 
 namespace KanjiReader.Domain.Common;
 
