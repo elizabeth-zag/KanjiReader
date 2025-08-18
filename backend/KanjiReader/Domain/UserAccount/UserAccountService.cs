@@ -80,6 +80,17 @@ public class UserAccountService(
             throw new Exception($"{nameof(UpdateLoginTime)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }
+
+    public async Task UpdateProcessingTime(User user, DateTime loginTime)
+    {
+        user.LastProcessingTime = loginTime;
+        var result = await userManager.UpdateAsync(user);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(UpdateProcessingTime)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
     
     public async Task UpdateHasData(User user, bool hasData)
     {

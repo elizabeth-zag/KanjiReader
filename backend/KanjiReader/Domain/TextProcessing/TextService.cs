@@ -37,6 +37,8 @@ public class TextService(
         var user = await userAccountService.GetByClaimsPrincipal(claimsPrincipal);
         
         var textCountLimit = 30; // todo: move to config
+        var textProcessingLeft = 30; // todo: move to config
+        var cooldownHours = 2; // todo: move to config
         var currentTextCount = await processingResultRepository.GetCountByUser(user.Id, cancellationToken);
         
         if (currentTextCount >= textCountLimit)
@@ -44,10 +46,17 @@ public class TextService(
             throw new InvalidOperationException($"You have reached the limit of {textCountLimit} texts. Please delete some texts before collecting new ones.");
         }
 
+        if (user.LastProcessingTime.HasValue && (DateTime.UtcNow - user.LastProcessingTime.Value).Hours < cooldownHours)
+        {
+            throw new InvalidOperationException($"You can only collect texts every {cooldownHours} hours. Please wait before trying again.");
+        }
+
         foreach (var sourceType in sourceTypes.Where(st => st != GenerationSourceType.Unspecified))
         {
-            BackgroundJob.Enqueue<TextProcessingJob>(svc => svc.Execute(user.Id, sourceType, null!, CancellationToken.None));
+            BackgroundJob.Enqueue<TextProcessingJob>(svc => svc.Execute(user.Id, sourceType, textProcessingLeft, null!, CancellationToken.None));
         }
+        
+        await userAccountService.UpdateProcessingTime(user, DateTime.UtcNow);
     }
     
     public async Task<IReadOnlyCollection<ProcessingResult>> GetProcessedTexts(
