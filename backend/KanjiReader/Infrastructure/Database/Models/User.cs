@@ -11,5 +11,6 @@ public class User : IdentityUser
     public double? Threshold { get; set; }
     public bool HasData { get; set; }
     public DateTime LastLogin { get; set; }
+    public DateTime? LastProcessingTime { get; set; }
     public ICollection<UserKanji> UserKanjis { get; set; }
 }

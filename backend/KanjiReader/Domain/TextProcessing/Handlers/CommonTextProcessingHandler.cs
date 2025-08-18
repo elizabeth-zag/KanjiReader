@@ -15,7 +15,7 @@ public abstract class CommonTextProcessingHandler(
     TextService textService,
     KanjiReaderDbContext dbContext)
 {
-    public async Task Handle(string userId, bool isLastRetry, CancellationToken cancellationToken)
+    public async Task Handle(string userId, bool isLastRetry, int textProcessingLeft, CancellationToken cancellationToken)
     {
         var remainingTextCount = await textService.GetRemainingTextCount(userId, cancellationToken);
         if (remainingTextCount <= 0)
@@ -41,7 +41,7 @@ public abstract class CommonTextProcessingHandler(
                 await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
             }
             BackgroundJob.Enqueue<TextProcessingJob>(svc =>
-                svc.Execute(userId, GetSourceType(), null!, CancellationToken.None));
+                svc.Execute(userId, GetSourceType(), textProcessingLeft - 1, null!, CancellationToken.None));
             throw;
         }
         
@@ -68,7 +68,7 @@ public abstract class CommonTextProcessingHandler(
             if (!isGenerationCompleted)
             {
                 BackgroundJob.Enqueue<TextProcessingJob>(svc =>
-                    svc.Execute(userId, GetSourceType(), null!, CancellationToken.None));
+                    svc.Execute(userId, GetSourceType(), textProcessingLeft - 1, null!, CancellationToken.None));
             }
 
             await transaction.CommitAsync(cancellationToken);

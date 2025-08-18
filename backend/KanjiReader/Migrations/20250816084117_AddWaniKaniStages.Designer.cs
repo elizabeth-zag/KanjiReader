@@ -3,6 +3,7 @@ using System;
 using KanjiReader.Infrastructure.Database.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KanjiReader.Migrations
 {
     [DbContext(typeof(KanjiReaderDbContext))]
-    partial class KanjiReaderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250816084117_AddWaniKaniStages")]
+    partial class AddWaniKaniStages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,9 +125,6 @@ namespace KanjiReader.Migrations
                     b.Property<DateTime>("LastLogin")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("LastProcessingTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -150,9 +150,6 @@ namespace KanjiReader.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
-
-                    b.Property<double?>("Threshold")
-                        .HasColumnType("double precision");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
