@@ -24,6 +24,7 @@ public static class CommonConverter
         else
         {
             user.KanjiSourceType = KanjiSourceType.WaniKani;
+            user.WaniKaniStages = [WaniKaniStage.Master, WaniKaniStage.Enlightened, WaniKaniStage.Burned];
             user.WaniKaniToken = request.WaniKaniToken;
         }
 
