@@ -1,0 +1,257 @@
+.readings-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: -webkit-fill-available;
+  width: -moz-available;
+}
+
+.readings-header {
+  padding: 24px;
+}
+
+.back-button {
+  color: #FF9800 !important;
+  border-color: #FF9800 !important;
+  font-weight: 600 !important;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+  border-color: #F57C00 !important;
+}
+
+.text-detail-content {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.text-detail-paper {
+  padding: 32px;
+  background-color: white;
+  border-radius: 12px;
+}
+
+.text-detail-title {
+  margin-bottom: 24px !important;
+  color: #333;
+  font-weight: 700;
+  text-align: center;
+}
+
+.text-detail-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.text-ratio-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratio-label {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ratio-chip {
+  font-weight: 600;
+}
+
+.unknown-kanji-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background-color: #fff3e0;
+  border-radius: 8px;
+  border: 1px solid #ffcc80;
+}
+
+.unknown-kanji-title {
+  margin-bottom: 16px !important;
+  color: #e65100;
+  font-weight: 600;
+}
+
+.unknown-kanji-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kanji-chip {
+  background-color: #fff3e0 !important;
+  border-color: #ffb74d !important;
+  color: #e65100 !important;
+  font-weight: 600 !important;
+}
+
+.text-content-title {
+  margin-bottom: 16px !important;
+  color: #333;
+  font-weight: 600;
+}
+
+.text-full-content {
+  color: #333;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  white-space: pre-wrap;
+  margin-bottom: 24px;
+}
+
+.text-content-divider {
+  margin: 24px 0 !important;
+  border-color: #e0e0e0 !important;
+}
+
+.text-detail-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 24px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.text-detail-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.text-detail-footer-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.text-source {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.text-detail-url-link {
+  color: #1976d2 !important;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.text-detail-url-link:hover {
+  color: #1565c0 !important;
+  text-decoration: underline !important;
+}
+
+.create-date-info {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .readings-header {
+    padding: 16px;
+  }
+
+  .text-detail-content {
+    padding: 16px;
+  }
+
+  .text-detail-paper {
+    padding: 20px;
+  }
+
+  .text-detail-title {
+    font-size: 1.5rem !important;
+  }
+
+  .text-detail-meta {
+    padding: 12px;
+  }
+
+  .unknown-kanji-section {
+    padding: 16px;
+  }
+
+  .text-full-content {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .text-detail-footer {
+    padding: 16px;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .readings-header {
+    padding: 12px;
+  }
+
+  .text-detail-content {
+    padding: 12px;
+  }
+
+  .text-detail-paper {
+    padding: 16px;
+  }
+
+  .text-detail-title {
+    font-size: 1.3rem !important;
+  }
+
+  .text-detail-meta {
+    padding: 10px;
+  }
+
+  .unknown-kanji-section {
+    padding: 12px;
+  }
+
+  .text-ratio-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .ratio-chip {
+    font-size: 0.8rem !important;
+  }
+
+  .text-detail-footer {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 12px;
+    margin-top: 16px;
+  }
+
+  .text-detail-footer-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .text-source,
+  .create-date-info {
+    font-size: 0.85rem;
+  }
+
+  .text-detail-url-link {
+    font-size: 0.85rem;
+  }
+}
