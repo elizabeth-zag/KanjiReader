@@ -1,0 +1,99 @@
+.modal-title {
+  color: #FF9800 !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  background-color: #2d2d2d !important;
+}
+
+.modal-description {
+  margin-bottom: 24px !important;
+  color: #e0e0e0 !important;
+  text-align: center !important;
+  background-color: #2d2d2d !important;
+}
+
+.modal-source-checkboxes {
+  display: flex;
+  flex-direction: column;
+  background-color: #2d2d2d !important;
+}
+
+.modal-source-checkboxes .MuiFormControlLabel-root {
+  margin: 0;
+  color: #e0e0e0 !important;
+}
+
+.modal-source-checkboxes .MuiFormControlLabel-root .MuiFormControlLabel-label {
+  color: #e0e0e0 !important;
+}
+
+.modal-source-checkboxes .MuiCheckbox-root {
+  color: #FF9800 !important;
+}
+
+.modal-source-checkboxes .MuiCheckbox-root.Mui-checked {
+  color: #FF9800 !important;
+}
+
+.modal-actions {
+  padding: 16px 24px !important;
+  gap: 12px !important;
+  background-color: #2d2d2d !important;
+  justify-content: center !important;
+}
+
+.modal-start-button {
+  background-color: #FF9800 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+}
+
+.modal-start-button:hover {
+  background-color: #d46a00 !important;
+}
+
+.modal-cancel-button:hover {
+  background-color: #3e3e3e !important;
+}
+
+.modal-start-button:disabled {
+  background-color: #555 !important;
+  color: #999 !important;
+}
+
+.MuiDialog-paper {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border: 3px solid #c96d00;
+}
+
+.MuiDialogTitle-root {
+  background-color: #2d2d2d !important;
+  color: #FF9800 !important;
+}
+
+.MuiDialogContent-root {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+.MuiDialogActions-root {
+  background-color: #2d2d2d !important;
+}
+
+.source-tooltip-button {
+  margin-left: 0 !important;
+  margin-bottom: 6px !important;
+}
+
+.source-tooltip-icon {
+  width: 14px !important;
+  color: white !important;
+}
+
+@media (max-width: 768px) {
+  .modal-source-checkboxes {
+    grid-template-columns: 1fr;
+  }
+}
