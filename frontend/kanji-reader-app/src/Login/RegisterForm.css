@@ -116,3 +116,29 @@
     color: #7225de !important;
   }
 }
+
+.field-info-icon {
+  color: #999 !important;
+  padding: 4px !important;
+  margin-right: -4px !important;
+}
+
+.field-info-icon:hover {
+  color: #FF9800 !important;
+  background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.MuiTooltip-tooltip {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #000000 !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  max-width: 250px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+.MuiTooltip-arrow {
+  color: #1a1a1a !important;
+}
