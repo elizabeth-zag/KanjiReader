@@ -28,6 +28,24 @@
   margin: 0;
 }
 
+.registration-success-message {
+  text-align: center;
+  margin: 16px 0;
+  padding: 12px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 4px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.success-text {
+  color: #4caf50 !important;
+  margin: 0 !important;
+  font-weight: 500 !important;
+}
+
 @media (prefers-color-scheme: light) {
   .login-title {
     color: #2c3033;
