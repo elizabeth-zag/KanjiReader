@@ -148,14 +148,3 @@ foreach (var orphanJob in orphanJobs)
 }
 
 app.Run();
-
-// ask user to remove previous texts before generating new ones
-// logging
-// add email notification
-// maybe add wanikani and threshold customization 
-// add indices
-// add warning for insufficient kanji count
-// hangfire jobs weird behaviour
-// frontend unknown kanji, url, maybe new line save
-// google ai sometimes returns empty text - check it (also test request limit overflow)
-// checkboxes frontend

@@ -16,7 +16,14 @@
 }
 
 .uppermenubar-toolbar {
-  justify-content: space-between
+  justify-content: space-between;
+  padding: 0 16px;
+  min-height: 70px;
+}
+
+.uppermenubar-logo-title {
+  display: flex;
+  align-items: center;
 }
 
 .uppermenubar-logo {
@@ -24,11 +31,13 @@
   height: 70px;
   margin-left: -10px;
   margin-right: 10px;
+  flex-shrink: 0;
 }
 
 .uppermenubar-title-container {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .uppermenubar-title {
@@ -36,6 +45,9 @@
   font-family: "Inter", sans-serif !important;
   font-weight: 600 !important;
   font-style: italic;
+  white-space: nowrap;
+  animation: glow 1s ease-in-out infinite alternate;
+  text-shadow: #ffffff 0 0 5px;
 }
 
 .uppermenubar-center {
@@ -43,6 +55,7 @@
   align-items: center;
   justify-content: space-evenly;
   flex: 1;
+  gap: 16px;
 }
 
 .kanjimenu-button {
@@ -55,14 +68,19 @@
   box-shadow: none;
   border-color: #FF9800 !important;
   color: #FF9800 !important;
+  min-width: 80px;
+  flex-shrink: 0;
 }
+
 .kanjimenu-button:focus,
 .kanjimenu-button.Mui-focusVisible {
   outline: none;
 }
+
 .kanjimenu-button:active {
   background-color: transparent;
 }
+
 .kanjimenu-button:hover {
   background-color: #21170b;
 }
@@ -77,14 +95,143 @@
   box-shadow: none;
   border-color: #FF9800 !important;
   color: #FF9800 !important;
+  min-width: 80px;
+  
+  flex-shrink: 0;
 }
+
 .readingsmenu-button:focus,
 .readingsmenu-button.Mui-focusVisible {
   outline: none;
 }
+
 .readingsmenu-button:active {
   background-color: transparent;
 }
+
 .readingsmenu-button:hover {
   background-color: #21170b;
+}
+
+@media (max-width: 900px) {
+  .uppermenubar-toolbar {
+    padding: 0 12px;
+  }
+  
+  .uppermenubar-title {
+    font-size: 1.8rem !important;
+    margin-left: 12px;
+  }
+  
+  .uppermenubar-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .kanjimenu-button,
+  .readingsmenu-button {
+    min-width: 70px;
+    margin-left: 12px;
+    font-size: 0.8rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .uppermenubar-toolbar {
+    padding: 0 8px;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .uppermenubar-title {
+    font-size: 1.5rem !important;
+    margin-left: 8px;
+  }
+  
+  .uppermenubar-logo {
+    width: 50px;
+    height: 50px;
+    margin-left: -5px;
+    margin-right: 5px;
+  }
+  
+  .uppermenubar-center {
+    width: 100%;
+    margin-top: 8px;
+    gap: 12px;
+  }
+  
+  .kanjimenu-button,
+  .readingsmenu-button {
+    min-width: 60px;
+    margin-left: 8px;
+    font-size: 0.7rem !important;
+  }
+}
+
+@media (max-width: 485px) {
+  .uppermenubar-toolbar {
+    padding: 0 6px;
+    min-height: 55px;
+    gap: 15px;
+  }
+  
+  .uppermenubar-title {
+    font-size: 1.5rem !important;
+    margin-left: 6px;
+  }
+  
+  .uppermenubar-logo {
+    width: 45px;
+    height: 45px;
+    margin-left: -3px;
+    margin-right: 3px;
+  }
+  
+  .uppermenubar-center {
+    gap: 8px;
+    margin-top: -15px;
+    margin-bottom: 15px;
+    order: 3;
+  }
+  
+  .kanjimenu-button,
+  .readingsmenu-button {
+    min-width: 55px;
+    margin-left: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .uppermenubar-toolbar {
+    padding: 0 4px;
+    min-height: 50px;
+    justify-content: center;
+  }
+  
+  .uppermenubar-title {
+    font-size: 1.5rem !important;
+    margin-left: 4px;
+  }
+  
+  .uppermenubar-logo {
+    width: 40px;
+    height: 40px;
+    margin-left: -2px;
+    margin-right: 2px;
+  }
+  
+  .uppermenubar-center {
+    gap: 6px;
+    margin-top: -5px;
+    margin-bottom: 15px;
+  }
+  
+  .kanjimenu-button,
+  .readingsmenu-button {
+    min-width: 50px;
+    margin-left: 4px;
+    font-size: 0.75rem !important;
+  }
 }
