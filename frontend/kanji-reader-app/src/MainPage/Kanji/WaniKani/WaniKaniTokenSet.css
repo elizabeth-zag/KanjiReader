@@ -1,0 +1,84 @@
+.wanikani-token-container {
+  padding: 24px;
+  border-radius: 8px;
+  background-color: rgb(0, 0, 0) !important;
+  border: 1px solid #e0e0e0;
+  max-width: 500px;
+  margin: 16px 0;
+}
+
+.wanikani-token-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wanikani-token-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wanikani-token-title {
+  color: orange !important;
+  font-weight: 600;
+  margin: 0;
+}
+
+.wanikani-info-icon {
+  color: #666 !important;
+  transition: color 0.2s ease;
+}
+
+.wanikani-info-icon:hover {
+  color: #FF9800 !important;
+}
+
+.wanikani-token-description {
+  color: #dcdcdc;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.wanikani-token-input-container {
+  margin: 8px 0;
+}
+
+.wanikani-token-input {
+  background-color: #fafafa;
+}
+
+.wanikani-token-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800;
+}
+
+.wanikani-token-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border: 3px solid #FF9800;
+  border-radius: 1px !important;
+}
+
+.wanikani-token-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.wanikani-save-button {
+  background-color: #FF9800 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 8px 24px !important;
+  border-radius: 6px !important;
+  text-transform: none !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.wanikani-save-button:hover {
+  background-color: #F57C00 !important;
+}
+
+.wanikani-save-button:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+}
