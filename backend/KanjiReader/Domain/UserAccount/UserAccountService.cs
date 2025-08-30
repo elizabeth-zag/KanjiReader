@@ -1,17 +1,19 @@
 ﻿using System.Security.Claims;
 using KanjiReader.Domain.Common;
+using KanjiReader.Domain.Common.Options;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Presentation.Dtos.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.Domain.UserAccount;
 
-// todo: add validation
 public class UserAccountService(
     UserManager<User> userManager,
-    SignInManager<User> signInManager)
+    SignInManager<User> signInManager,
+    IOptionsMonitor<UserDataOptions> options)
 {
     private User? _currentUser;
 
@@ -108,6 +110,7 @@ public class UserAccountService(
         var user = await GetByClaimsPrincipal(claimsPrincipal);
         user.WaniKaniToken = token;
         user.KanjiSourceType = KanjiSourceType.WaniKani;
+        user.WaniKaniStages ??= [WaniKaniStage.Master, WaniKaniStage.Enlightened, WaniKaniStage.Burned];
         var result = await userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
@@ -129,7 +132,7 @@ public class UserAccountService(
         }
     }
     
-    public async Task UpdateThreshold(ClaimsPrincipal claimsPrincipal, double threshold)
+    public async Task UpdateThreshold(ClaimsPrincipal claimsPrincipal, double? threshold)
     {
         var user = await GetByClaimsPrincipal(claimsPrincipal);
         user.Threshold = threshold;
@@ -152,18 +155,6 @@ public class UserAccountService(
         }
     }
     
-    public async Task UpdateName(ClaimsPrincipal claimsPrincipal, string name)
-    {
-        var user = await GetByClaimsPrincipal(claimsPrincipal);
-        user.UserName = name;
-        var result = await userManager.UpdateAsync(user);
-        
-        if (!result.Succeeded)
-        {
-            throw new Exception($"{nameof(UpdateName)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-        }
-    }
-    
     public async Task UpdateEmail(ClaimsPrincipal claimsPrincipal, string email)
     {
         var user = await GetByClaimsPrincipal(claimsPrincipal);
@@ -172,6 +163,17 @@ public class UserAccountService(
         if (!result.Succeeded)
         {
             throw new Exception($"{nameof(UpdateEmail)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    
+    public async Task DeleteEmail(ClaimsPrincipal claimsPrincipal)
+    {
+        var user = await GetByClaimsPrincipal(claimsPrincipal);
+        var result = await userManager.SetEmailAsync(user, null);
+        
+        if (!result.Succeeded)
+        {
+            throw new Exception($"{nameof(DeleteEmail)} was not successful: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }
     
@@ -210,7 +212,7 @@ public class UserAccountService(
     public async Task<IReadOnlyCollection<User>> GetInactiveUsers(CancellationToken cancellationToken)
     {
         return await userManager.Users
-            .Where(u => u.LastLogin < DateTime.UtcNow.AddMonths(-3))
-            .ToArrayAsync(cancellationToken); // todo: config
+            .Where(u => u.LastLogin < DateTime.UtcNow.AddMonths(options.CurrentValue.InactivityLimitMonths))
+            .ToArrayAsync(cancellationToken);
     }
 }

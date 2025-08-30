@@ -1,6 +1,7 @@
 ﻿using KanjiReader.Domain.Deletion;
 using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
+using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.Presentation.Dtos.Login;
 using KanjiReader.Presentation.Dtos.Login.UpdateUserInfo;
@@ -14,7 +15,7 @@ namespace KanjiReader.Presentation.Controllers;
 [Route("api/login")]
 public class LoginController(
     UserAccountService userAccountService,
-    KanjiService kanjiService,
+    TextService textService,
     WaniKaniService waniKaniService,
     DeletionService deletionService,
     ILogger<LoginController> logger)
@@ -104,25 +105,54 @@ public class LoginController(
     }
     
     [Authorize]
+    [HttpGet(nameof(GetWaniKaniStages))]
+    public async Task<GetWaniKaniStagesResponse> GetWaniKaniStages()
+    {
+        var user = await userAccountService.GetByClaimsPrincipal(User);
+
+        return new GetWaniKaniStagesResponse { Stages = user.WaniKaniStages ?? [] };
+    }
+    
+    [Authorize]
     [HttpPost(nameof(SetUserThreshold))]
     public async Task SetUserThreshold(SetUserThresholdRequest dto)
     {
         await userAccountService.UpdateThreshold(User, dto.Threshold);
     }
+
+    [HttpGet(nameof(GetUserThreshold))]
+    public async Task<GetUserThresholdResponse> GetUserThreshold(CancellationToken cancellationToken)
+    {
+        var (threshold, isUserSet) = await textService.GetThreshold(User, cancellationToken);
+        
+        return new GetUserThresholdResponse
+        {
+            Threshold = threshold,
+            IsUserSet = isUserSet
+        };
+    }
     
     [Authorize]
-    [HttpPost(nameof(UpdateName))]
-    public async Task<IActionResult> UpdateName(UpdateNameRequest dto)
+    [HttpGet(nameof(GetEmail))]
+    public async Task<GetEmailResponse> GetEmail()
     {
-        await userAccountService.UpdateName(User, dto.Name);
-        return Ok();
+        var user = await userAccountService.GetByClaimsPrincipal(User);
+        
+        return new  GetEmailResponse { Email = user.Email ?? string.Empty };
     }
     
     [Authorize]
     [HttpPost(nameof(UpdateEmail))]
     public async Task<IActionResult> UpdateEmail(UpdateEmailRequest dto)
     {
-        await userAccountService.UpdateEmail(User, dto.Email);
+        if (dto.NeedDelete)
+        {
+            await userAccountService.DeleteEmail(User);
+        }
+        else
+        {
+            await userAccountService.UpdateEmail(User, dto.Email);
+        }
         return Ok();
     }
     

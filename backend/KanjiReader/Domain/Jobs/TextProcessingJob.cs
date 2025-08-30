@@ -16,7 +16,7 @@ public class TextProcessingJob(TextProcessingHandlersFactory textProcessingHandl
         }
         
         var retryCount = context.GetJobParameter<int>("RetryCount");
-        var isLastRetry = retryCount == 3; // todo: config?
+        var isLastRetry = retryCount == 3;
         var handler = textProcessingHandlersFactory.GetHandler(sourceType);
         await handler.Handle(userId, isLastRetry, textProcessingLeft, cancellationToken);
     }

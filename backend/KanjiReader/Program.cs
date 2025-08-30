@@ -1,6 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using Hangfire;
 using Hangfire.PostgreSql;
+using KanjiReader.Domain.Common.Options;
+using KanjiReader.Domain.Common.Options.CacheOptions;
 using KanjiReader.Domain.Deletion;
 using KanjiReader.Domain.DomainObjects.TextProcessingData;
 using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
@@ -62,7 +64,7 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyPolicy", policy =>
-        policy.WithOrigins("http://localhost:5175")
+        policy.WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
@@ -108,6 +110,19 @@ builder.Services.AddScoped<INhkCacheRepository, RedisNhkCacheRepository>();
 builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
 builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
 builder.Services.AddScoped<IUserGenerationStateRepository, UserGenerationStateRepository>();
+
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(nameof(EmailOptions)));
+builder.Services.Configure<SatoriReaderParsingOptions>(builder.Configuration.GetSection(nameof(SatoriReaderParsingOptions)));
+builder.Services.Configure<TextProcessingOptions>(builder.Configuration.GetSection(nameof(TextProcessingOptions)));
+builder.Services.Configure<ThresholdOptions>(builder.Configuration.GetSection(nameof(ThresholdOptions)));
+builder.Services.Configure<UserDataOptions>(builder.Configuration.GetSection(nameof(UserDataOptions)));
+builder.Services.Configure<GoogleAiApiOptions>(builder.Configuration.GetSection(nameof(GoogleAiApiOptions)));
+builder.Services.Configure<KanjiApiOptions>(builder.Configuration.GetSection(nameof(KanjiApiOptions)));
+builder.Services.Configure<WaniKaniOptions>(builder.Configuration.GetSection(nameof(WaniKaniOptions)));
+
+builder.Services.Configure<SariReaderCacheOptions>(builder.Configuration.GetSection(nameof(SariReaderCacheOptions)));
+builder.Services.Configure<NhkCacheOptions>(builder.Configuration.GetSection(nameof(NhkCacheOptions)));
+builder.Services.Configure<WatanocCacheOptions>(builder.Configuration.GetSection(nameof(WatanocCacheOptions)));
 
 builder.Services.AddHangfire(config =>
     config.UsePostgreSqlStorage(

@@ -8,7 +8,7 @@ public class UserGenerationState
     public string UserId { get; init; }
     public User User { get; init; }
     public GenerationSourceType SourceType { get; init; }
-    public string Data { get; private set; } // todo: check
+    public string Data { get; private set; }
     
     public UserGenerationState UpdateData(string newData)
     {

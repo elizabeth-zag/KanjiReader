@@ -2,5 +2,5 @@
 
 public class SetUserThresholdRequest
 {
-    public double Threshold { get; set; }
+    public double? Threshold { get; set; }
 }

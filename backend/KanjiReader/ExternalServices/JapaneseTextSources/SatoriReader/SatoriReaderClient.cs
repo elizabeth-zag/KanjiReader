@@ -42,7 +42,7 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
     public async Task<string[]> GetArticleUrls(string[] seriesUrls, CancellationToken cancellationToken) 
     { 
         var urls = new List<string>();
-        foreach (var seriesUrl in seriesUrls) // todo: maybe parallelize this
+        foreach (var seriesUrl in seriesUrls)
         {
             var freeArticlesUrls = await GetFreeArticlesUrl(seriesUrl, cancellationToken);
             urls.AddRange(freeArticlesUrls);
