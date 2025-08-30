@@ -1,6 +1,6 @@
-import React from 'react';
-import { FormControlLabel, Checkbox } from '@mui/material';
-import './KanjiItem.css';
+import React from "react";
+import { FormControlLabel, Checkbox } from "@mui/material";
+import "./KanjiItem.css";
 
 interface KanjiItemProps {
   kanji: string;
@@ -8,11 +8,11 @@ interface KanjiItemProps {
   onToggle: (kanji: string) => void;
 }
 
-const KanjiItem = React.memo(function KanjiItem({ 
-  kanji, 
-  isChecked, 
-  onToggle 
-}: KanjiItemProps) {  
+const KanjiItem = React.memo(function KanjiItem({
+  kanji,
+  isChecked,
+  onToggle,
+}: KanjiItemProps) {
   return (
     <FormControlLabel
       control={
@@ -28,4 +28,4 @@ const KanjiItem = React.memo(function KanjiItem({
   );
 });
 
-export default KanjiItem; 
+export default KanjiItem;

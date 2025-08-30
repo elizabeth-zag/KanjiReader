@@ -1,14 +1,13 @@
 .individual-kanji-section {
-  margin-bottom: 32px;
-  padding: 20px;
-  border: 5px solid #e07b00;
+  padding: 10px;
   border-radius: 8px;
-  background-color: #fafafa;
+  background-color: #2d2d2d;
+  color: #ffffff;
 }
 
 .individual-kanji-section-title {
-  margin-bottom: 16px;
-  color: #333;
+  margin-bottom: 16px !important;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -17,11 +16,31 @@
 }
 
 .search-input {
-  background-color: white;
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.search-input .MuiOutlinedInput-root .MuiOutlinedInput-input::placeholder {
+  color: #ffffff;
+  opacity: 0.8;
 }
 
 .search-input .MuiOutlinedInput-root {
   border-radius: 8px;
+  color: #ffffff;
+}
+
+.search-input .MuiOutlinedInput-root .MuiInputAdornment-root{
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+.search-input .MuiOutlinedInput-root .MuiOutlinedInput-input {
+  color: #ffffff;
+}
+
+.search-input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #555;
 }
 
 .search-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
@@ -38,33 +57,38 @@
   gap: 12px;
   max-height: 400px;
   overflow-y: auto;
-  padding: 16px;
-  background-color: white;
+  padding: 16px 30px;
+  background-color: #2d2d2d;
   border-radius: 6px;
+  border: 1px solid #555;
 }
 
 .pagination-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-top: 16px;
   padding: 16px;
 }
 
 .pagination-controls {
-  background-color: white;
+  background-color: #2d2d2d;
   padding: 8px 16px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid #555;
 }
 
 .pagination-controls .MuiPaginationItem-root {
-  color: #666;
-  border: 1px solid #ddd;
+  color: #ffffff;
+  border: 1px solid #555;
   margin: 0 2px;
+  background-color: #2d2d2d;
 }
 
 .pagination-controls .MuiPaginationItem-root:hover {
-  background-color: rgba(255, 152, 0, 0.1);
+  background-color: #2d2d2d;
   border-color: #FF9800;
 }
 
@@ -78,10 +102,68 @@
   background-color: #F57C00 !important;
 }
 
-.no-results {
+.no-kanji-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1 / -1;
   text-align: center;
-  padding: 20px;
-  background-color: white;
-  border-radius: 6px;
-  margin-top: 16px;
+}
+
+.no-kanji-message .MuiTypography-root {
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+.individual-kanji-bulk-actions {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+  gap: 16px;
+}
+
+.individual-kanji-check-all-button,
+.individual-kanji-clear-all-button {
+  min-width: 90px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  border-radius: 6px !important;
+  height: 35px;
+}
+
+.individual-kanji-check-all-button {
+  color: #65bd5d !important;
+  border-color: #4CAF50 !important;
+}
+
+.individual-kanji-check-all-button:hover {
+  background-color: #5a5a5a !important;
+  border-color: #45a049 !important;
+}
+
+.individual-kanji-clear-all-button {
+  color: #ff6969 !important;
+  border-color: #f44336 !important;
+}
+
+.individual-kanji-clear-all-button:hover {
+  background-color: #5a5a5a !important;
+  border-color: #da190b !important;
+}
+
+.individual-kanji-section .MuiCheckbox-root {
+  color: #FF9800;
+}
+
+.individual-kanji-section .MuiCheckbox-root.Mui-checked {
+  color: #FF9800;
+}
+
+.individual-kanji-section .MuiFormControlLabel-root {
+  color: #ffffff;
+}
+
+.individual-kanji-section .MuiFormControlLabel-root .MuiFormControlLabel-label {
+  color: #ffffff;
 } 

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import './KanjiSetup.css';
-import ManualKanjiSelection from './ManualSelection/ManualKanjiSelection';
+import { useState } from "react";
+import { Box, Typography, Button } from "@mui/material";
+import "./KanjiSetup.css";
+import ManualKanjiSelection from "./ManualSelection/ManualKanjiSelection";
+import WaniKaniTokenSet from "./WaniKani/WaniKaniTokenSet";
 
-export default function KanjiSetup() {
+export default function KanjiSetup({ onShowKanji }: { onShowKanji: () => {} }) {
   const [showTokenInput, setShowTokenInput] = useState(false);
   const [showManualSelection, setShowManualSelection] = useState(false);
 
@@ -20,29 +21,26 @@ export default function KanjiSetup() {
   return (
     <Box className="kanjisetup-container">
       <Box className="kanjisetup-buttons">
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSetWaniKaniToken}
           className="kanjisetup-button"
         >
           Set WaniKani token
         </Button>
         <Typography className="kanjisetup-or">or</Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleManualSelection}
           className="kanjisetup-button"
         >
           Manually select kanji
         </Button>
       </Box>
-      {showTokenInput && (
-        <Box className="kanjisetup-placeholder">
-          <Typography variant="h6">WaniKani Token Input</Typography>
-          <Typography variant="body2">Placeholder for token input form</Typography>
-        </Box>
+      {showTokenInput && <WaniKaniTokenSet onTokenSave={onShowKanji} />}
+      {showManualSelection && (
+        <ManualKanjiSelection onSelectionSave={onShowKanji} />
       )}
-      {showManualSelection && <ManualKanjiSelection />}
     </Box>
   );
-} 
+}

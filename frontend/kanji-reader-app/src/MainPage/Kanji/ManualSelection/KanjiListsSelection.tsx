@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography, Checkbox, FormControlLabel } from '@mui/material';
-import './KanjiListsSelection.css';
+import React from "react";
+import { Box, Typography, Checkbox, FormControlLabel } from "@mui/material";
+import "./KanjiListsSelection.css";
 
 interface KanjiList {
   kanjiList: string;
@@ -13,10 +13,10 @@ interface KanjiListsSelectionProps {
   onListToggle: (listName: string) => void;
 }
 
-export default function KanjiListsSelection({ 
-  kanjiLists, 
-  selectedLists, 
-  onListToggle 
+export default function KanjiListsSelection({
+  kanjiLists,
+  selectedLists,
+  onListToggle,
 }: KanjiListsSelectionProps) {
   return (
     <Box className="kanji-lists-section">
@@ -50,4 +50,4 @@ export default function KanjiListsSelection({
       </Box>
     </Box>
   );
-} 
+}
