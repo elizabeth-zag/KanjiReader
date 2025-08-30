@@ -1,0 +1,17 @@
+.profile-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 12px;
+  }
+}

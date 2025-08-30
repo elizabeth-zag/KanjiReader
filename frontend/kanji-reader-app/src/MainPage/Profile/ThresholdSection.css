@@ -1,0 +1,194 @@
+.profile-section {
+  margin-bottom: 24px !important;
+  background-color: #1b1b1b !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  padding: 24px !important;
+}
+
+.section-title {
+  color: #FF9800 !important;
+  margin-bottom: 16px !important;
+  font-weight: 600 !important;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-header .section-title {
+  margin-bottom: 0 !important;
+  flex: 1;
+}
+
+.info-icon {
+  color: #888 !important;
+  padding: 4px !important;
+}
+
+.info-icon:hover {
+  color: #FF9800 !important;
+  background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.section-divider {
+  background-color: #333 !important;
+  margin-bottom: 20px !important;
+}
+
+.display-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.field-value {
+  color: #ffffff !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  flex: 1;
+}
+
+.field-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.threshold-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.threshold-source {
+  color: #888 !important;
+  font-style: italic;
+  font-size: 0.8rem !important;
+}
+
+.edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-input {
+  margin-bottom: 16px !important;
+}
+
+.profile-input .MuiOutlinedInput-root {
+  background-color: #2a2a2a !important;
+}
+
+.profile-input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #555 !important;
+}
+
+.profile-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800 !important;
+}
+
+.profile-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800 !important;
+}
+
+.profile-input .MuiInputLabel-root {
+  color: #ccc !important;
+}
+
+.profile-input .MuiInputLabel-root.Mui-focused {
+  color: #FF9800 !important;
+}
+
+.profile-input .MuiInputBase-input {
+  color: #ffffff !important;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.edit-button {
+  border-color: #FF9800 !important;
+  color: #FF9800 !important;
+}
+
+.edit-button:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+  border-color: #F57C00 !important;
+}
+
+.save-button {
+  background-color: #FF9800 !important;
+  color: #000000 !important;
+}
+
+.save-button:hover {
+  background-color: #F57C00 !important;
+}
+
+.cancel-button {
+  border-color: #666 !important;
+  color: #ccc !important;
+}
+
+.cancel-button:hover {
+  background-color: rgba(102, 102, 102, 0.1) !important;
+  border-color: #888 !important;
+}
+
+.reset-button {
+  border-color: #ff9800 !important;
+  color: #ff9800 !important;
+}
+
+.reset-button:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+  border-color: #f57c00 !important;
+}
+
+@media (max-width: 768px) {
+  .profile-section {
+    padding: 16px !important;
+  }
+  
+  .display-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .field-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .edit-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-section {
+    padding: 12px !important;
+  }
+  
+  .field-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .edit-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+}

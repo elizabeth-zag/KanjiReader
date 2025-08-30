@@ -1,0 +1,46 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dialog-input {
+  margin-bottom: 16px !important;
+}
+
+.dialog-input .MuiOutlinedInput-root {
+  background-color: #2a2a2a !important;
+}
+
+.dialog-input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: #555 !important;
+}
+
+.dialog-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800 !important;
+}
+
+.dialog-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF9800 !important;
+}
+
+.dialog-input .MuiInputLabel-root {
+  color: #ccc !important;
+}
+
+.dialog-input .MuiInputLabel-root.Mui-focused {
+  color: #FF9800 !important;
+}
+
+.dialog-input .MuiInputBase-input {
+  color: #ffffff !important;
+}
+
+.delete-warning {
+  margin-bottom: 16px !important;
+  background-color: #501919 !important;
+}
+
+.warning-text {
+  color: #ffcdd2 !important;
+}
