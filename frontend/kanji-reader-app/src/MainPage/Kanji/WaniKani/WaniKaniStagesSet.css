@@ -1,0 +1,40 @@
+.wanikani-stages-dialog .MuiPaper-root {
+  width: 500px;
+}
+
+.wanikani-stages-checkbox input[type="checkbox"] + .MuiSvgIcon-root{
+  color: rgb(255, 255, 255) !important;
+}
+
+.wanikani-stages-checkbox input[type="checkbox"]:hover + .MuiSvgIcon-root{
+  background-color: rgb(61, 61, 61) !important;
+  border-radius: 8px !important;
+}
+
+.wanikani-stages-checkbox input[type="checkbox"]:checked + .MuiSvgIcon-root{
+  color: orange !important;
+}
+
+.save-stages-button {
+  background-color: #FF9800 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+}
+
+.save-stages-cancel-button {
+  color: #FF9800 !important;
+}
+
+.wanikani-stages-checkbox .MuiCheckbox-root {
+  color: #666 !important;
+}
+
+.wanikani-stages-checkbox .MuiCheckbox-root.Mui-checked {
+  color: #FF9800 !important;
+}
+
+.wanikani-stages-checkbox .MuiCheckbox-root:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+} 
+
