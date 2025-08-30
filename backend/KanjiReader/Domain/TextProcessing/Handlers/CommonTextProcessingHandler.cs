@@ -1,10 +1,14 @@
-﻿using Hangfire;
+﻿using System.Text.Json;
+using Hangfire;
+using KanjiReader.Domain.Common;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.Jobs;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Presentation.EventStream;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers;
 
@@ -13,6 +17,8 @@ public abstract class CommonTextProcessingHandler(
     UserAccountService userAccountService,
     IUserGenerationStateRepository userGenerationStateRepository,
     TextService textService,
+    EmailSender emailSender,
+    ITextBroadcaster textBroadcaster,
     KanjiReaderDbContext dbContext)
 {
     public async Task Handle(string userId, bool isLastRetry, int textProcessingLeft, CancellationToken cancellationToken)
@@ -45,8 +51,6 @@ public abstract class CommonTextProcessingHandler(
             throw;
         }
         
-        var isGenerationCompleted = await textService.GetRemainingTextCount(userId, cancellationToken) <= 0;
-        
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         
         try
@@ -64,6 +68,9 @@ public abstract class CommonTextProcessingHandler(
                     await userAccountService.UpdateHasData(user, true);   
                 }
             }
+            
+            remainingTextCount = await textService.GetRemainingTextCount(userId, cancellationToken);
+            var isGenerationCompleted = remainingTextCount <= 0 || textProcessingLeft <= 1;
 
             if (!isGenerationCompleted)
             {
@@ -72,6 +79,23 @@ public abstract class CommonTextProcessingHandler(
             }
 
             await transaction.CommitAsync(cancellationToken);
+
+            if (processingResults.Count > 0)
+            {
+                var resultsDto = processingResults.Select(CommonConverter.Convert).ToArray();
+                var json = JsonSerializer.Serialize(resultsDto, JsonDefaults.Options);
+                await textBroadcaster.Publish(json, cancellationToken);
+            }
+
+            if (isGenerationCompleted)
+            {
+                await userAccountService.UpdateProcessingTime(user, DateTime.UtcNow);
+
+                if (user.Email != null)
+                {
+                    await emailSender.SendEmail(user.Email, GetSourceType());   
+                }
+            }
         }
         catch
         {

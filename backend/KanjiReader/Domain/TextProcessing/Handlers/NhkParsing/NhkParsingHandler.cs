@@ -4,10 +4,12 @@ using KanjiReader.Domain.DomainObjects.TextProcessingData;
 using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 using KanjiReader.Domain.GenerationRules;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Presentation.EventStream;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 
@@ -19,12 +21,16 @@ public class NhkParsingHandler(
     KanjiReaderDbContext dbContext,
     NhkClient nhkClient,
     TextParsingService textParsingService,
+    EmailSender emailSender,
+    ITextBroadcaster textBroadcaster,
     IGenerationRulesService<NhkParsingData, NhkParsingBaseData> generationRulesService) 
     : CommonTextProcessingHandler(
         processingResultRepository,
         userAccountService,
         userGenerationStateRepository,
         textService,
+        emailSender,
+        textBroadcaster,
         dbContext)
 {
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(

@@ -1,10 +1,12 @@
 ﻿using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
+using KanjiReader.Presentation.EventStream;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.GoogleAiGeneration;
 
@@ -16,12 +18,16 @@ public class GoogleAiGenerationHandler(
     KanjiReaderDbContext dbContext,
     TextParsingService textParsingService,
     KanjiService kanjiService,
+    EmailSender emailSender,
+    ITextBroadcaster textBroadcaster,
     GoogleGenerativeAiClient client) 
     : CommonTextProcessingHandler(
         processingResultRepository,
         userAccountService,
         userGenerationStateRepository,
         textService,
+        emailSender,
+        textBroadcaster,
         dbContext)
 {
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
