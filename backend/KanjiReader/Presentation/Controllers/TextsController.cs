@@ -48,15 +48,4 @@ public class TextsController(
     {
         await deletionService.RemoveUserTextsBySourceType(User, dto.SourceTypes, cancellationToken);
     }
-
-    [HttpPost(nameof(GetUserThreshold))]
-    public async Task<GetUserThresholdResponse> GetUserThreshold(CancellationToken cancellationToken)
-    {
-        var result = await textService.GetThreshold(User, cancellationToken);
-        
-        return new GetUserThresholdResponse
-        {
-            Threshold = result
-        };
-    }
 }

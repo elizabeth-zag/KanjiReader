@@ -1,16 +1,25 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using KanjiReader.Domain.Common.Options;
+using KanjiReader.Domain.DomainObjects;
 using KanjiReader.ExternalServices.WaniKani.Contracts;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.ExternalServices.WaniKani;
 
-public class WaniKaniClient(IHttpClientFactory httpClientFactory)
+public class WaniKaniClient(IHttpClientFactory httpClientFactory, IOptionsMonitor<WaniKaniOptions> options)
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
-    public async Task<IReadOnlyCollection<int>> GetAssignments(string token, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<int>> GetAssignments(
+        string token, 
+        IReadOnlyCollection<WaniKaniStage> stages, 
+        CancellationToken cancellationToken)
     {
-        var url = "https://api.wanikani.com/v2/assignments?subject_types=kanji&srs_stages=7,8,9";
+        var srsStages = stages.Count > 0 
+            ? string.Join(",", stages.Select(ConvertWaniKaniStageToInt).SelectMany(x => x).ToArray())
+            : "7,8,9";
+        var url = $"https://api.wanikani.com/v2/assignments?subject_types=kanji&srs_stages={srsStages}";
         var request = new HttpRequestMessage(HttpMethod.Get, url);
 
         AddAuthorizationHeader(token);
@@ -26,14 +35,13 @@ public class WaniKaniClient(IHttpClientFactory httpClientFactory)
     public async Task<IReadOnlySet<char>> GetMasteredKanji(string token, 
         IReadOnlyCollection<int> subjectIds, CancellationToken cancellationToken) 
     {
-        var batchSize = 100; // todo: move to options
         var characters = new List<char>();
         
         AddAuthorizationHeader(token);
 
-        for (int i = 0; i < subjectIds.Count; i += batchSize)
+        for (int i = 0; i < subjectIds.Count; i += options.CurrentValue.BatchSize)
         {
-            var batch = subjectIds.Skip(i).Take(batchSize);
+            var batch = subjectIds.Skip(i).Take(options.CurrentValue.BatchSize);
             var url = "https://api.wanikani.com/v2/subjects?types=kanji&ids=" + string.Join(",", batch);
             
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -52,5 +60,18 @@ public class WaniKaniClient(IHttpClientFactory httpClientFactory)
     private void AddAuthorizationHeader(string token)
     {
         _httpClient.DefaultRequestHeaders.Authorization ??= new AuthenticationHeaderValue("Bearer", token);
+    }
+    
+    private static int[] ConvertWaniKaniStageToInt(WaniKaniStage stage)
+    {
+        return stage switch
+        {
+            WaniKaniStage.Apprentice => [1, 2, 3, 4],
+            WaniKaniStage.Guru => [5, 6],
+            WaniKaniStage.Master => [7],
+            WaniKaniStage.Enlightened => [8],
+            WaniKaniStage.Burned => [9],
+            _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
+        };
     }
 }

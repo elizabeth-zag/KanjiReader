@@ -1,20 +1,21 @@
 ﻿using System.Text.Json;
 using KanjiReader.Domain.Common;
+using KanjiReader.Domain.Common.Options;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.ExternalServices.KanjiApi.Contracts;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.ExternalServices.KanjiApi;
 
-public class KanjiApiClient(IHttpClientFactory httpClientFactory)
+public class KanjiApiClient(IHttpClientFactory httpClientFactory, IOptionsMonitor<KanjiApiOptions> options)
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
-    private const int MaxConcurrent = 200; // todo: config
 
     public async Task<IReadOnlySet<char>> GetKanjiList(IReadOnlyCollection<KanjiListType> kanjiListTypes, 
         CancellationToken cancellationToken)
     {
-        // todo: maybe use semaphore here
         Task<IReadOnlySet<char>>[] tasks = kanjiListTypes
+            .Where(t => t != KanjiListType.Unspecified)
             .Select(t => GetKanjiList(t, cancellationToken))
             .ToArray();
 
@@ -36,9 +37,9 @@ public class KanjiApiClient(IHttpClientFactory httpClientFactory)
         return response?.Where(r => r.Length == 1).Select(char.Parse).ToHashSet() ?? [];
     }
 
-    public async Task<IReadOnlyList<KanjiWithData>> GetKanjiData(IEnumerable<char> kanji, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<KanjiWithData>> GetKanjiData(IEnumerable<char> kanji, CancellationToken ct = default)
     {
-        using var sem = new SemaphoreSlim(MaxConcurrent);
+        using var sem = new SemaphoreSlim(options.CurrentValue.MaxConcurrency);
         var tasks = kanji.Select(async kanjiChar =>
         {
             await sem.WaitAsync(ct);
@@ -88,7 +89,7 @@ public class KanjiApiClient(IHttpClientFactory httpClientFactory)
             KanjiListType.Kyouiku => "kyouiku",
             KanjiListType.Jouyou => "jouyou",
             KanjiListType.Heisig => "heisig",
-            _ => throw new ArgumentOutOfRangeException(nameof(kanjiListType), kanjiListType, null) // todo: handle this case properly
+            _ => string.Empty
         };
     }
 }

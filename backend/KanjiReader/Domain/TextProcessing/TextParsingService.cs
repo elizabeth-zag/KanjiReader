@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KanjiReader.Domain.TextProcessing;
 
-public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingService> logger)
+public class TextParsingService(KanjiService kanjiService, TextService textService, ILogger<TextParsingService> logger)
 {
     public async Task<IReadOnlyCollection<ProcessingResult>> ParseAndValidateText(
         User user,
@@ -24,7 +24,7 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         
         var kanjiCharacters = (await kanjiService.GetUserKanjiCharacters(user, cancellationToken)).ToHashSet();
         
-        var threshold = GetUserThreshold(user, kanjiCharacters.Count);
+        var threshold = await textService.GetThreshold(user, cancellationToken, kanjiCharacters.Count);
         
         var suitableResult = new List<ProcessingResult>();
         foreach (var url in articleUrls)
@@ -60,40 +60,22 @@ public class TextParsingService(KanjiService kanjiService, ILogger<TextParsingSe
         out double ratio, 
         out HashSet<char> unknownKanji)
     {
-        var knownKanji = new HashSet<char>();
+        var allKanji = new HashSet<char>();
         unknownKanji = new HashSet<char>();
         
         foreach (var ch in title.Concat(text))
         {
             if (!IsKanji(ch)) continue;
-            if (userKanji.Contains(ch))
-            {
-                knownKanji.Add(ch);
-            }
-            else
+            if (!userKanji.Contains(ch))
             {
                 unknownKanji.Add(ch);
             }
+
+            allKanji.Add(ch);
         }
  
-        ratio = Math.Round((double)unknownKanji.Count / knownKanji.Count, 2);
+        ratio = Math.Round((double)unknownKanji.Count / allKanji.Count, 2);
         if (double.IsNaN(ratio)) ratio = 0;
-    }
-
-    public static double GetUserThreshold(User user, int knownKanji)
-    {
-        return user.Threshold ?? CalculateThreshold(knownKanji);
-    }
-    
-    private static double CalculateThreshold(int knownKanji)
-    {
-        double maxThreshold = 0.5; // todo: config
-        var maxPossibleKanji = 3033;
-        
-        double normalizedLevel = (double)knownKanji / maxPossibleKanji;
-        double ease = Math.Pow(1 - normalizedLevel, 2);
-        
-        return maxThreshold * ease;
     }
     
     private static bool IsKanji(char c)

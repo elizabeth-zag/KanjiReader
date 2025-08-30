@@ -1,5 +1,6 @@
 ﻿using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.Presentation.Dtos.Kanji;
 using KanjiReader.Presentation.Dtos.Login.UpdateUserInfo;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ namespace KanjiReader.Presentation.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/kanji")]
-public class KanjiController(KanjiService kanjiService, UserAccountService userAccountService) : ControllerBase
+public class KanjiController(KanjiService kanjiService, UserAccountService userAccountService, EmailSender emailSender) : ControllerBase
 {
     [HttpGet(nameof(GetKanjiForManualSelection))]
     public async Task<GetKanjiForManualSelectionResponse> GetKanjiForManualSelection(CancellationToken cancellationToken)
@@ -68,6 +69,6 @@ public class KanjiController(KanjiService kanjiService, UserAccountService userA
     [HttpPost(nameof(FillKanjiDatabase))]
     public async Task FillKanjiDatabase(CancellationToken cancellationToken)
     {
-        await kanjiService.FillKanjiDatabase(User, cancellationToken);
+        await kanjiService.FillKanjiDatabase(cancellationToken);
     }
 }

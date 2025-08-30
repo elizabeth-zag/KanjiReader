@@ -24,7 +24,7 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
 
         var response = await JsonSerializer
-            .DeserializeAsync<Dictionary<DateTime, NhkNewsData[]>[]>(stream, cancellationToken: cancellationToken); // todo: null
+            .DeserializeAsync<Dictionary<DateTime, NhkNewsData[]>[]>(stream, cancellationToken: cancellationToken);
      
         var result = response?
             .SelectMany(r => r)
@@ -33,6 +33,7 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
                 r => r.Value
                     .Select(v => $"https://www3.nhk.or.jp/news/easy/{v.NewsId}/{v.NewsId}.html")
                     .ToArray());
+        
         if (result != null && result.Any())
         {
             await cacheRepository.SetArticleUrls(result);

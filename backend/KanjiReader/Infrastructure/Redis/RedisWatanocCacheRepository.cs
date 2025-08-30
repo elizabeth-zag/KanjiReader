@@ -1,9 +1,11 @@
-﻿using KanjiReader.Infrastructure.Repositories.Cache;
+﻿using KanjiReader.Domain.Common.Options.CacheOptions;
+using KanjiReader.Infrastructure.Repositories.Cache;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace KanjiReader.Infrastructure.Redis;
 
-public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatanocCacheRepository
+public class RedisWatanocCacheRepository(IConnectionMultiplexer redis, IOptionsMonitor<WatanocCacheOptions> options) : IWatanocCacheRepository
 {
     private const string Separator = ",";
     private static string GetArticlesKey(string category, int pageNumber) => $"watanoc-article-urls:{category}:{pageNumber}";
@@ -15,7 +17,7 @@ public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatano
         var value = string.Join(Separator, articleUrls);
         
         var db = redis.GetDatabase();
-        await db.StringSetAsync(GetArticlesKey(category, pageNumber), value, TimeSpan.FromDays(1)); // todo: config
+        await db.StringSetAsync(GetArticlesKey(category, pageNumber), value, TimeSpan.FromDays(options.CurrentValue.TtlDays));
     }
     
     public async Task<string[]> GetArticleUrls(string category, int pageNumber)
@@ -29,7 +31,7 @@ public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatano
     public async Task SetHtml(string url, string html)
     {
         var db = redis.GetDatabase();
-        await db.StringSetAsync(GetHtmlKey(url), html, TimeSpan.FromDays(1)); // todo: config
+        await db.StringSetAsync(GetHtmlKey(url), html, TimeSpan.FromDays(options.CurrentValue.TtlDays));
     }
     
     public async Task<string> GetHtml(string url)
@@ -43,7 +45,7 @@ public class RedisWatanocCacheRepository(IConnectionMultiplexer redis) : IWatano
     public async Task SetHtmlTitle(string url, string title)
     {
         var db = redis.GetDatabase();
-        await db.StringSetAsync(GetHtmlTitleKey(url), title, TimeSpan.FromDays(1)); // todo: config
+        await db.StringSetAsync(GetHtmlTitleKey(url), title, TimeSpan.FromDays(options.CurrentValue.TtlDays));
     }
     
     public async Task<string> GetHtmlTitle(string url)

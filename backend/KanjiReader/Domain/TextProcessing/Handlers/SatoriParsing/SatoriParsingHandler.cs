@@ -1,14 +1,17 @@
 ﻿using System.Text.Json;
+using KanjiReader.Domain.Common.Options;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.TextProcessingData;
 using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 using KanjiReader.Domain.GenerationRules;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
-using Microsoft.Extensions.Logging;
+using KanjiReader.Presentation.EventStream;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 
@@ -20,12 +23,17 @@ public class SatoriParsingHandler(
     KanjiReaderDbContext dbContext,
     SatoriReaderClient satoriReaderClient,
     TextParsingService textParsingService,
+    EmailSender emailSender,
+    ITextBroadcaster textBroadcaster,
+    IOptionsMonitor<SatoriReaderParsingOptions> options,
     IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData> generationRulesService) 
     : CommonTextProcessingHandler(
         processingResultRepository,
         userAccountService,
         userGenerationStateRepository,
         textService,
+        emailSender,
+        textBroadcaster,
         dbContext)
 {
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
@@ -49,12 +57,8 @@ public class SatoriParsingHandler(
             GetSourceType(), 
             JsonSerializer.Serialize(parsingData));
         
-        // todo: config
-        var satoriReaderBatchSize = 4;
-        var satoriReaderArticlesPerUrl = 4;
-        
-        var remainingArticleCount = remainingTextCount / satoriReaderArticlesPerUrl;
-        var batchSize = Math.Min(remainingArticleCount, satoriReaderBatchSize);
+        var remainingArticleCount = remainingTextCount / options.CurrentValue.ArticlesPerUrl;
+        var batchSize = Math.Min(remainingArticleCount, options.CurrentValue.BatchSize);
         
         seriesUrls = seriesUrls.Skip(parsingData.SeriesNumber).Take(batchSize).ToArray();
         

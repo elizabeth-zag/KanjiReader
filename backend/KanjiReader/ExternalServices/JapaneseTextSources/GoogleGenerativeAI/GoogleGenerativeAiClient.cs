@@ -1,22 +1,23 @@
 ﻿using GenerativeAI;
+using KanjiReader.Domain.Common.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
 
-public class GoogleGenerativeAiClient(IConfiguration config)
+public class GoogleGenerativeAiClient(IOptionsMonitor<GoogleAiApiOptions> options)
 {
     public async Task<(string, string)> GenerateText(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
     {
         var prompt = GetPrompt(string.Join(", ", kanji));
-        var apiKey = config["GoogleAiApiToken"]; // todo: configб
-        var googleAi = new GoogleAi(apiKey);
+        var googleAi = new GoogleAi(options.CurrentValue.Token);
 
         var googleModel = googleAi.CreateGenerativeModel("models/gemini-2.5-pro");
         var googleResponse = await googleModel.GenerateContentAsync(prompt, cancellationToken);
             
         if (!AiParsingHelper.TryParseText(googleResponse.Text, out var result, out var error) || result is null)
         {
-            throw new InvalidOperationException($"Failed to deserialize response from Google AI. Response: {googleResponse.Text}");
+            throw new InvalidOperationException($"Failed to deserialize response from Google AI. Response: {googleResponse.Text}. Error: {error}");
         }
             
         return (result.Title, result.Content);
