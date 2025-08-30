@@ -17,6 +17,7 @@ using KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.WatanocParsing;
 using KanjiReader.Domain.UserAccount;
+using KanjiReader.ExternalServices.EmailSender;
 using KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
 using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
@@ -29,6 +30,7 @@ using KanjiReader.Infrastructure.Database.Repositories;
 using KanjiReader.Infrastructure.Redis;
 using KanjiReader.Infrastructure.Repositories;
 using KanjiReader.Infrastructure.Repositories.Cache;
+using KanjiReader.Presentation.EventStream;
 using KanjiReader.Presentation.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -98,6 +100,7 @@ builder.Services.AddScoped<KanjiService>();
 builder.Services.AddScoped<TextService>();
 builder.Services.AddScoped<TextParsingService>();
 builder.Services.AddScoped<DeletionService>();
+builder.Services.AddScoped<EmailSender>();
 builder.Services.AddScoped<TextProcessingHandlersFactory>();
 builder.Services.AddScoped<IGenerationRulesService<NhkParsingData, NhkParsingBaseData>, NhkRulesService>();
 builder.Services.AddScoped<IGenerationRulesService<WatanocParsingData, WatanocParsingBaseData>, WatanocRulesService>();
@@ -110,6 +113,8 @@ builder.Services.AddScoped<INhkCacheRepository, RedisNhkCacheRepository>();
 builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
 builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
 builder.Services.AddScoped<IUserGenerationStateRepository, UserGenerationStateRepository>();
+
+builder.Services.AddSingleton<ITextBroadcaster, TextBroadcaster>();
 
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(nameof(EmailOptions)));
 builder.Services.Configure<SatoriReaderParsingOptions>(builder.Configuration.GetSection(nameof(SatoriReaderParsingOptions)));
@@ -146,6 +151,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.MapGet("/api/texts/stream", EventStreamConfiguration.StreamGet);
 
 RecurringJob.AddOrUpdate<DeleteUnusedDataJob>(
     nameof(DeleteUnusedDataJob),
