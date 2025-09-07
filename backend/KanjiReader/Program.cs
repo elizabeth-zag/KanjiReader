@@ -153,6 +153,7 @@ app.MapControllers();
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapGet("/api/texts/stream", EventStreamConfiguration.StreamGet);
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 RecurringJob.AddOrUpdate<DeleteUnusedDataJob>(
     nameof(DeleteUnusedDataJob),

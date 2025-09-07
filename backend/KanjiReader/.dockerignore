@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/*.user
+**/*.suo
+**/*.vscode/
+Dockerfile
+docker-compose*.yml
+*.Secrets.json
+*.Development.json
