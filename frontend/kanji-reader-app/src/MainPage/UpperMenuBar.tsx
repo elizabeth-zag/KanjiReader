@@ -1,8 +1,7 @@
-import * as React from "react";
 import { AppBar, Box, Toolbar, Typography, Button } from "@mui/material";
 import ProfileMenu from "./ProfileMenu";
 import "./UpperMenuBar.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface UpperMenuBarProps {
   onShowKanji?: () => void;
@@ -17,7 +16,6 @@ export default function UpperMenuBar({
   onShowProfile,
   onLogout,
 }: UpperMenuBarProps) {
-  const location = useLocation();
   const navigate = useNavigate();
 
   const handleHome = () => {

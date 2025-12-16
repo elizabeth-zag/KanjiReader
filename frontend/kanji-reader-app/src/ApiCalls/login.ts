@@ -1,6 +1,6 @@
 ﻿import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/login"; // todo: move to config
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/login`;
 
 export type LoginResponse = {
   userName: string;

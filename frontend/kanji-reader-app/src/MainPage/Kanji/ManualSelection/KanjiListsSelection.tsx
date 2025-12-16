@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Typography, Checkbox, FormControlLabel } from "@mui/material";
 import "./KanjiListsSelection.css";
 

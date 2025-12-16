@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { type ProcessingResult } from "./texts";
 
-const API_URL = "http://localhost:5000/api/texts/stream";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/texts/stream`;
 
 export function useTextsStream(onItem: (items: ProcessingResult[]) => void) {
   const onItemRef = useRef(onItem);

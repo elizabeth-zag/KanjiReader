@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/kanji"; // todo: move to config
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/kanji`; // todo: move to config
 
 type KanjiList = {
   kanjiList: string;

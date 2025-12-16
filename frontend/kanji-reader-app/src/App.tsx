@@ -3,7 +3,7 @@ import LoginPage from './Login/LoginPage.tsx';
 import MainPage from './MainPage/MainPage.tsx';
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from './ApiCalls/login';
-import { Box, createTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
