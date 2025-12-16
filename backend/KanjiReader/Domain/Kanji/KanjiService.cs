@@ -145,14 +145,12 @@ public class KanjiService(
     
     private async Task<IReadOnlyCollection<KanjiWithData>> GetUserKanjiConsistent(User user, CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<KanjiWithData> kanji;
-        
         if (IsWaniKaniTokenMissing(user.KanjiSourceType, user.WaniKaniToken))
         {
             await userAccountService.UpdateKanjiSourceType(user, KanjiSourceType.ManualSelection);
         }
         
-        kanji = await GetUserKanjiBySource(user, user.KanjiSourceType, cancellationToken);
+        var kanji = await GetUserKanjiBySource(user, user.KanjiSourceType, cancellationToken);
         
         if (user.KanjiSourceType == KanjiSourceType.WaniKani && !kanji.Any())
         {

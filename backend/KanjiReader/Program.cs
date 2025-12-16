@@ -62,15 +62,27 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
         options.LogoutPath = "/api/auth/logout";
     });
 
-// todo: for dev purposes
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
+if (allowedOrigins == null || allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException("CORS AllowedOrigins is not configured");
+}
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("MyPolicy", policy =>
-        policy.WithOrigins("http://localhost:5173")
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials());
+            .AllowCredentials();
+    });
 });
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -140,10 +152,16 @@ builder.Services.AddHangfireServer(options =>
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cache-Control"] = "no-cache";
+    await next();
+});
+
 app.UseHangfireDashboard();
 
 app.UseHttpsRedirection();
-app.UseCors("MyPolicy");
+app.UseCors("DefaultCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

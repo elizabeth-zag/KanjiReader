@@ -36,4 +36,8 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Hangfire.PostgreSql\Hangfire.PostgreSql.csproj" />
+    </ItemGroup>
+
 </Project>
