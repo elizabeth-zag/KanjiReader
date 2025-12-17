@@ -8,7 +8,7 @@ namespace KanjiReader.Infrastructure.Database.Repositories;
 
 public class UserGenerationStateRepository(KanjiReaderDbContext dbContext) : IUserGenerationStateRepository
 {
-    public async Task Insert(UserGenerationState state, CancellationToken cancellationToken)
+    public async Task Update(UserGenerationState state, CancellationToken cancellationToken)
     {
         dbContext.UserGenerationStates.Update(state);
         await dbContext.SaveChangesAsync(cancellationToken);

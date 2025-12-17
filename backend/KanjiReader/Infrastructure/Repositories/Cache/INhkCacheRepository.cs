@@ -2,8 +2,8 @@
 
 public interface INhkCacheRepository
 {
-    Task SetArticleUrls(Dictionary<DateTime, string[]> articleUrls);
-    Task<Dictionary<DateTime, string[]>> GetArticleUrls();
+    Task SetArticleUrls(string[] articleUrls);
+    Task<string[]> GetArticleUrls();
     Task SetHtml(string url, string html);
     Task<string> GetHtml(string url);
     Task SetHtmlTitle(string url, string title);

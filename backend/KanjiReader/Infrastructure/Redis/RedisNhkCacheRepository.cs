@@ -8,26 +8,25 @@ namespace KanjiReader.Infrastructure.Redis;
 
 public class RedisNhkCacheRepository(IConnectionMultiplexer redis, IOptionsMonitor<NhkCacheOptions> options) : INhkCacheRepository
 {
+    private const string Separator = ",";
     private static string GetArticlesKey() => "nhk-article-urls";
     private static string GetHtmlTitleKey(string url) => $"nhk-html-title:{url}";
     private static string GetHtmlKey(string url) => $"nhk-html:{url}";
     
-    public async Task SetArticleUrls(Dictionary<DateTime, string[]> articleUrls)
+    public async Task SetArticleUrls(string[] articleUrls)
     {
-        var value = JsonSerializer.Serialize(articleUrls);
+        var value = string.Join(Separator, articleUrls);
         
         var db = redis.GetDatabase();
         await db.StringSetAsync(GetArticlesKey(), value, TimeSpan.FromDays(options.CurrentValue.TtlDays));
     }
     
-    public async Task<Dictionary<DateTime, string[]>> GetArticleUrls()
+    public async Task<string[]> GetArticleUrls()
     {
         var db = redis.GetDatabase();
         var result = await db.StringGetAsync(GetArticlesKey());
         
-        return !result.IsNullOrEmpty
-            ? JsonSerializer.Deserialize<Dictionary<DateTime, string[]>>(result!)!
-            : new Dictionary<DateTime, string[]>();
+        return result.IsNullOrEmpty ? [] : result.ToString().Split(Separator);
     }
     
     public async Task SetHtml(string url, string html)

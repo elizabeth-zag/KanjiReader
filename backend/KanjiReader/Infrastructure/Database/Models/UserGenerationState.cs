@@ -9,8 +9,8 @@ public class UserGenerationState
     public User User { get; init; }
     public GenerationSourceType SourceType { get; init; }
     public string Data { get; private set; }
-    
-    public UserGenerationState UpdateData(string newData)
+
+    private UserGenerationState UpdateData(string newData)
     {
         Data = newData;
         return this;

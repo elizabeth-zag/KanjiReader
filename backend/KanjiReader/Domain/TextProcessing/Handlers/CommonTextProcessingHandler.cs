@@ -44,7 +44,7 @@ public abstract class CommonTextProcessingHandler(
             if (!isLastRetry) throw;
             if (updatedGenerationState != null)
             {
-                await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
+                await userGenerationStateRepository.Update(updatedGenerationState, cancellationToken);
             }
             BackgroundJob.Enqueue<TextProcessingJob>(svc =>
                 svc.Execute(userId, GetSourceType(), textProcessingLeft - 1, null!, CancellationToken.None));
@@ -57,7 +57,7 @@ public abstract class CommonTextProcessingHandler(
         {
             if (updatedGenerationState != null)
             {
-                await userGenerationStateRepository.Insert(updatedGenerationState, cancellationToken);
+                await userGenerationStateRepository.Update(updatedGenerationState, cancellationToken);
             }
             
             if (processingResults.Count > 0)
