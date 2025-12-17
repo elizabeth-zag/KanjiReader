@@ -49,8 +49,7 @@ public class WatanocClient(IHttpClientFactory httpClientFactory, IWatanocCacheRe
             return (cachedHtmlTitle, cachedHtml);
         }
         
-        using var client = new HttpClient();
-        var resultString = await client.GetStringAsync(url, cancellationToken);
+        var resultString = await httpClientFactory.CreateClient().GetStringAsync(url, cancellationToken);
         
         var doc = new HtmlDocument();
         doc.LoadHtml(resultString);

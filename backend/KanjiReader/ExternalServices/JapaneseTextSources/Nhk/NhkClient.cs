@@ -9,7 +9,7 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
-    public async Task<Dictionary<DateTime, string[]>> GetArticleUrls(CancellationToken cancellationToken)
+    public async Task<string[]> GetArticleUrls(string auth, CancellationToken cancellationToken)
     {
         var cachedUrls = await cacheRepository.GetArticleUrls();
         if (cachedUrls.Any())
@@ -19,29 +19,29 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
         
         const string uri = "https://www3.nhk.or.jp/news/easy/news-list.json";
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        request.Headers.Add("Cookie", auth);
         
         using var responseMessage = await _httpClient.SendAsync(request, cancellationToken);
         await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
 
         var response = await JsonSerializer
             .DeserializeAsync<Dictionary<DateTime, NhkNewsData[]>[]>(stream, cancellationToken: cancellationToken);
-     
+
         var result = response?
+            .SelectMany(r => r.Values)
             .SelectMany(r => r)
-            .ToDictionary(
-                r => r.Key, 
-                r => r.Value
-                    .Select(v => $"https://www3.nhk.or.jp/news/easy/{v.NewsId}/{v.NewsId}.html")
-                    .ToArray());
+            .Select(v => $"https://www3.nhk.or.jp/news/easy/{v.NewsId}/{v.NewsId}.html")
+            .ToArray();
         
         if (result != null && result.Any())
         {
             await cacheRepository.SetArticleUrls(result);
         }
-        return result ?? new Dictionary<DateTime, string[]>();
+        
+        return result ?? [];
     }
     
-    public async Task<(string, string)> ParseHtml(string url, CancellationToken cancellationToken)
+    public async Task<(string, string)> ParseHtml(string url, string auth, CancellationToken cancellationToken)
     {
         var cachedHtmlTitle = await cacheRepository.GetHtmlTitle(url);
         var cachedHtml = await cacheRepository.GetHtml(url);
@@ -50,8 +50,11 @@ public class NhkClient(IHttpClientFactory httpClientFactory, INhkCacheRepository
             return (cachedHtmlTitle, cachedHtml);
         }
         
-        using var client = new HttpClient();
-        var response = await client.GetStringAsync(url, cancellationToken);
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Add("Cookie", auth);
+        
+        using var responseMessage = await _httpClient.SendAsync(request, cancellationToken);
+        var response = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
         
         var doc = new HtmlDocument();
         doc.LoadHtml(response);

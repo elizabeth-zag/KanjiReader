@@ -29,6 +29,7 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
             .SelectNodes("//a[@href]")?
             .Where(node => node.GetAttributeValue("href", "").Contains("series/"))
             .Select(node => $"{PrefixUrl}{node.GetAttributeValue("href", string.Empty)}")
+            .Distinct()
             .ToArray() ?? [];
         
         if (result.Any())
@@ -61,8 +62,7 @@ public class SatoriReaderClient(IHttpClientFactory httpClientFactory, ISatoriRea
             return (cachedHtmlTitle, cachedHtml);
         }
         
-        using var client = new HttpClient();
-        var html = await client.GetStringAsync(url, cancellationToken);
+        var html = await httpClientFactory.CreateClient().GetStringAsync(url, cancellationToken);
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
 

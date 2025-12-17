@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/kanji`; // todo: move to config
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/kanji`;
 
 type KanjiList = {
   kanjiList: string;
@@ -68,6 +68,17 @@ export async function tryUpdateKanjiSource(
   const res = await axios.post<tryUpdateKanjiSourceResponse>(
     `${API_URL}/TryUpdateKanjiSource`,
     { kanjiSourceType },
+    { withCredentials: true }
+  );
+  return res.data.success;
+}
+
+export async function refreshCache()
+{
+  console.log("Refreshing cache...");
+  const res = await axios.post(
+    `${API_URL}/RefreshWaniKaniCache`,
+    {},
     { withCredentials: true }
   );
   return res.data.success;

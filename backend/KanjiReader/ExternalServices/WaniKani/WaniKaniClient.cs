@@ -29,7 +29,12 @@ public class WaniKaniClient(IHttpClientFactory httpClientFactory, IOptionsMonito
 
         var response = await JsonSerializer.DeserializeAsync<ApiPage<Assignment>>(stream, cancellationToken: cancellationToken);
 
-        return response?.Data?.Select(d => d.Data.SubjectId).ToArray() ?? [];
+        if (response?.Data is null)
+        {
+            throw new InvalidOperationException("WaniKani returned nothing, check your token");
+        }
+
+        return response.Data.Select(d => d.Data.SubjectId).ToArray();
     }
     
     public async Task<IReadOnlySet<char>> GetMasteredKanji(string token, 

@@ -18,6 +18,16 @@ public class WaniKaniService(WaniKaniClient waniKaniClient, IKanjiCacheRepositor
         await kanjiCacheRepository.SetUserKanji(user.Id, userKanji);
     }
     
+    public async Task FillWaniKaniKanjiCache(User user, IReadOnlySet<char> userKanji, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(user.WaniKaniToken))
+        {
+            return;
+        }
+        
+        await kanjiCacheRepository.SetUserKanji(user.Id, userKanji);
+    }
+    
     public async Task<IReadOnlySet<char>> GetWaniKaniKanji(
         string token,
         IReadOnlyCollection<WaniKaniStage> stages,

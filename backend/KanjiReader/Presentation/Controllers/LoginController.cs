@@ -1,5 +1,4 @@
 ﻿using KanjiReader.Domain.Deletion;
-using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.UserAccount;
@@ -74,12 +73,14 @@ public class LoginController(
     [HttpPost(nameof(SetWaniKaniToken))]
     public async Task SetWaniKaniToken(SetWaniKaniTokenRequest dto, CancellationToken cancellationToken)
     {
+        var kanji = await waniKaniService.GetWaniKaniKanji(dto.Token, [], cancellationToken);
+        
         await userAccountService.UpdateWaniKaniToken(User, dto.Token);
         var user = await userAccountService.GetByClaimsPrincipal(User);
 
         try
         {
-            await waniKaniService.FillWaniKaniKanjiCache(user, cancellationToken);
+            await waniKaniService.FillWaniKaniKanjiCache(user, kanji, cancellationToken);
         }
         catch (Exception ex)
         {

@@ -49,10 +49,18 @@ export default function CollectionModal({
     const response = await getGenerationSources();
     const sources = response.sources;
     setAvailableSources(sources);
-    const initialSelection: Record<string, boolean> = {};
-    sources.forEach((source) => {
-      initialSelection[source.value] = true;
-    });
+    
+    const savedSelection = localStorage.getItem("collectionModalSelectedSources");
+    let initialSelection: Record<string, boolean> = {};
+    
+    if (savedSelection) {
+      initialSelection = JSON.parse(savedSelection);
+    } else {
+      sources.forEach((source) => {
+        initialSelection[source.value] = true;
+      });
+    }
+    
     setSelectedSources(initialSelection);
   };
 
@@ -74,10 +82,15 @@ export default function CollectionModal({
   };
 
   const handleSourceToggle = (sourceValue: string) => {
-    setSelectedSources((prev) => ({
-      ...prev,
-      [sourceValue]: !prev[sourceValue],
-    }));
+    setSelectedSources((prev) => {
+      const updated = {
+        ...prev,
+        [sourceValue]: !prev[sourceValue],
+      };
+
+      localStorage.setItem("collectionModalSelectedSources", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const hasSelectedSources = Object.values(selectedSources).some(Boolean);

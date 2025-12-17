@@ -9,7 +9,7 @@ import {
   Link,
   Tooltip,
 } from "@mui/material";
-import { tryUpdateKanjiSource, type KanjiWithData } from "../../ApiCalls/kanji";
+import { tryUpdateKanjiSource, type KanjiWithData, refreshCache } from "../../ApiCalls/kanji";
 import WaniKaniTokenSet from "./WaniKani/WaniKaniTokenSet";
 import ManualKanjiSelection from "./ManualSelection/ManualKanjiSelection";
 import Snackbar from "../../Common/Snackbar";
@@ -122,6 +122,27 @@ export default function UserKanji({
     }
   };
 
+  const handleRefreshCache = async () => {
+    setIsLoading(true);
+    try {
+      await refreshCache();
+      setSuccessSnackbar({
+        open: true,
+        message: "Cache refreshed successfully.",
+      });
+      if (onShowKanji) {
+        onShowKanji();
+      }
+    } catch (error) {
+      setErrorSnackbar({
+        open: true,
+        message: "Failed to refresh cache. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCloseErrorSnackbar = () => {
     setErrorSnackbar((prev) => ({ ...prev, open: false }));
   };
@@ -172,13 +193,26 @@ export default function UserKanji({
   return (
     <Box className="userkanji-container">
       <Box className="userkanji-upper">
-        <Box className="userkanji-title-container">
-          <Typography className="userkanji-yourkanji" variant="h3">
-            Your kanji
-          </Typography>
-          <Typography className="userkanji-count" variant="h5">
-            ({userKanji.length})
-          </Typography>
+        <Box className="userkanji-title-refresh-container">
+          <Box className="userkanji-title-container">
+            <Typography className="userkanji-yourkanji" variant="h3">
+              Your kanji
+            </Typography>
+            <Typography className="userkanji-count" variant="h5">
+              ({userKanji.length})
+            </Typography>
+          </Box>
+          {sourceType === "wanikani" && (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={handleRefreshCache}
+              disabled={isLoading}
+              className="refresh-cache-button"
+            >
+              Refresh cache
+            </Button>
+          )}
         </Box>
 
         <Paper

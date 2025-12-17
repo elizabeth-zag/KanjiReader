@@ -12,6 +12,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { setWaniKaniToken } from "../../../ApiCalls/login";
 import Snackbar from "../../../Common/Snackbar";
 import "./WaniKaniTokenSet.css";
+import { getErrorMessage } from "../../../Common/utils";
 
 interface WaniKaniTokenSetProps {
   onTokenSave: () => {};
@@ -49,7 +50,7 @@ export default function WaniKaniTokenSet({
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Failed to save token. Please try again.",
+        message: getErrorMessage(error),
       });
     } finally {
       setIsSaving(false);
