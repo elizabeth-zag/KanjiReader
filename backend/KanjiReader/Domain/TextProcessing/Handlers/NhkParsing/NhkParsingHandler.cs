@@ -1,15 +1,16 @@
 ﻿using System.Text.Json;
+using KanjiReader.Domain.Common.Options;
 using KanjiReader.Domain.DomainObjects;
 using KanjiReader.Domain.DomainObjects.TextProcessingData;
 using KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 using KanjiReader.Domain.GenerationRules;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.EmailSender;
-using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.Infrastructure.Database.DbContext;
 using KanjiReader.Infrastructure.Database.Models;
 using KanjiReader.Infrastructure.Repositories;
 using KanjiReader.Presentation.EventStream;
+using Microsoft.Extensions.Options;
 
 namespace KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 
@@ -19,10 +20,11 @@ public class NhkParsingHandler(
     IUserGenerationStateRepository userGenerationStateRepository,
     TextService textService,
     KanjiReaderDbContext dbContext,
-    NhkClient nhkClient,
+    ITextRepository textRepository,
     TextParsingService textParsingService,
     EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
+    IOptionsMonitor<NhkOptions> options,
     IGenerationRulesService<NhkParsingData, NhkParsingBaseData> generationRulesService) 
     : CommonTextProcessingHandler(
         processingResultRepository,
@@ -33,6 +35,8 @@ public class NhkParsingHandler(
         textBroadcaster,
         dbContext)
 {
+    private IReadOnlyCollection<Text> _texts = [];
+    private int _lastId;
     protected override async Task<(IReadOnlyCollection<ProcessingResult> results, UserGenerationState? state)> ProcessTexts(
         User user,
         UserGenerationState? generationState,
@@ -43,10 +47,30 @@ public class NhkParsingHandler(
             ? JsonSerializer.Deserialize<NhkParsingData>(generationState.Data)
             : null;
 
-        var articleUrlsByDate = await nhkClient.GetArticleUrls(cancellationToken);
-        
-        var baseData = new NhkParsingBaseData(articleUrlsByDate.Keys.ToArray());
+        _texts = await textRepository.GetBySourceType(
+            GenerationSourceType.Nhk,
+            previousData?.LastId ?? 0,
+            options.CurrentValue.BatchSize,
+            cancellationToken);
 
+        if (_texts.Count == 0 && previousData?.LastId > 0)
+        {
+            _texts = await textRepository.GetBySourceType(
+                GenerationSourceType.Nhk,
+                0,
+                options.CurrentValue.BatchSize,
+                cancellationToken);
+        }
+        
+        var result = await textParsingService.ParseAndValidateText(
+            user,
+            GetSourceType(),
+            remainingTextCount,
+            _texts.Select(t => t.Url).ToArray(),
+            GetTextByUrl,
+            cancellationToken);
+
+        var baseData = new NhkParsingBaseData(_lastId);
         var parsingData = generationRulesService.GetNextState(previousData, baseData);
         
         generationState = UserGenerationState.UpdateOrCreateNew(
@@ -55,21 +79,19 @@ public class NhkParsingHandler(
             GetSourceType(), 
             JsonSerializer.Serialize(parsingData));
         
-        var articleUrls = articleUrlsByDate[parsingData.CurrentDate];
-        
-        var result = await textParsingService.ParseAndValidateText(
-            user,
-            GetSourceType(),
-            remainingTextCount,
-            articleUrls,
-            nhkClient.ParseHtml,
-            cancellationToken); 
-        
         return (result, generationState);
     }
     
     protected override GenerationSourceType GetSourceType()
     {
         return GenerationSourceType.Nhk;
+    }
+
+    private Task<(string, string)> GetTextByUrl(string url, CancellationToken cancellationToken)
+    {
+        var text = _texts.FirstOrDefault(x => x.Url == url);
+        var result = text is null ? (string.Empty, string.Empty) : (text.Title, text.Content);
+        _lastId = text?.Id ?? 0;
+        return Task.FromResult(result);
     }
 }

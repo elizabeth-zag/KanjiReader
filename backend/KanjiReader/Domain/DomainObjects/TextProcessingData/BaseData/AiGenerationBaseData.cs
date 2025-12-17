@@ -1,3 +1,3 @@
 ﻿namespace KanjiReader.Domain.DomainObjects.TextProcessingData.BaseData;
 
-public record NhkParsingBaseData(int LastId);
+public record AiGenerationBaseData(int CooldownMinutes, int TokenLimit);

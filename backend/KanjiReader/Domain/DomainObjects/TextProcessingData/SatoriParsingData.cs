@@ -1,6 +1,6 @@
 ﻿namespace KanjiReader.Domain.DomainObjects.TextProcessingData;
 
-public class SatoriParsingData
+public class SatoriParsingData(int seriesNumber)
 {
-    public int SeriesNumber { get; init; }
+    public int SeriesNumber { get; private set; } = seriesNumber;
 }

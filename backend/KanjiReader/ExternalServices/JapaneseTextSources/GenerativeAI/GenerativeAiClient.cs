@@ -1,26 +1,38 @@
-﻿using GenerativeAI;
+﻿using Claudia;
 using KanjiReader.Domain.Common.Options;
-using Microsoft.Extensions.Configuration;
+using KanjiReader.Domain.DomainObjects;
 using Microsoft.Extensions.Options;
 
-namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
+namespace KanjiReader.ExternalServices.JapaneseTextSources.GenerativeAI;
 
-public class GoogleGenerativeAiClient(IOptionsMonitor<GoogleAiApiOptions> options)
+public class GenerativeAiClient(IOptionsMonitor<AiApiOptions> options)
 {
-    public async Task<(string, string)> GenerateText(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
+    public async Task<AiGenerationResult> GenerateText(IReadOnlySet<char> kanji, CancellationToken cancellationToken)
     {
         var prompt = GetPrompt(string.Join(", ", kanji));
-        var googleAi = new GoogleAi(options.CurrentValue.Token);
+        var anthropic = new Anthropic { ApiKey = options.CurrentValue.Token };
 
-        var googleModel = googleAi.CreateGenerativeModel("models/gemini-2.5-pro");
-        var googleResponse = await googleModel.GenerateContentAsync(prompt, cancellationToken);
-            
-        if (!AiParsingHelper.TryParseText(googleResponse.Text, out var result, out var error) || result is null)
+        var response = await anthropic.Messages.CreateAsync(new()
         {
-            throw new InvalidOperationException($"Failed to deserialize response from Google AI. Response: {googleResponse.Text}. Error: {error}");
-        }
+            Model = "claude-haiku-4-5-20251001",
+            MaxTokens = 1024,
             
-        return (result.Title, result.Content);
+            Messages =
+            [
+                new() { Role = "user", Content = GetPrompt(prompt) }
+            ]
+        }, new RequestOptions(), cancellationToken);
+        
+        var inputTokens = response.Usage.InputTokens;
+        var outputTokens = response.Usage.OutputTokens;
+        var totalTokens = inputTokens + outputTokens;
+        
+        if (!AiParsingHelper.TryParseText(response.Content.ToString(), out var result, out var error) || result is null)
+        {
+            throw new InvalidOperationException($"Failed to deserialize response from Claude AI. Response: {response.Content}. Error: {error}");
+        }
+        
+        return new AiGenerationResult(result.Title, result.Content, totalTokens);
     }
     
     private string GetPrompt(string kanjiText) => "You are generating a short, easy-to-read Japanese text for language learners using only the provided kanji.\n" + 

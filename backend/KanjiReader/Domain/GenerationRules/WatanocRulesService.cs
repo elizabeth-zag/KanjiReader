@@ -22,29 +22,17 @@ public class WatanocRulesService : IGenerationRulesService<WatanocParsingData, W
         var maxCategoryPage = WatanocCategoryPages[data.Category];
         if (data.PageNumber < maxCategoryPage)
         {
-            return new WatanocParsingData
-            {
-                Category = data.Category,
-                PageNumber = data.PageNumber + 1
-            };
+            return new WatanocParsingData(data.Category, data.PageNumber + 1);
         }
         
         var currentIndex = WatanocCategoryPages.IndexOf(data.Category);
         var newIndex = currentIndex < WatanocCategoryPages.Count - 1 ? currentIndex + 1 : 0;
 
-        return new WatanocParsingData
-        {
-            Category = WatanocCategoryPages.GetAt(newIndex).Key,
-            PageNumber = 1
-        };
+        return new WatanocParsingData(WatanocCategoryPages.GetAt(newIndex).Key, 1);
     }
 
     private static WatanocParsingData CreateDefault()
     {
-        return new WatanocParsingData
-        {
-            Category = WatanocCategoryPages.First().Key,
-            PageNumber = 1,
-        };
+        return new WatanocParsingData(WatanocCategoryPages.First().Key, 1);
     }
 }

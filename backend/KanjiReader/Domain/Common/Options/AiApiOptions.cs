@@ -1,6 +1,6 @@
 ﻿namespace KanjiReader.Domain.Common.Options;
 
-public class GoogleAiApiOptions
+public class AiApiOptions
 {
     public string Token { get; set; }
 }

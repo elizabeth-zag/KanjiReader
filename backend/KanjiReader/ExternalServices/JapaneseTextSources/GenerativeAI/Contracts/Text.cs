@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI.Contracts;
+namespace KanjiReader.ExternalServices.JapaneseTextSources.GenerativeAI.Contracts;
 
 public class Text
 {

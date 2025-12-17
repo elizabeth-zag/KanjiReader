@@ -13,11 +13,11 @@ public class SatoriRulesService : IGenerationRulesService<SatoriParsingData, Sat
         }
         
         var newSeriesNumber = data.SeriesNumber < baseData.MaxSeriesNumber ? data.SeriesNumber + 1 : 0;
-        return new SatoriParsingData { SeriesNumber = newSeriesNumber };
+        return new SatoriParsingData(newSeriesNumber);
     }
 
     private static SatoriParsingData GetDefault()
     {
-        return new SatoriParsingData { SeriesNumber = 0 };
+        return new SatoriParsingData(0);
     }
 }

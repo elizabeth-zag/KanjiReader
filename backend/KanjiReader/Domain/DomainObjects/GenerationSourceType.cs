@@ -6,5 +6,5 @@ public enum GenerationSourceType
     Watanoc,
     Nhk,
     SatoriReader,
-    GoogleAiGeneration
+    AiGeneration
 }

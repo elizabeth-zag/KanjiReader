@@ -12,13 +12,13 @@ using KanjiReader.Domain.Kanji;
 using KanjiReader.Domain.Kanji.WaniKani;
 using KanjiReader.Domain.TextProcessing;
 using KanjiReader.Domain.TextProcessing.Handlers;
-using KanjiReader.Domain.TextProcessing.Handlers.GoogleAiGeneration;
+using KanjiReader.Domain.TextProcessing.Handlers.AiGeneration;
 using KanjiReader.Domain.TextProcessing.Handlers.NhkParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.SatoriParsing;
 using KanjiReader.Domain.TextProcessing.Handlers.WatanocParsing;
 using KanjiReader.Domain.UserAccount;
 using KanjiReader.ExternalServices.EmailSender;
-using KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
+using KanjiReader.ExternalServices.JapaneseTextSources.GenerativeAI;
 using KanjiReader.ExternalServices.JapaneseTextSources.Nhk;
 using KanjiReader.ExternalServices.JapaneseTextSources.SatoriReader;
 using KanjiReader.ExternalServices.JapaneseTextSources.Watanoc;
@@ -99,17 +99,18 @@ builder.Services.AddScoped<WatanocClient>();
 builder.Services.AddScoped<NhkClient>();
 builder.Services.AddScoped<SatoriReaderClient>();
 
-builder.Services.AddScoped<GoogleGenerativeAiClient>();
+builder.Services.AddScoped<GenerativeAiClient>();
 
 builder.Services.AddScoped<WatanocParsingHandler>();
 builder.Services.AddScoped<NhkParsingHandler>();
 builder.Services.AddScoped<SatoriParsingHandler>();
-builder.Services.AddScoped<GoogleAiGenerationHandler>();
+builder.Services.AddScoped<AiGenerationHandler>();
 
 builder.Services.AddScoped<WaniKaniService>();
 builder.Services.AddScoped<UserAccountService>();
 builder.Services.AddScoped<KanjiService>();
 builder.Services.AddScoped<TextService>();
+builder.Services.AddScoped<TextSavingService>();
 builder.Services.AddScoped<TextParsingService>();
 builder.Services.AddScoped<DeletionService>();
 builder.Services.AddScoped<EmailSender>();
@@ -117,6 +118,7 @@ builder.Services.AddScoped<TextProcessingHandlersFactory>();
 builder.Services.AddScoped<IGenerationRulesService<NhkParsingData, NhkParsingBaseData>, NhkRulesService>();
 builder.Services.AddScoped<IGenerationRulesService<WatanocParsingData, WatanocParsingBaseData>, WatanocRulesService>();
 builder.Services.AddScoped<IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData>, SatoriRulesService>();
+builder.Services.AddScoped<IGenerationRulesService<AiGenerationData, AiGenerationBaseData>, AiGenerationRulesService>();
 
 builder.Services.AddScoped<IKanjiCacheRepository, RedisKanjiCacheRepository>();
 builder.Services.AddScoped<IWatanocCacheRepository, RedisWatanocCacheRepository>();
@@ -125,15 +127,17 @@ builder.Services.AddScoped<INhkCacheRepository, RedisNhkCacheRepository>();
 builder.Services.AddScoped<IKanjiRepository, KanjiRepository>();
 builder.Services.AddScoped<IProcessingResultRepository, ProcessingResultRepository>();
 builder.Services.AddScoped<IUserGenerationStateRepository, UserGenerationStateRepository>();
+builder.Services.AddScoped<ITextRepository, TextRepository>();
 
 builder.Services.AddSingleton<ITextBroadcaster, TextBroadcaster>();
 
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(nameof(EmailOptions)));
 builder.Services.Configure<SatoriReaderParsingOptions>(builder.Configuration.GetSection(nameof(SatoriReaderParsingOptions)));
+builder.Services.Configure<NhkOptions>(builder.Configuration.GetSection(nameof(NhkOptions)));
 builder.Services.Configure<TextProcessingOptions>(builder.Configuration.GetSection(nameof(TextProcessingOptions)));
 builder.Services.Configure<ThresholdOptions>(builder.Configuration.GetSection(nameof(ThresholdOptions)));
 builder.Services.Configure<UserDataOptions>(builder.Configuration.GetSection(nameof(UserDataOptions)));
-builder.Services.Configure<GoogleAiApiOptions>(builder.Configuration.GetSection(nameof(GoogleAiApiOptions)));
+builder.Services.Configure<AiApiOptions>(builder.Configuration.GetSection(nameof(AiApiOptions)));
 builder.Services.Configure<KanjiApiOptions>(builder.Configuration.GetSection(nameof(KanjiApiOptions)));
 builder.Services.Configure<WaniKaniOptions>(builder.Configuration.GetSection(nameof(WaniKaniOptions)));
 

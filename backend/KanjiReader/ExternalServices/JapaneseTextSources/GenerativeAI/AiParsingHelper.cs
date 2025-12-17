@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.RegularExpressions;
-using KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI.Contracts;
+using KanjiReader.ExternalServices.JapaneseTextSources.GenerativeAI.Contracts;
 
-namespace KanjiReader.ExternalServices.JapaneseTextSources.GoogleGenerativeAI;
+namespace KanjiReader.ExternalServices.JapaneseTextSources.GenerativeAI;
 
 public static class AiParsingHelper
 {
