@@ -75,7 +75,6 @@ export async function tryUpdateKanjiSource(
 
 export async function refreshCache()
 {
-  console.log("Refreshing cache...");
   const res = await axios.post(
     `${API_URL}/RefreshWaniKaniCache`,
     {},
