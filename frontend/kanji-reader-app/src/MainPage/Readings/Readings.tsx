@@ -18,7 +18,7 @@ interface ReadingsProps {
 
 export default function Readings({}: ReadingsProps) {
   const [texts, setTexts] = useState<ProcessingResult[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasLoadedTexts, setHasLoadedTexts] = useState(false);
 
@@ -67,7 +67,6 @@ export default function Readings({}: ReadingsProps) {
         ...text,
         createDate: text.createDate || new Date().toISOString(),
       }));
-
       setTexts(processedTexts);
       setHasLoadedTexts(true);
     } catch (error) {
@@ -113,10 +112,6 @@ export default function Readings({}: ReadingsProps) {
 
       return updatedTexts;
     });
-
-    if (!hasLoadedTexts) {
-      setHasLoadedTexts(true);
-    }
   };
 
   useTextsStream(handleTextStreamUpdate);

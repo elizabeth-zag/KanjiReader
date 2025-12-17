@@ -40,6 +40,7 @@ function MainPage({ userName, onLogout }: MainPageProps) {
     setIsLoading(true);
 
     try {
+      setUserKanji(null);
       const result = await getUserKanji();
       setUserKanji(result.kanji);
       setKanjiSourceType(result.kanjiSourceType);
@@ -54,7 +55,7 @@ function MainPage({ userName, onLogout }: MainPageProps) {
         open: true,
         message: errorMessage,
       });
-      setUserKanji(null);
+      setUserKanji([]);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +74,7 @@ function MainPage({ userName, onLogout }: MainPageProps) {
   };
 
   useEffect(() => {
-    if (showKanji && !userKanji && !isLoading) {
+    if (showKanji && !userKanji) {
       handleShowKanji();
     }
   }, []);
@@ -99,9 +100,9 @@ function MainPage({ userName, onLogout }: MainPageProps) {
             </Box>
           )}
           {showKanji &&
-            (isLoading ? (
+            (userKanji === null ? (
               <Loader />
-            ) : userKanji && userKanji.length > 0 ? (
+            ) : userKanji.length > 0 ? (
               <UserKanji
                 userKanji={userKanji}
                 kanjiSourceType={kanjiSourceType ?? ""}
