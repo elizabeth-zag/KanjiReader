@@ -37,16 +37,16 @@ namespace Hangfire.PostgreSql
 
     public PostgreSqlStorageOptions()
     {
-      QueuePollInterval = TimeSpan.FromSeconds(15);
+      QueuePollInterval = TimeSpan.FromSeconds(60);
       InvisibilityTimeout = TimeSpan.FromMinutes(30);
       DistributedLockTimeout = TimeSpan.FromMinutes(10);
       TransactionSynchronisationTimeout = TimeSpan.FromMilliseconds(500);
-      JobExpirationCheckInterval = TimeSpan.FromHours(1);
-      CountersAggregateInterval = TimeSpan.FromMinutes(5);
+      JobExpirationCheckInterval = TimeSpan.FromHours(6);
+      CountersAggregateInterval = TimeSpan.FromMinutes(20);
       SchemaName = "hangfire";
       AllowUnsafeValues = false;
       UseNativeDatabaseTransactions = true;
-      PrepareSchemaIfNecessary = true;
+      PrepareSchemaIfNecessary = false;
       EnableTransactionScopeEnlistment = true;
       DeleteExpiredBatchSize = 1000;
       UseSlidingInvisibilityTimeout = false;
