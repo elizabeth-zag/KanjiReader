@@ -32,11 +32,10 @@ export default function LoginPage({ onLogin }: LoginProps) {
       <Box className="login-header">
         <img src="/logo.png" alt="Kanji Reader Logo" className="login-logo" />
         <Typography variant="h2" className="login-title">
-          Hello! Welcome to the Kanji Reader
+          Welcome to Kanji Reader
         </Typography>
         <Typography variant="body1" className="login-subtitle">
-          Practice reading Japanese with texts that include kanji you already
-          know
+          Practice reading Japanese texts with kanji you already know
         </Typography>
       </Box>
       {isLogin && postRegistrationUsername && (
@@ -51,6 +50,7 @@ export default function LoginPage({ onLogin }: LoginProps) {
           onLogin={onLogin}
           onSwitchToRegister={handleSwitchToRegister}
           preFilledUsername={postRegistrationUsername}
+          showEmailConfirmationInitially={!!postRegistrationUsername}
         />
       ) : (
         <RegisterForm

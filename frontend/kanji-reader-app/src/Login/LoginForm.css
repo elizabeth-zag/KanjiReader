@@ -78,6 +78,22 @@
   text-decoration: underline;
 } 
 
+.send-code-button {
+  margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+  border-color: #FF9800 !important;
+  color: #FF9800 !important;
+  width: 80px;
+  max-width: 80px;
+  flex-shrink: 0;
+  line-height: 20px !important;
+}
+
 @media (prefers-color-scheme: light) {
   .login-form-switch-text {
     color: #213547;

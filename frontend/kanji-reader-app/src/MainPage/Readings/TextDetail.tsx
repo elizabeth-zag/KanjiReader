@@ -39,7 +39,7 @@ export default function TextDetail({ text, onBack }: TextDetailProps) {
 
           <Box className="text-detail-meta">
             <Box className="text-ratio-info">
-              <Typography variant="body2" className="ratio-label">
+              <Typography variant="body2" className="ratio-label-detail">
                 Difficulty:
               </Typography>
               <Chip
@@ -82,7 +82,7 @@ export default function TextDetail({ text, onBack }: TextDetailProps) {
 
           <Box className="text-detail-footer">
             <Box className="text-detail-footer-left">
-              <Typography variant="body2" className="text-source">
+              <Typography variant="body2" className="text-source-info">
                 Source: {text.sourceType}
               </Typography>
 

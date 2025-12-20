@@ -1,0 +1,11 @@
+.contact-container {
+    margin-right: auto;
+    margin-left: auto;
+    min-width: 300px;
+    max-width: 700px;
+    padding: 40px;
+}
+
+.contact-title {
+    margin-top: 30px !important;
+}

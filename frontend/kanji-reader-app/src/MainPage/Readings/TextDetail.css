@@ -29,15 +29,17 @@
 
 .text-detail-paper {
   padding: 32px;
-  background-color: white;
+  background-color: #dfc3af !important;
   border-radius: 12px;
 }
 
 .text-detail-title {
   margin-bottom: 24px !important;
-  color: #333;
+  color: #333 !important;
   font-weight: 700;
   text-align: center;
+  border-bottom: 1px solid #766363;
+  padding-bottom: 30px;
 }
 
 .text-detail-meta {
@@ -46,7 +48,7 @@
   align-items: center;
   margin-bottom: 24px;
   padding: 16px;
-  background-color: #f8f9fa;
+  background-color: #dfc3af;
   border-radius: 8px;
 }
 
@@ -56,8 +58,8 @@
   gap: 8px;
 }
 
-.ratio-label {
-  color: #666;
+.ratio-label-detail {
+  color: #352722 !important;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -69,9 +71,9 @@
 .unknown-kanji-section {
   margin-bottom: 24px;
   padding: 20px;
-  background-color: #fff3e0;
+  background-color: #fff3e0 !important;
   border-radius: 8px;
-  border: 1px solid #ffcc80;
+  border: 1px solid #766363 !important;
 }
 
 .unknown-kanji-title {
@@ -95,12 +97,12 @@
 
 .text-content-title {
   margin-bottom: 16px !important;
-  color: #333;
+  color: #352722 !important;
   font-weight: 600;
 }
 
 .text-full-content {
-  color: #333;
+  color: #352722 !important;
   line-height: 1.8;
   font-size: 1.1rem;
   white-space: pre-wrap;
@@ -109,7 +111,7 @@
 
 .text-content-divider {
   margin: 24px 0 !important;
-  border-color: #e0e0e0 !important;
+  border-color: #766363 !important;
 }
 
 .text-detail-footer {
@@ -118,9 +120,9 @@
   align-items: flex-start;
   margin-top: 24px;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #ae9583 !important;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #766363 !important;
 }
 
 .text-detail-footer-left {
@@ -137,27 +139,27 @@
   text-align: right;
 }
 
-.text-source {
-  color: #666;
+.text-source-info {
+  color: #352722 !important;
   font-size: 0.9rem;
   font-style: italic;
   font-weight: 500;
 }
 
 .text-detail-url-link {
-  color: #1976d2 !important;
+  color: #5f4ebe !important;
   text-decoration: none !important;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .text-detail-url-link:hover {
-  color: #1565c0 !important;
+  color: #121452 !important;
   text-decoration: underline !important;
 }
 
 .create-date-info {
-  color: #666;
+  color: #352722 !important;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -246,7 +248,7 @@
     text-align: left;
   }
 
-  .text-source,
+  .text-source-info,
   .create-date-info {
     font-size: 0.85rem;
   }

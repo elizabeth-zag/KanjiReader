@@ -47,8 +47,8 @@
   margin-bottom: 12px;
 }
 
-.ratio-label {
-  color: #666;
+.ratio-label-list {
+  color: #ffffff !important;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -62,7 +62,7 @@
 }
 
 .unknown-kanji-preview {
-  color: #666;
+  color: #d5d0cd;
   font-size: 0.9rem;
   font-style: italic;
 }
@@ -83,7 +83,7 @@
   border-top: 1px solid #f0f0f0;
 }
 
-.text-source {
+.text-source-list {
   color: #d4d4d4 !important;
   font-size: 0.8rem;
   font-style: italic;
@@ -125,7 +125,7 @@
     gap: 16px;
   }
 
-  .text-source,
+  .text-source-list,
   .text-create-date {
     font-size: 0.8rem;
   }
@@ -161,7 +161,7 @@
     align-items: flex-start;
   }
 
-  .text-source,
+  .text-source-list,
   .text-create-date {
     font-size: 0.75rem;
   }

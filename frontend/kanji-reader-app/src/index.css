@@ -1,5 +1,4 @@
 :root {
-  font-family: "Inter", sans-serif !important;
   line-height: 1.5;
   font-weight: 400;
 
@@ -46,7 +45,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #ffca9b;
 }
 
 @media (prefers-color-scheme: light) {

@@ -1,0 +1,24 @@
+.footer {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding: 2px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background-color: transparent;
+    flex-shrink: 0;
+}
+
+.footer-button {
+    color: #ddd !important;
+    border-color: #ddd !important;
+    padding: 6px 12px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    border-radius: 6px !important;
+    min-width: 100px;
+}
+
+.footer-button:hover {
+    background-color: transparent !important;
+    color: #FF9800 !important;
+}

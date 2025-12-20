@@ -8,6 +8,28 @@
 
 .mainpage-welcome {
   margin-bottom: 16px;
+  margin-top: 130px !important;
+  padding-bottom: 10px;
+  text-align: center !important;
+  font-size: 60px !important;
+}
+
+.mainpage-welcome-text {
+  text-align: center !important;
+}
+
+.faq-main-button {
+  padding: 0 !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  padding-bottom: 1px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+.faq-main-button:hover {
+  background-color: transparent !important;
+  color: rgb(255, 225, 168)
 }
 
 .kanji-loading-container {
@@ -37,6 +59,11 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

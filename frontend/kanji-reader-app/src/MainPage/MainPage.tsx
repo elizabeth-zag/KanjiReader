@@ -9,6 +9,8 @@ import Readings from "./Readings/Readings";
 import Profile from "./Profile/Profile";
 import Loader from "../Common/Loader";
 import Snackbar from "../Common/Snackbar";
+import { Link as RouterLink } from "react-router-dom";
+import Button from '@mui/material/Button';
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface MainPageProps {
@@ -69,6 +71,12 @@ function MainPage({ userName, onLogout }: MainPageProps) {
     navigate("/profile");
   };
 
+  
+  const handleShowFaq = () => {
+    navigate("/faq");
+  };
+
+
   const handleCloseErrorSnackbar = () => {
     setErrorSnackbar((prev) => ({ ...prev, open: false }));
   };
@@ -92,10 +100,12 @@ function MainPage({ userName, onLogout }: MainPageProps) {
           {!showKanji && !showReadings && !showProfile && (
             <Box>
               <Typography variant="h4" className="mainpage-welcome">
-                Welcome to the Kanji Reader Main Page, {userName}!
+                Welcome to Kanji Reader, {userName}!
               </Typography>
-              <Typography variant="body1">
-                Start exploring kanji or use the menu above.
+              <Typography className="mainpage-welcome-text" variant="body1">
+                If it's your first time here, you can read
+                <Button className='faq-main-button' component={RouterLink} to="/faq" variant="text">FAQ</Button>
+                 to learn more.
               </Typography>
             </Box>
           )}

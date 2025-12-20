@@ -2,7 +2,7 @@
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/login`;
 
-export type LoginResponse = {
+export type GetCurrentUserResponse = {
   userName: string;
 };
 
@@ -14,6 +14,11 @@ export type GetEmailResponse = {
   email: string;
 };
 
+export type LoginResponse = {
+  needEmailConfirmation: boolean;
+  errorMessage: string | null;
+};
+
 export type GetUserThresholdResponse = {
   threshold: number;
   isUserSet: boolean;
@@ -22,7 +27,7 @@ export type GetUserThresholdResponse = {
 export async function register(
   username: string,
   password: string,
-  email: string | null,
+  email: string,
   waniKaniToken: string | null
 ) {
   await axios.post(
@@ -32,18 +37,31 @@ export async function register(
   );
 }
 
-export async function login(username: string, password: string) {
-  await axios.post(
+export async function login(username: string, password: string, confirmationCode?: string): Promise<LoginResponse>
+{
+  const body: any = { username, password };
+  if (confirmationCode) body.confirmationCode = confirmationCode;
+  const res = await axios.post<LoginResponse>(
     `${API_URL}/LogIn`,
-    { username, password },
+    body,
     { withCredentials: true }
   );
+  return res.data;
 }
 
 export async function logout() {
   const res = await axios.post(
     `${API_URL}/LogOut`,
     {},
+    { withCredentials: true }
+  );
+  return res.data;
+}
+
+export async function sendConfirmationCode(username: string) {
+  const res = await axios.post(
+    `${API_URL}/SendConfirmationCode`,
+    { userName: username },
     { withCredentials: true }
   );
   return res.data;
@@ -56,10 +74,10 @@ export async function getEmail(): Promise<GetEmailResponse> {
   return res.data;
 }
 
-export async function updateEmail(email: string | null, needDelete: boolean) {
+export async function updateEmail(email: string | null) {
   const res = await axios.post(
     `${API_URL}/UpdateEmail`,
-    { email, needDelete },
+    { email },
     { withCredentials: true }
   );
   return res.data;
@@ -74,9 +92,9 @@ export async function updatePassword(oldPassword: string, newPassword: string) {
   return res.data;
 }
 
-export async function getCurrentUser(): Promise<LoginResponse | null> {
+export async function getCurrentUser(): Promise<GetCurrentUserResponse | null> {
   try {
-    const res = await axios.get<LoginResponse>(`${API_URL}/GetCurrentUser`, {
+    const res = await axios.get<GetCurrentUserResponse>(`${API_URL}/GetCurrentUser`, {
       withCredentials: true,
     });
     return res.data;

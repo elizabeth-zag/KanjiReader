@@ -210,7 +210,7 @@ export default function UserKanji({
               disabled={isLoading}
               className="refresh-cache-button"
             >
-              Refresh cache
+              Refresh
             </Button>
           )}
         </Box>

@@ -22,7 +22,6 @@
   color: black !important;
   width: 150px;
   font-weight: 700 !important;
-  font-family: 'Inter' !important;
 }
 
 .kanjisetup-button:hover {
@@ -42,7 +41,6 @@
   justify-content: center;
   margin: 16px 0;
   font-weight: 700 !important;
-  font-family: 'Inter' !important;
   color: orange;
   font-style: italic;
 }

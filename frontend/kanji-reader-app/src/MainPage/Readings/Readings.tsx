@@ -228,7 +228,7 @@ export default function Readings({}: ReadingsProps) {
           className="start-collecting-button"
           size="medium"
         >
-          Start Collecting Texts
+          Collect Texts
         </Button>
       </Box>
 

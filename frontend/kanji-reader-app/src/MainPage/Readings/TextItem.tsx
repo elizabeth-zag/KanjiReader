@@ -61,7 +61,7 @@ export default function TextItem({
         </Typography>
 
         <Box className="text-ratio-info">
-          <Typography variant="body2" className="ratio-label">
+          <Typography variant="body2" className="ratio-label-list">
             Difficulty:
           </Typography>
           <Chip
@@ -89,11 +89,11 @@ export default function TextItem({
         </Typography>
 
         <Box className="text-footer">
-          <Typography variant="caption" className="text-source">
+          <Typography variant="caption" className="text-source-list">
             Source: {text.sourceType}
           </Typography>
 
-          <Typography variant="caption" className="text-create-date">
+          <Typography variant="caption" className="text-create-date-list">
             Created: {getRelativeTime(text.createDate)}
           </Typography>
         </Box>

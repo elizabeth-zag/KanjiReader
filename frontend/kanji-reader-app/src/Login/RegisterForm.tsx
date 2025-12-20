@@ -39,15 +39,17 @@ export default function Register({
   const [validationErrors, setValidationErrors] = useState<{
     username: boolean;
     password: boolean;
+    email: boolean;
   }>({
     username: false,
     password: false,
+    email: false,
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    setValidationErrors({ username: false, password: false });
+    setValidationErrors({ username: false, password: false, email: false });
     setErrorSnackbar({
       open: false,
       message: "",
@@ -59,6 +61,7 @@ export default function Register({
       setValidationErrors({
         username: !username.trim(),
         password: !password.trim(),
+        email: !email.trim(),
       });
       setErrorSnackbar({
         open: true,
@@ -72,7 +75,7 @@ export default function Register({
       await register(
         username, 
         password, 
-        email.trim() || null, 
+        email.trim(), 
         waniKaniToken.trim() || null
       );
       if (onRegister) onRegister(username);
@@ -131,18 +134,12 @@ export default function Register({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            placeholder="Email *"
+            required
             fullWidth
             variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <Tooltip title="We use email only if you want to get notifications when your texts are ready" arrow placement="top">
-                  <IconButton size="small" className="field-info-icon">
-                    <InfoIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              ),
-            }}
+            helperText={validationErrors.email ? "Email is required" : ""}
+            error={validationErrors.email}
           />
           <TextField
             value={waniKaniToken}

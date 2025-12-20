@@ -27,6 +27,7 @@ public class EmailSender(IOptionsMonitor<EmailOptions> options)
 
         await smtp.SendMailAsync(mail);
     }
+    
     public async Task SendConfirmation(string email, string confirmationCode)
     {
         var smtp = new SmtpClient(options.CurrentValue.Host, options.CurrentValue.Port)
@@ -38,7 +39,9 @@ public class EmailSender(IOptionsMonitor<EmailOptions> options)
 
         var mail = new MailMessage
         {
-            From = new MailAddress(options.CurrentValue.FromAddress),
+            From = new MailAddress(
+                options.CurrentValue.FromAddress,
+                "KanjiReader"), 
             Subject = "Confirm your email",
             Body = $"This is your confirmation code: {confirmationCode}"
         };

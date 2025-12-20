@@ -125,3 +125,9 @@
 .manual-kanji-container .MuiFormControlLabel-root .MuiFormControlLabel-label {
   color: #ffffff;
 } 
+
+@media (max-width: 730px) {
+  .manual-kanji-container {
+    width:fit-content
+  }
+}

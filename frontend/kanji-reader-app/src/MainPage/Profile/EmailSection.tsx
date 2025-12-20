@@ -5,20 +5,12 @@ import {
   TextField,
   Button,
   Paper,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-  Tooltip,
+  Divider
 } from "@mui/material";
 import {
   Edit as EditIcon,
-  Delete as DeleteIcon,
   Save as SaveIcon,
-  Cancel as CancelIcon,
-  Info as InfoIcon,
+  Cancel as CancelIcon
 } from "@mui/icons-material";
 import { updateEmail } from "../../ApiCalls/login";
 import "./EmailSection.css";
@@ -44,7 +36,6 @@ export default function EmailSection({
 }: EmailSectionProps) {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState<string>(email);
-  const [showDeleteEmailDialog, setShowDeleteEmailDialog] = useState(false);
 
   const handleEditEmail = () => {
     setIsEditingEmail(true);
@@ -59,7 +50,7 @@ export default function EmailSection({
 
     try {
       setIsSaving(true);
-      await updateEmail(newEmail, false);
+      await updateEmail(newEmail);
       onEmailUpdate(newEmail);
       setIsEditingEmail(false);
       onSuccess("Email updated successfully!");
@@ -75,20 +66,6 @@ export default function EmailSection({
     setNewEmail(email);
   };
 
-  const handleDeleteEmail = async () => {
-    try {
-      setIsSaving(true);
-      await updateEmail(null, true);
-      onEmailUpdate("");
-      setShowDeleteEmailDialog(false);
-      onSuccess("Email deleted successfully!");
-    } catch (error) {
-      onError(getErrorMessage(error));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
     <>
       <Paper className="profile-section" elevation={2}>
@@ -96,22 +73,6 @@ export default function EmailSection({
           <Typography variant="h6" className="section-title">
             Email Address
           </Typography>
-          <Tooltip
-            title={
-              <>
-                Add email if you want to get notifications when your texts
-                are ready
-                <br /> If you don't want to get notifications, just delete
-                email
-              </>
-            }
-            arrow
-            placement="top"
-          >
-            <IconButton size="small" className="info-icon">
-              <InfoIcon />
-            </IconButton>
-          </Tooltip>
         </Box>
         <Divider className="section-divider" />
 
@@ -159,54 +120,12 @@ export default function EmailSection({
                 startIcon={<EditIcon />}
                 className="edit-button"
               >
-                {email ? "Change Email" : "Add Email"}
+                Change Email
               </Button>
-              {email && (
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => setShowDeleteEmailDialog(true)}
-                  startIcon={<DeleteIcon />}
-                  className="delete-button"
-                >
-                  Delete Email
-                </Button>
-              )}
             </Box>
           </Box>
         )}
       </Paper>
-
-      <Dialog
-        open={showDeleteEmailDialog}
-        onClose={() => setShowDeleteEmailDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Delete Email</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">
-            Are you sure you want to delete your email address? This action
-            cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setShowDeleteEmailDialog(false)}
-            disabled={isSaving}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteEmail}
-            color="error"
-            variant="contained"
-            disabled={isSaving}
-          >
-            Delete Email
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }
