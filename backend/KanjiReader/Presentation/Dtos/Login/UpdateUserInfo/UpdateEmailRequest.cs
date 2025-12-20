@@ -6,5 +6,4 @@ public class UpdateEmailRequest
 {
     [EmailAddress]
     public string? Email { get; set; }
-    public bool NeedDelete { get; set; }
 }

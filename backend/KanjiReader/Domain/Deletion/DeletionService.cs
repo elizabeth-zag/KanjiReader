@@ -24,8 +24,8 @@ public class DeletionService(
         await DeleteUserData(user, cancellationToken);
         return true;
     }
-    
-    public async Task DeleteUserData(User user, CancellationToken cancellationToken)
+
+    private async Task DeleteUserData(User user, CancellationToken cancellationToken)
     {
         await kanjiRepository.ClearUserKanji(user.Id, cancellationToken);
         await processingResultRepository.DeleteForUser(user.Id, cancellationToken);

@@ -29,19 +29,21 @@ public class LoginController(
     }
     
     [HttpPost(nameof(LogIn))]
-    public async Task<IActionResult> LogIn(LogInRequest dto, CancellationToken cancellationToken)
+    public async Task<LogInResponse> LogIn(LogInRequest dto, CancellationToken cancellationToken)
     {
-        var loggedInUser = await userAccountService.LogIn(dto, DateTime.UtcNow);
-        if (loggedInUser == null)
+        var result = await userAccountService.LogIn(dto, DateTime.UtcNow);
+        if (result.User == null)
         {
-            return Unauthorized(new { message = "Invalid username or password" });
+            return result.NeedEmailConfirmation 
+                ? new LogInResponse {ErrorMessage = "Need email confirmation", NeedEmailConfirmation = true}
+                : new LogInResponse {ErrorMessage = "Invalid username or password"};
         }
         
-        if (!string.IsNullOrEmpty(loggedInUser.WaniKaniToken))
+        if (!string.IsNullOrEmpty(result.User.WaniKaniToken))
         {
             try
             {
-                await waniKaniService.FillWaniKaniKanjiCache(loggedInUser, cancellationToken);
+                await waniKaniService.FillWaniKaniKanjiCache(result.User, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -49,13 +51,20 @@ public class LoginController(
             }
         }
         
-        return Ok();
+        return new () {};
     }
     
     [HttpPost(nameof(LogOut))]
     public async Task<IActionResult> LogOut()
     {
         await userAccountService.LogOut();
+        return Ok();
+    }
+    
+    [HttpPost(nameof(SendConfirmationCode))]
+    public async Task<IActionResult> SendConfirmationCode(SendConfirmationCodeRequest dto)
+    {
+        await userAccountService.SendConfirmationCode(dto.UserName);
         return Ok();
     }
     
@@ -146,14 +155,8 @@ public class LoginController(
     [HttpPost(nameof(UpdateEmail))]
     public async Task<IActionResult> UpdateEmail(UpdateEmailRequest dto)
     {
-        if (dto.NeedDelete)
-        {
-            await userAccountService.DeleteEmail(User);
-        }
-        else
-        {
-            await userAccountService.UpdateEmail(User, dto.Email);
-        }
+        await userAccountService.UpdateEmail(User, dto.Email);
+       
         return Ok();
     }
     

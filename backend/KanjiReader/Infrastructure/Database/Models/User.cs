@@ -12,5 +12,8 @@ public class User : IdentityUser
     public bool HasData { get; set; }
     public DateTime LastLogin { get; set; }
     public DateTime? LastProcessingTime { get; set; }
+    public DateTime? EmailConfirmExpiresAt { get; set; }
+    public byte[]? EmailConfirmCodeHash { get; set; }
+    public int EmailConfirmAttempts  { get; set; }
     public ICollection<UserKanji> UserKanjis { get; set; }
 }

@@ -14,7 +14,9 @@ public static class CommonConverter
         {
             UserName = request.UserName, 
             Email = request.Email,
-            LastLogin = loginTime
+            LastLogin = loginTime,
+            EmailConfirmed = false,
+             
         };
 
         if (string.IsNullOrEmpty(request.WaniKaniToken))

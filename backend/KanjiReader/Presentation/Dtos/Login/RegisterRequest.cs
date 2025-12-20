@@ -11,7 +11,8 @@ public class RegisterRequest
     public string Password { get; set; }
     
     [EmailAddress]
-    public string? Email { get; set; }
+    [Required]
+    public string Email { get; set; }
     
     public string? WaniKaniToken { get; set; }
 }

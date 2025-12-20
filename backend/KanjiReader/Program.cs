@@ -56,7 +56,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddDbContext<KanjiReaderDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SqlConnection")));
 
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+    {
+        options.SignIn.RequireConfirmedEmail = true;
+    })
     .AddEntityFrameworkStores<KanjiReaderDbContext>()
     .AddDefaultTokenProviders();
 
@@ -65,6 +68,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.None;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
 
     options.Events.OnRedirectToLogin = context =>
     {

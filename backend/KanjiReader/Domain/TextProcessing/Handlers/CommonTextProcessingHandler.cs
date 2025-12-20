@@ -93,7 +93,7 @@ public abstract class CommonTextProcessingHandler(
 
                 if (user.Email != null)
                 {
-                    await emailSender.SendEmail(user.Email, GetSourceType());   
+                    await emailSender.SendNotification(user.Email, GetSourceType());   
                 }
             }
         }

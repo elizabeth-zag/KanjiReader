@@ -5,7 +5,7 @@ using KanjiReader.Domain.TextProcessing.Handlers;
 
 namespace KanjiReader.Domain.Jobs;
 
-[AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 60, 120, 600 })]
+[AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 60, 120, 600 }, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
 public class TextProcessingJob(TextProcessingHandlersFactory textProcessingHandlersFactory)
 {
     public async Task Execute(string userId, GenerationSourceType sourceType, int textProcessingLeft, PerformContext context, CancellationToken cancellationToken)
