@@ -71,12 +71,6 @@ function MainPage({ userName, onLogout }: MainPageProps) {
     navigate("/profile");
   };
 
-  
-  const handleShowFaq = () => {
-    navigate("/faq");
-  };
-
-
   const handleCloseErrorSnackbar = () => {
     setErrorSnackbar((prev) => ({ ...prev, open: false }));
   };

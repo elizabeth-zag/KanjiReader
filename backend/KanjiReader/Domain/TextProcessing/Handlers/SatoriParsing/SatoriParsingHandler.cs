@@ -23,7 +23,6 @@ public class SatoriParsingHandler(
     KanjiReaderDbContext dbContext,
     SatoriReaderClient satoriReaderClient,
     TextParsingService textParsingService,
-    EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
     IOptionsMonitor<SatoriReaderParsingOptions> options,
     IGenerationRulesService<SatoriParsingData, SatoriParsingBaseData> generationRulesService) 
@@ -32,7 +31,6 @@ public class SatoriParsingHandler(
         userAccountService,
         userGenerationStateRepository,
         textService,
-        emailSender,
         textBroadcaster,
         dbContext)
 {

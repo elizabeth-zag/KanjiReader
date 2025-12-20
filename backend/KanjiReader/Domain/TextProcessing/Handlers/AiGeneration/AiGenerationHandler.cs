@@ -26,7 +26,6 @@ public class AiGenerationHandler(
     KanjiReaderDbContext dbContext,
     TextParsingService textParsingService,
     KanjiService kanjiService,
-    EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
     IOptionsMonitor<TextProcessingOptions> textOptions,
     GenerativeAiClient client,
@@ -36,7 +35,6 @@ public class AiGenerationHandler(
         userAccountService,
         userGenerationStateRepository,
         textService,
-        emailSender,
         textBroadcaster,
         dbContext)
 {

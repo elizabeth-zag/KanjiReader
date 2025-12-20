@@ -52,9 +52,10 @@
 .uppermenubar-center {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: end;
   flex: 1;
-  gap: 16px;
+  gap: 50px;
+  padding-right: 70px;
 }
 
 .kanjimenu-button {
@@ -95,7 +96,7 @@
   border-color: #FF9800 !important;
   color: #FF9800 !important;
   min-width: 80px;
-  
+
   flex-shrink: 0;
 }
 
@@ -116,17 +117,17 @@
   .uppermenubar-toolbar {
     padding: 0 12px;
   }
-  
+
   .uppermenubar-title {
     font-size: 1.8rem !important;
     margin-left: 12px;
   }
-  
+
   .uppermenubar-logo {
     width: 60px;
     height: 60px;
   }
-  
+
   .kanjimenu-button,
   .readingsmenu-button {
     min-width: 70px;
@@ -142,25 +143,25 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .uppermenubar-title {
     font-size: 1.5rem !important;
     margin-left: 8px;
   }
-  
+
   .uppermenubar-logo {
     width: 50px;
     height: 50px;
     margin-left: -5px;
     margin-right: 5px;
   }
-  
+
   .uppermenubar-center {
     width: 100%;
     margin-top: 8px;
     gap: 12px;
   }
-  
+
   .kanjimenu-button,
   .readingsmenu-button {
     min-width: 60px;
@@ -175,26 +176,26 @@
     min-height: 55px;
     gap: 15px;
   }
-  
+
   .uppermenubar-title {
     font-size: 1.5rem !important;
     margin-left: 6px;
   }
-  
+
   .uppermenubar-logo {
     width: 45px;
     height: 45px;
     margin-left: -3px;
     margin-right: 3px;
   }
-  
+
   .uppermenubar-center {
     gap: 8px;
     margin-top: -15px;
     margin-bottom: 15px;
     order: 3;
   }
-  
+
   .kanjimenu-button,
   .readingsmenu-button {
     min-width: 55px;
@@ -208,25 +209,25 @@
     min-height: 50px;
     justify-content: center;
   }
-  
+
   .uppermenubar-title {
     font-size: 1.5rem !important;
     margin-left: 4px;
   }
-  
+
   .uppermenubar-logo {
     width: 40px;
     height: 40px;
     margin-left: -2px;
     margin-right: 2px;
   }
-  
+
   .uppermenubar-center {
     gap: 6px;
     margin-top: -5px;
     margin-bottom: 15px;
   }
-  
+
   .kanjimenu-button,
   .readingsmenu-button {
     min-width: 50px;

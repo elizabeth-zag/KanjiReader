@@ -50,7 +50,10 @@ export default function Login({ onLogin, onSwitchToRegister, preFilledUsername, 
       const res = await login(username, password, confirmationCode);
       if (res.needEmailConfirmation) {
         setShowEmailConfirmation(true);
-        setErrorSnackbar({ open: true, message: "Email confirmation required. Enter the code sent to your email.", severity: 'info' });
+        setErrorSnackbar({ 
+          open: true, 
+          message: res.errorMessage ?? "Email confirmation required. Enter the code sent to your email.", 
+          severity: res.errorMessage ? 'error' : 'info' });
       } else if (!res.errorMessage) {
         if (onLogin) onLogin(username);
       } else {

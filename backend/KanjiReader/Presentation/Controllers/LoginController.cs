@@ -32,11 +32,22 @@ public class LoginController(
     public async Task<LogInResponse> LogIn(LogInRequest dto, CancellationToken cancellationToken)
     {
         var result = await userAccountService.LogIn(dto, DateTime.UtcNow);
-        if (result.User == null)
+        if (!string.IsNullOrEmpty(result.ErrorMessage))
         {
-            return result.NeedEmailConfirmation 
-                ? new LogInResponse {ErrorMessage = "Need email confirmation", NeedEmailConfirmation = true}
-                : new LogInResponse {ErrorMessage = "Invalid username or password"};
+            return new LogInResponse
+            {
+                ErrorMessage = result.ErrorMessage,
+                NeedEmailConfirmation = result.NeedEmailConfirmation 
+            };
+        }
+
+        if (result.User is null)
+        {
+            return new LogInResponse
+            {
+                ErrorMessage = "",
+                NeedEmailConfirmation = result.NeedEmailConfirmation 
+            };
         }
         
         if (!string.IsNullOrEmpty(result.User.WaniKaniToken))
@@ -51,7 +62,7 @@ public class LoginController(
             }
         }
         
-        return new () {};
+        return new ();
     }
     
     [HttpPost(nameof(LogOut))]

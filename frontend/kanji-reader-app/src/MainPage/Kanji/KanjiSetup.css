@@ -19,9 +19,10 @@
 
 .kanjisetup-button {
   background-color: #FF9800 !important;
-  color: black !important;
+  color: rgb(255, 255, 255) !important;
   width: 150px;
   font-weight: 700 !important;
+  text-shadow: #535353 1px 0 10px;
 }
 
 .kanjisetup-button:hover {

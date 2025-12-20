@@ -22,7 +22,6 @@ public class NhkParsingHandler(
     KanjiReaderDbContext dbContext,
     ITextRepository textRepository,
     TextParsingService textParsingService,
-    EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
     IOptionsMonitor<NhkOptions> options,
     IGenerationRulesService<NhkParsingData, NhkParsingBaseData> generationRulesService) 
@@ -31,7 +30,6 @@ public class NhkParsingHandler(
         userAccountService,
         userGenerationStateRepository,
         textService,
-        emailSender,
         textBroadcaster,
         dbContext)
 {

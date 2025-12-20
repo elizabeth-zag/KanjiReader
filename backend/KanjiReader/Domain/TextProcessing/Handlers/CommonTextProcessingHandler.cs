@@ -17,7 +17,6 @@ public abstract class CommonTextProcessingHandler(
     UserAccountService userAccountService,
     IUserGenerationStateRepository userGenerationStateRepository,
     TextService textService,
-    EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
     KanjiReaderDbContext dbContext)
 {
@@ -90,11 +89,6 @@ public abstract class CommonTextProcessingHandler(
             if (isGenerationCompleted)
             {
                 await userAccountService.UpdateProcessingTime(user, DateTime.UtcNow);
-
-                if (user.Email != null)
-                {
-                    await emailSender.SendNotification(user.Email, GetSourceType());   
-                }
             }
         }
         catch

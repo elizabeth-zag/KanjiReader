@@ -21,7 +21,6 @@ public class WatanocParsingHandler(
     KanjiReaderDbContext dbContext,
     WatanocClient watanocClient,
     TextParsingService textParsingService,
-    EmailSender emailSender,
     ITextBroadcaster textBroadcaster,
     IGenerationRulesService<WatanocParsingData, WatanocParsingBaseData> generationRulesService) 
     : CommonTextProcessingHandler(
@@ -29,7 +28,6 @@ public class WatanocParsingHandler(
         userAccountService,
         userGenerationStateRepository,
         textService,
-        emailSender,
         textBroadcaster,
         dbContext)
 {

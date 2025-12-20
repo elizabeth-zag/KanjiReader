@@ -164,6 +164,18 @@
   font-weight: 500;
 }
 
+@media (max-width: 1100px) {
+  .readings-header .back-button {
+    width: 120px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .readings-header .back-button {
+    width: 80px;
+  }
+}
+
 @media (max-width: 768px) {
   .readings-header {
     padding: 16px;

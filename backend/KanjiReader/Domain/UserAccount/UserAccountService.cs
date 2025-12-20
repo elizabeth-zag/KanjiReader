@@ -38,20 +38,20 @@ public class UserAccountService(
     {
         var user = await userManager.FindByNameAsync(dto.UserName);
         if (user == null)
-            return new (null, false);
+            return new (null, "Invalid username or password", false);
 
         var signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!signInResult.Succeeded && !signInResult.IsNotAllowed)
         {
-            return new(null, false);
+            return new(null, "Invalid username or password", false);
         }
         
         if (signInResult.IsNotAllowed)
         {
-            var isEmailConfirmed = await ConfirmEmail(user, dto.ConfirmationCode);
+            var (isEmailConfirmed, errorMessage) = await ConfirmEmail(user, dto.ConfirmationCode);
             if (!isEmailConfirmed)
             {
-                return new(null, true);
+                return new(null, errorMessage, true);
             }
                 
         }
@@ -59,10 +59,13 @@ public class UserAccountService(
         signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!signInResult.Succeeded) 
         {
-            return new(null, false);
+            return new(null, "Invalid username or password", false);
         }
+        
+        await signInManager.SignInAsync(user, isPersistent: true);
         await UpdateLoginTime(user, loginTime);
-        return new(user, false);
+        
+        return new(user, null, false);
     }
 
     public async Task LogOut()
@@ -70,23 +73,25 @@ public class UserAccountService(
         await signInManager.SignOutAsync();
     }
 
-    private async Task<bool> ConfirmEmail(User user, string? code)
+    private async Task<(bool isConfirmed, string? errorMessage)> ConfirmEmail(User user, string? code)
     {
         if (user.EmailConfirmed)
-            return true;
+            return (true,  null);
 
         if (string.IsNullOrEmpty(code))
         {
-            return false;
+            return (false, "No code was provided");
         }
 
         if (user.EmailConfirmCodeHash == null ||
-            user.EmailConfirmExpiresAt == null ||
-            user.EmailConfirmExpiresAt < DateTime.UtcNow)
-            return false;
+            user.EmailConfirmExpiresAt == null)
+            return (false, "Invalid confirmation code, please request new code");
+        
+        if (user.EmailConfirmExpiresAt < DateTime.UtcNow)
+            return (false, "Code has expired, please request new code");
 
         if (user.EmailConfirmAttempts >= 5)
-            return false;
+            return (false, "Too many failed confirmation attempts");
 
         var hash = Utilities.Hash(code);
 
@@ -95,7 +100,7 @@ public class UserAccountService(
         {
             user.EmailConfirmAttempts++;
             await userManager.UpdateAsync(user);
-            return false;
+            return (false, "Invalid confirmation code");
         }
 
         user.EmailConfirmed = true;
@@ -104,7 +109,7 @@ public class UserAccountService(
         user.EmailConfirmAttempts = 0;
 
         var result = await userManager.UpdateAsync(user);
-        return result.Succeeded;
+        return (result.Succeeded, null);
     }
 
     public async Task SendConfirmationCode(string userName)
