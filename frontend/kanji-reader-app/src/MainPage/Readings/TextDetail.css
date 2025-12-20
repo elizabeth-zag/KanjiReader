@@ -8,6 +8,11 @@
 
 .readings-header {
   padding: 24px;
+  min-width: 64px;
+}
+
+.readings-header .back-button { 
+  position: fixed;
 }
 
 .back-button {
@@ -209,6 +214,16 @@
   .text-detail-footer {
     padding: 16px;
     margin-top: 20px;
+  }
+
+  .readings-header {
+    display: flex;
+    justify-content: center;
+  }
+
+  .readings-header .back-button {
+    position: relative;
+    width: 140px;
   }
 }
 
